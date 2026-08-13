@@ -6,9 +6,9 @@
   --neon-purple: #bf00ff;
   --neon-cyan: #00f0ff;
   --neon-magenta: #ff00aa;
-  --void-bg: #050508;
-  --card-bg: #0d0d14;
-  --glow: 0 0 20px rgba(57, 255, 20, 0.4);
+  --void-bg: #030306;
+  --card-bg: #0a0a12;
+  --sidebar-bg: #06060c;
 }
 
 @theme inline {
@@ -26,43 +26,77 @@ body {
   overflow-x: hidden;
 }
 
-/* Portal-style glow utilities */
+/* Stronger portal glow */
 .portal-glow {
-  box-shadow: 0 0 15px rgba(57, 255, 20, 0.5), 0 0 40px rgba(57, 255, 20, 0.2);
+  box-shadow: 
+    0 0 12px rgba(57, 255, 20, 0.6),
+    0 0 30px rgba(57, 255, 20, 0.3),
+    0 0 60px rgba(57, 255, 20, 0.15);
+}
+
+.portal-glow-strong {
+  box-shadow: 
+    0 0 20px rgba(57, 255, 20, 0.7),
+    0 0 50px rgba(57, 255, 20, 0.35),
+    0 0 90px rgba(57, 255, 20, 0.15);
 }
 
 .portal-border {
-  border: 1px solid rgba(57, 255, 20, 0.4);
+  border: 1px solid rgba(57, 255, 20, 0.45);
 }
 
 .neon-text {
-  text-shadow: 0 0 10px rgba(57, 255, 20, 0.7), 0 0 20px rgba(57, 255, 20, 0.3);
+  text-shadow: 
+    0 0 8px rgba(57, 255, 20, 0.9),
+    0 0 20px rgba(57, 255, 20, 0.5),
+    0 0 40px rgba(57, 255, 20, 0.25);
 }
 
 .purple-glow {
-  box-shadow: 0 0 15px rgba(191, 0, 255, 0.45);
+  box-shadow: 0 0 20px rgba(191, 0, 255, 0.5), 0 0 40px rgba(191, 0, 255, 0.2);
 }
 
-/* Subtle animated background swirl */
+/* Richer animated background */
 .portal-bg {
   background:
-    radial-gradient(ellipse at 20% 30%, rgba(57, 255, 20, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 70%, rgba(191, 0, 255, 0.07) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(0, 240, 255, 0.04) 0%, transparent 60%),
-    #050508;
+    radial-gradient(ellipse at 15% 20%, rgba(57, 255, 20, 0.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 75%, rgba(191, 0, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(0, 240, 255, 0.05) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 15%, rgba(255, 0, 170, 0.04) 0%, transparent 40%),
+    #030306;
 }
 
-/* Card hover lift */
+/* Card hover */
 .card-hover {
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }
 .card-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 0 25px rgba(57, 255, 20, 0.35);
-  border-color: rgba(57, 255, 20, 0.7);
+  transform: translateY(-3px);
+  box-shadow: 0 0 30px rgba(57, 255, 20, 0.4);
+  border-color: rgba(57, 255, 20, 0.8);
 }
 
-/* Custom scrollbar */
+/* Sidebar */
+.sidebar {
+  background: linear-gradient(180deg, #08080f 0%, #050508 100%);
+  border-right: 1px solid rgba(57, 255, 20, 0.15);
+}
+
+.sidebar-item {
+  transition: all 0.2s ease;
+}
+.sidebar-item:hover {
+  background: rgba(57, 255, 20, 0.08);
+  color: #39ff14;
+}
+
+.sidebar-item.active {
+  background: rgba(57, 255, 20, 0.12);
+  color: #39ff14;
+  border-left: 3px solid #39ff14;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -75,4 +109,13 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #39ff14;
+}
+
+/* Subtle pulse for trending */
+@keyframes soft-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.trending-pulse {
+  animation: soft-pulse 2.5s ease-in-out infinite;
 }
