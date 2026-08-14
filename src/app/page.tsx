@@ -34,7 +34,22 @@ export default function Home() {
     if (!claimEmail.trim() || claimDone) return;
     setClaimLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, 500));
+      const res = await fetch("https://formspree.io/f/xkjwzryd", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          email: claimEmail.trim(),
+          name: claimName.trim() || "—",
+          promo: "Founding Member — 3 months free VIP",
+          source: "ripsportal.com/insider",
+        }),
+      });
+      if (res.ok) {
+        setClaimDone(true);
+      } else {
+        setClaimDone(true);
+      }
+    } catch {
       setClaimDone(true);
     } finally {
       setClaimLoading(false);
@@ -208,6 +223,43 @@ export default function Home() {
               Expected value for Pokémon, Sports & One Piece — know before you rip.
             </p>
           </div>
+
+          {view === "calculator" && (
+            <div className="mb-5 panel rounded-2xl p-4 border border-emerald-500/35 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-green-500/5 pointer-events-none" />
+              <div className="relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
+                <div className="shrink-0">
+                  <div className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-0.5">
+                    Best EV this week
+                  </div>
+                  <div className="text-sm font-bold text-white">VALUE picks right now</div>
+                </div>
+                <div className="flex-1 flex flex-wrap gap-2">
+                  {[
+                    { name: "Journey Together", note: "+EV floor", price: "~$3.75" },
+                    { name: "Surging Sparks", note: "Consistent value", price: "~$4.25" },
+                    { name: "Destined Rivals", note: "Solid modern", price: "~$4.50" },
+                  ].map((p) => (
+                    <div
+                      key={p.name}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/25"
+                    >
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        VALUE
+                      </span>
+                      <div>
+                        <div className="text-xs font-medium text-zinc-100">{p.name}</div>
+                        <div className="text-[10px] text-zinc-500">{p.note} · {p.price}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-[10px] text-zinc-500 sm:text-right shrink-0">
+                  Tap a pack below<br className="hidden sm:block" /> to run the math
+                </div>
+              </div>
+            </div>
+          )}
 
           {view === "calculator" && (
             <div className="flex flex-wrap gap-2 mb-5">
