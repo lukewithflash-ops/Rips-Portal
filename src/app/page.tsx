@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import {
   categories,
   products,
@@ -22,6 +22,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [customPrice, setCustomPrice] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const categoryProducts = useMemo(
     () => products.filter((p) => p.category === activeCategory),
@@ -61,6 +62,9 @@ export default function Home() {
   const handleSelectProduct = (id: string) => {
     setSelectedId(id);
     setCustomPrice("");
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
   };
 
   const topSlot = effectiveProduct?.slots
@@ -68,8 +72,6 @@ export default function Home() {
     .sort((a, b) => b.oddsNum * b.avgValue - a.oddsNum * a.avgValue)[0];
 
   const roiVisual = Math.min(100, Math.max(0, Math.abs(roi)));
-  const roiCirc = 2 * Math.PI * 28;
-  const roiOffset = roiCirc - (roiVisual / 100) * roiCirc;
 
   return (
     <div className="flex min-h-screen portal-bg">
@@ -162,41 +164,26 @@ export default function Home() {
                 <span>DASHBOARD</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-300">
-                ⚡ Free Access
-              </span>
-            </div>
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-300">
+              ⚡ Free Access
+            </span>
           </div>
         </header>
 
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-            <div className="flex-1">
-              <div className="text-[11px] uppercase tracking-[0.2em] text-green-400/70 mb-1.5">
-                Calculate. Rip. Repeat.
-              </div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                Pack EV. <span className="text-green-400 neon-text">Perfected.</span>
-              </h1>
-              <p className="text-sm text-zinc-500 mt-1 max-w-lg">
-                Expected value for Pokémon, Sports & One Piece — know before you rip.
-              </p>
+          <div className="mb-5">
+            <div className="text-[11px] uppercase tracking-[0.2em] text-green-400/70 mb-1.5">
+              Calculate. Rip. Repeat.
             </div>
-            <div className="flex items-end gap-2 shrink-0">
-              <div className="w-14 h-20 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-500 border border-white/10 shadow-lg shadow-purple-500/20 rotate-[-6deg] flex items-center justify-center text-2xl">
-                🦸
-              </div>
-              <div className="w-16 h-24 rounded-lg bg-gradient-to-br from-orange-500 to-amber-400 border border-white/10 shadow-lg shadow-orange-500/20 flex items-center justify-center text-3xl z-10">
-                🏀
-              </div>
-              <div className="w-14 h-20 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 border border-white/10 shadow-lg shadow-cyan-500/20 rotate-[6deg] flex items-center justify-center text-2xl">
-                🏴‍☠️
-              </div>
-            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+              Pack EV. <span className="text-green-400 neon-text">Perfected.</span>
+            </h1>
+            <p className="text-sm text-zinc-500 mt-1 max-w-lg">
+              Expected value for Pokémon, Sports & One Piece — know before you rip.
+            </p>
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-5">
             {categories.map((cat) => (
               <button
                 key={cat.id}
@@ -217,12 +204,12 @@ export default function Home() {
           </div>
 
           {effectiveProduct ? (
-            <div className="grid xl:grid-cols-12 gap-5">
-              <div className="xl:col-span-3 space-y-3">
+            <div className="flex flex-col gap-5">
+              <div>
                 <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
                   Select Pack / Box
                 </h2>
-                <div className="grid grid-cols-1 gap-2.5 max-h-[70vh] overflow-y-auto pr-1">
+                <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory lg:grid lg:grid-cols-3 xl:grid-cols-4 lg:overflow-visible">
                   {categoryProducts.map((p) => {
                     const isTrending =
                       p.id.includes("ascended") || p.id.includes("chrome-update");
@@ -232,34 +219,34 @@ export default function Home() {
                         key={p.id}
                         onClick={() => handleSelectProduct(p.id)}
                         className={`
-                          w-full text-left rounded-xl border overflow-hidden transition-all card-hover
+                          snap-start flex-shrink-0 w-[140px] lg:w-auto text-left rounded-xl border overflow-hidden transition-all card-hover
                           ${
                             isActive
-                              ? "border-green-400/60 portal-glow"
+                              ? "border-green-400/70 portal-glow ring-1 ring-green-400/30"
                               : "border-zinc-800/80 hover:border-green-500/30"
                           }
                         `}
                       >
                         <div
-                          className={`h-16 bg-gradient-to-br ${
+                          className={`h-20 lg:h-16 bg-gradient-to-br ${
                             p.accent || "from-zinc-700 to-zinc-800"
                           } flex items-center justify-center relative`}
                         >
                           <span className="text-3xl drop-shadow-lg">{p.emoji || "📦"}</span>
                           {isTrending && (
-                            <span className="absolute top-1.5 right-1.5 text-[8px] px-1.5 py-0.5 rounded bg-black/50 text-green-300 border border-green-500/40 font-medium trending-pulse">
+                            <span className="absolute top-1.5 right-1.5 text-[8px] px-1.5 py-0.5 rounded bg-black/50 text-green-300 border border-green-500/40 font-medium">
                               HOT
                             </span>
                           )}
                         </div>
-                        <div className="p-3 bg-zinc-900/80">
-                          <div className="font-semibold text-zinc-100 text-sm leading-tight">
+                        <div className="p-2.5 bg-zinc-900/90">
+                          <div className="font-semibold text-zinc-100 text-xs leading-tight line-clamp-2">
                             {p.name}
                           </div>
-                          <div className="text-[11px] text-zinc-500 mt-0.5">
+                          <div className="text-[10px] text-zinc-500 mt-0.5 truncate">
                             {p.format}
                           </div>
-                          <div className="text-[11px] text-green-400/80 mt-1.5 font-mono">
+                          <div className="text-[11px] text-green-400/80 mt-1 font-mono">
                             ~${p.defaultPrice.toFixed(2)}
                           </div>
                         </div>
@@ -269,308 +256,280 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="xl:col-span-6 space-y-4">
-                <div className="panel rounded-2xl p-5 portal-border">
-                  <div className="flex gap-4 mb-5">
-                    <div
-                      className={`w-20 h-28 rounded-xl bg-gradient-to-br ${
-                        effectiveProduct.accent || "from-zinc-700 to-zinc-800"
-                      } flex items-center justify-center text-4xl shrink-0 shadow-lg border border-white/10`}
-                    >
-                      {effectiveProduct.emoji || "📦"}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h2 className="text-xl font-bold text-white leading-tight">
-                        {effectiveProduct.name}
-                      </h2>
-                      <p className="text-sm text-zinc-400 mt-0.5">
-                        {effectiveProduct.format}
-                      </p>
-                      <div className="flex flex-wrap items-end gap-3 mt-3">
-                        <div>
-                          <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
-                            Your Price ($)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={customPrice !== "" ? customPrice : price}
-                            onChange={(e) => setCustomPrice(e.target.value)}
-                            className="w-28 bg-black/70 border border-zinc-700 rounded-lg px-3 py-2 text-right text-green-300 font-mono text-sm focus:outline-none focus:border-green-400"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
-                            Qty
-                          </label>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                              className="w-8 h-9 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300"
-                            >
-                              −
-                            </button>
-                            <span className="w-9 text-center font-mono text-sm">
-                              {quantity}
-                            </span>
-                            <button
-                              onClick={() => setQuantity(quantity + 1)}
-                              className="w-8 h-9 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </div>
+              <div ref={resultsRef} className="grid lg:grid-cols-12 gap-5 scroll-mt-20">
+                <div className="lg:col-span-8 space-y-4">
+                  <div className="panel rounded-2xl p-4 md:p-5 portal-border">
+                    <div className="flex gap-3 md:gap-4 mb-4">
+                      <div
+                        className={`w-16 h-24 md:w-20 md:h-28 rounded-xl bg-gradient-to-br ${
+                          effectiveProduct.accent || "from-zinc-700 to-zinc-800"
+                        } flex items-center justify-center text-3xl md:text-4xl shrink-0 shadow-lg border border-white/10`}
+                      >
+                        {effectiveProduct.emoji || "📦"}
                       </div>
-                    </div>
-                  </div>
-
-                  {result && (
-                    <div
-                      className={`rounded-xl p-5 mb-5 border ${
-                        totalProfit >= 0
-                          ? "bg-green-500/10 border-green-400/40 portal-glow"
-                          : "bg-red-500/10 border-red-400/30"
-                      }`}
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-6">
-                        <div>
-                          <div className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">
-                            Expected Value
+                      <div className="flex-1 min-w-0">
+                        <h2 className="text-lg md:text-xl font-bold text-white leading-tight">
+                          {effectiveProduct.name}
+                        </h2>
+                        <p className="text-sm text-zinc-400 mt-0.5">
+                          {effectiveProduct.format}
+                        </p>
+                        <div className="flex flex-wrap items-end gap-3 mt-3">
+                          <div>
+                            <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+                              Your Price ($)
+                            </label>
+                            <input
+                              type="number"
+                              inputMode="decimal"
+                              step="0.01"
+                              min="0"
+                              value={customPrice !== "" ? customPrice : price}
+                              onChange={(e) => setCustomPrice(e.target.value)}
+                              className="w-28 bg-black/70 border border-zinc-700 rounded-lg px-3 py-2.5 text-right text-green-300 font-mono text-sm focus:outline-none focus:border-green-400"
+                            />
                           </div>
-                          <div className="text-4xl font-bold font-mono text-white tracking-tight">
-                            ${result.totalEV.toFixed(2)}
-                          </div>
-                          <div className="text-sm text-zinc-400 mt-1">
-                            per unit
-                            {quantity > 1 && (
-                              <span className="text-zinc-500">
-                                {" "}
-                                · ${totalEVScaled.toFixed(2)} total
+                          <div>
+                            <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+                              Qty
+                            </label>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                className="w-9 h-10 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 text-lg"
+                              >
+                                −
+                              </button>
+                              <span className="w-9 text-center font-mono text-sm">
+                                {quantity}
                               </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">
-                            vs Price
-                          </div>
-                          <div
-                            className={`text-2xl font-bold font-mono ${
-                              totalProfit >= 0 ? "text-green-400" : "text-red-400"
-                            }`}
-                          >
-                            {totalProfit >= 0 ? "+" : ""}
-                            ${totalProfit.toFixed(2)}
-                          </div>
-                          <div
-                            className={`text-sm font-mono ${
-                              roi >= 0 ? "text-green-400/80" : "text-red-400/80"
-                            }`}
-                          >
-                            {roi >= 0 ? "+" : ""}
-                            {roi.toFixed(1)}% ROI
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col items-center">
-                          <svg width="72" height="72" className="-rotate-90">
-                            <circle
-                              cx="36"
-                              cy="36"
-                              r="28"
-                              fill="none"
-                              stroke="#1a1a24"
-                              strokeWidth="6"
-                            />
-                            <circle
-                              cx="36"
-                              cy="36"
-                              r="28"
-                              fill="none"
-                              stroke={roi >= 0 ? "#39ff14" : "#f87171"}
-                              strokeWidth="6"
-                              strokeLinecap="round"
-                              strokeDasharray={roiCirc}
-                              strokeDashoffset={roiOffset}
-                              className="transition-all duration-500"
-                            />
-                          </svg>
-                          <span
-                            className={`text-xs font-bold font-mono -mt-10 ${
-                              roi >= 0 ? "text-green-400" : "text-red-400"
-                            }`}
-                          >
-                            {roi >= 0 ? "+" : ""}
-                            {Math.round(roi)}%
-                          </span>
-                          <span className="text-[9px] text-zinc-500 mt-5">ROI</span>
-                        </div>
-                      </div>
-                      <div className="mt-3 text-sm">
-                        {totalProfit >= 0 ? (
-                          <span className="text-green-300">
-                            ▲ Positive EV — math favors opening on average
-                          </span>
-                        ) : (
-                          <span className="text-red-300/90">
-                            ▼ Negative EV — paying a premium for the chase / fun
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  <div>
-                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
-                      Value Breakdown
-                    </h3>
-                    <div className="space-y-1">
-                      {effectiveProduct.slots.map((slot, i) => {
-                        const contribution = slot.oddsNum * slot.avgValue;
-                        const pct =
-                          result && result.totalEV > 0
-                            ? (contribution / result.totalEV) * 100
-                            : 0;
-                        return (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between text-sm py-2 border-b border-zinc-800/50 last:border-0"
-                          >
-                            <div className="flex-1 min-w-0 pr-3">
-                              <div className="text-zinc-200 truncate text-[13px]">
-                                {slot.name}
-                              </div>
-                              <div className="text-[11px] text-zinc-500">
-                                Odds {slot.odds}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-mono text-zinc-300 text-sm">
-                                ${contribution.toFixed(2)}
-                              </div>
-                              <div className="text-[10px] text-zinc-600">
-                                {pct.toFixed(0)}%
-                              </div>
+                              <button
+                                onClick={() => setQuantity(quantity + 1)}
+                                className="w-9 h-10 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 text-lg"
+                              >
+                                +
+                              </button>
                             </div>
                           </div>
-                        );
-                      })}
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  {effectiveProduct.notes && (
-                    <p className="mt-4 text-[11px] text-zinc-500 leading-relaxed border-t border-zinc-800/50 pt-3">
-                      {effectiveProduct.notes}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="xl:col-span-3 space-y-4">
-                <div className="panel rounded-2xl p-4">
-                  <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
-                    Market Pulse
-                  </h3>
-                  <div className="space-y-3">
-                    {[
-                      { label: "TCG Index", value: "+2.3%", color: "text-green-400" },
-                      { label: "Hot Set", value: "Ascended Heroes", color: "text-purple-300" },
-                      { label: "Sports EV", value: "+1.2%", color: "text-cyan-400" },
-                    ].map((row) => (
+                    {result && (
                       <div
-                        key={row.label}
-                        className="flex items-center justify-between text-sm"
+                        className={`rounded-xl p-4 mb-4 border ${
+                          totalProfit >= 0
+                            ? "bg-green-500/10 border-green-400/40 portal-glow"
+                            : "bg-red-500/10 border-red-400/30"
+                        }`}
                       >
-                        <span className="text-zinc-400">{row.label}</span>
-                        <span className={`font-medium ${row.color}`}>{row.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3 h-8 rounded bg-zinc-900/80 flex items-end gap-0.5 px-1 pb-1">
-                    {[40, 55, 45, 70, 60, 80, 75, 90, 85, 95].map((h, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 rounded-sm bg-green-500/40"
-                        style={{ height: `${h}%` }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="panel rounded-2xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                      Recent Rips
-                    </h3>
-                    <span className="text-[9px] text-zinc-600">Sample</span>
-                  </div>
-                  <div className="space-y-2.5">
-                    {RECENT_RIPS.map((r, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between text-sm border-b border-zinc-800/40 pb-2 last:border-0 last:pb-0"
-                      >
-                        <div className="min-w-0">
-                          <div className="text-zinc-200 truncate text-[12px]">
-                            {r.set}
+                        <div className="flex flex-wrap items-center justify-between gap-4">
+                          <div>
+                            <div className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">
+                              Expected Value
+                            </div>
+                            <div className="text-3xl md:text-4xl font-bold font-mono text-white tracking-tight">
+                              ${result.totalEV.toFixed(2)}
+                            </div>
+                            <div className="text-sm text-zinc-400 mt-1">
+                              per unit
+                              {quantity > 1 && (
+                                <span className="text-zinc-500">
+                                  {" "}
+                                  · ${totalEVScaled.toFixed(2)} total
+                                </span>
+                              )}
+                            </div>
                           </div>
-                          <div className="text-[10px] text-zinc-500">
-                            {r.packs} pack{r.packs > 1 ? "s" : ""}
+
+                          <div className="text-right">
+                            <div className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">
+                              vs Price
+                            </div>
+                            <div
+                              className={`text-xl md:text-2xl font-bold font-mono ${
+                                totalProfit >= 0 ? "text-green-400" : "text-red-400"
+                              }`}
+                            >
+                              {totalProfit >= 0 ? "+" : ""}
+                              ${totalProfit.toFixed(2)}
+                            </div>
+                            <div
+                              className={`text-sm font-mono ${
+                                roi >= 0 ? "text-green-400/80" : "text-red-400/80"
+                              }`}
+                            >
+                              {roi >= 0 ? "+" : ""}
+                              {roi.toFixed(1)}% ROI
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col items-center">
+                            <svg width="64" height="64" className="-rotate-90">
+                              <circle cx="32" cy="32" r="26" fill="none" stroke="#1a1a24" strokeWidth="5" />
+                              <circle
+                                cx="32"
+                                cy="32"
+                                r="26"
+                                fill="none"
+                                stroke={roi >= 0 ? "#39ff14" : "#f87171"}
+                                strokeWidth="5"
+                                strokeLinecap="round"
+                                strokeDasharray={2 * Math.PI * 26}
+                                strokeDashoffset={
+                                  2 * Math.PI * 26 - (roiVisual / 100) * 2 * Math.PI * 26
+                                }
+                                className="transition-all duration-500"
+                              />
+                            </svg>
+                            <span
+                              className={`text-xs font-bold font-mono -mt-9 ${
+                                roi >= 0 ? "text-green-400" : "text-red-400"
+                              }`}
+                            >
+                              {roi >= 0 ? "+" : ""}
+                              {Math.round(roi)}%
+                            </span>
+                            <span className="text-[9px] text-zinc-500 mt-4">ROI</span>
                           </div>
                         </div>
-                        <div className="text-right shrink-0">
-                          <div className="font-mono text-[12px] text-zinc-300">
-                            ${r.ev.toFixed(2)}
-                          </div>
-                          <div
-                            className={`text-[10px] font-mono ${
-                              r.roi >= 0 ? "text-green-400" : "text-red-400/80"
-                            }`}
-                          >
-                            {r.roi >= 0 ? "+" : ""}
-                            {r.roi}%
-                          </div>
+                        <div className="mt-3 text-sm">
+                          {totalProfit >= 0 ? (
+                            <span className="text-green-300">
+                              ▲ Positive EV — math favors opening on average
+                            </span>
+                          ) : (
+                            <span className="text-red-300/90">
+                              ▼ Negative EV — paying a premium for the chase / fun
+                            </span>
+                          )}
                         </div>
                       </div>
-                    ))}
+                    )}
+
+                    <div>
+                      <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
+                        Value Breakdown
+                      </h3>
+                      <div className="space-y-0.5">
+                        {effectiveProduct.slots.map((slot, i) => {
+                          const contribution = slot.oddsNum * slot.avgValue;
+                          const pct =
+                            result && result.totalEV > 0
+                              ? (contribution / result.totalEV) * 100
+                              : 0;
+                          return (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between text-sm py-2 border-b border-zinc-800/50 last:border-0"
+                            >
+                              <div className="flex-1 min-w-0 pr-3">
+                                <div className="text-zinc-200 truncate text-[13px]">
+                                  {slot.name}
+                                </div>
+                                <div className="text-[11px] text-zinc-500">
+                                  Odds {slot.odds}
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-mono text-zinc-300 text-sm">
+                                  ${contribution.toFixed(2)}
+                                </div>
+                                <div className="text-[10px] text-zinc-600">
+                                  {pct.toFixed(0)}%
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {effectiveProduct.notes && (
+                      <p className="mt-4 text-[11px] text-zinc-500 leading-relaxed border-t border-zinc-800/50 pt-3">
+                        {effectiveProduct.notes}
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {topSlot && (
+                <div className="lg:col-span-4 space-y-4">
                   <div className="panel rounded-2xl p-4">
                     <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
-                      Top EV Contributor
+                      Market Pulse
                     </h3>
-                    <div className="text-sm font-medium text-zinc-100 mb-1">
-                      {topSlot.name}
-                    </div>
-                    <div className="text-xs text-zinc-500 mb-2">
-                      Odds {topSlot.odds}
-                    </div>
-                    <div className="text-lg font-mono text-green-400">
-                      ${(topSlot.oddsNum * topSlot.avgValue).toFixed(2)}
+                    <div className="space-y-3">
+                      {[
+                        { label: "TCG Index", value: "+2.3%", color: "text-green-400" },
+                        { label: "Hot Set", value: "Ascended Heroes", color: "text-purple-300" },
+                        { label: "Sports EV", value: "+1.2%", color: "text-cyan-400" },
+                      ].map((row) => (
+                        <div key={row.label} className="flex items-center justify-between text-sm">
+                          <span className="text-zinc-400">{row.label}</span>
+                          <span className={`font-medium ${row.color}`}>{row.value}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                )}
 
-                <div className="panel rounded-2xl p-4 border-cyan-500/20">
-                  <h3 className="text-[10px] font-semibold text-cyan-400/80 uppercase tracking-widest mb-2">
-                    Portal Protocol
-                  </h3>
-                  <p className="text-xs text-zinc-500 leading-relaxed mb-3">
-                    Advanced filters. Custom sims. Edge in every rip.
+                  <div className="panel rounded-2xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                        Recent Rips
+                      </h3>
+                      <span className="text-[9px] text-zinc-600">Sample</span>
+                    </div>
+                    <div className="space-y-2.5">
+                      {RECENT_RIPS.map((r, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between text-sm border-b border-zinc-800/40 pb-2 last:border-0 last:pb-0"
+                        >
+                          <div className="min-w-0">
+                            <div className="text-zinc-200 truncate text-[12px]">{r.set}</div>
+                            <div className="text-[10px] text-zinc-500">
+                              {r.packs} pack{r.packs > 1 ? "s" : ""}
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="font-mono text-[12px] text-zinc-300">
+                              ${r.ev.toFixed(2)}
+                            </div>
+                            <div
+                              className={`text-[10px] font-mono ${
+                                r.roi >= 0 ? "text-green-400" : "text-red-400/80"
+                              }`}
+                            >
+                              {r.roi >= 0 ? "+" : ""}
+                              {r.roi}%
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {topSlot && (
+                    <div className="panel rounded-2xl p-4">
+                      <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
+                        Top EV Contributor
+                      </h3>
+                      <div className="text-sm font-medium text-zinc-100 mb-1">
+                        {topSlot.name}
+                      </div>
+                      <div className="text-xs text-zinc-500 mb-2">
+                        Odds {topSlot.odds}
+                      </div>
+                      <div className="text-lg font-mono text-green-400">
+                        ${(topSlot.oddsNum * topSlot.avgValue).toFixed(2)}
+                      </div>
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-zinc-600 leading-relaxed px-1">
+                    Values are approximate. Decision aid only — not financial advice.
                   </p>
-                  <button className="w-full text-[11px] py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300">
-                    Coming Soon →
-                  </button>
                 </div>
-
-                <p className="text-[10px] text-zinc-600 leading-relaxed px-1">
-                  Values are approximate community estimates. Decision aid only — not financial advice.
-                </p>
               </div>
             </div>
           ) : (
