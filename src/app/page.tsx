@@ -23,7 +23,23 @@ export default function Home() {
   const [customPrice, setCustomPrice] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [view, setView] = useState<"calculator" | "insider">("calculator");
+  const [claimEmail, setClaimEmail] = useState("");
+  const [claimName, setClaimName] = useState("");
+  const [claimDone, setClaimDone] = useState(false);
+  const [claimLoading, setClaimLoading] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  const handleClaim = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!claimEmail.trim() || claimDone) return;
+    setClaimLoading(true);
+    try {
+      await new Promise((r) => setTimeout(r, 500));
+      setClaimDone(true);
+    } finally {
+      setClaimLoading(false);
+    }
+  };
 
   const categoryProducts = useMemo(
     () => products.filter((p) => p.category === activeCategory),
@@ -244,21 +260,59 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-purple-500/10 pointer-events-none" />
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] uppercase tracking-widest text-amber-400/80">Portal Protocol</span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">PRO</span>
+                    <span className="text-[10px] uppercase tracking-widest text-amber-400/80">Founding Members</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">3 MONTHS FREE</span>
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Insider Access</h2>
-                  <p className="text-sm text-zinc-400 max-w-xl mb-4">
-                    Best EV ranks, avoid lists, deeper odds notes, and early set data — built for people who want an edge before they rip.
+                  <h2 className="text-2xl font-bold text-white mb-2">Claim Insider VIP</h2>
+                  <p className="text-sm text-zinc-400 max-w-xl mb-1">
+                    First 50 only. Best EV ranks, avoid list, early set data, deeper odds.
                   </p>
-                  <div className="flex flex-wrap gap-2">
-                    <button className="px-4 py-2 rounded-xl text-sm font-medium bg-amber-500/20 border border-amber-400/50 text-amber-200 hover:bg-amber-500/30 transition">
-                      Join Insider — $4.99/mo
-                    </button>
-                    <button className="px-4 py-2 rounded-xl text-sm border border-zinc-700 text-zinc-400">
-                      Waitlist
-                    </button>
-                  </div>
+                  <p className="text-xs text-amber-300/80 mb-4">
+                    $0 for 3 months → then $4.99/mo. Free calculator stays free forever.
+                  </p>
+
+                  {claimDone ? (
+                    <div className="rounded-xl border border-green-500/40 bg-green-500/10 p-4">
+                      <div className="text-green-300 font-semibold text-sm mb-1">You&apos;re in 🌀</div>
+                      <div className="text-xs text-zinc-400">
+                        Spot locked for <span className="text-zinc-200">{claimEmail}</span>. We&apos;ll message you when Insider goes live.
+                      </div>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleClaim} className="space-y-3 max-w-md">
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Name (optional)</label>
+                        <input
+                          type="text"
+                          value={claimName}
+                          onChange={(e) => setClaimName(e.target.value)}
+                          placeholder="Collector name"
+                          className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-amber-400/60"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Email *</label>
+                        <input
+                          type="email"
+                          required
+                          value={claimEmail}
+                          onChange={(e) => setClaimEmail(e.target.value)}
+                          placeholder="you@email.com"
+                          className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-amber-400/60"
+                        />
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={claimLoading || !claimEmail.trim()}
+                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-medium bg-amber-500/25 border border-amber-400/50 text-amber-100 hover:bg-amber-500/35 transition disabled:opacity-50"
+                      >
+                        {claimLoading ? "Claiming..." : "Claim 3 Months Free"}
+                      </button>
+                      <p className="text-[10px] text-zinc-600">
+                        Limited to first 50 founding members. No charge today.
+                      </p>
+                    </form>
+                  )}
                 </div>
               </div>
 
@@ -524,14 +578,7 @@ export default function Home() {
 
                           <div className="flex flex-col items-center">
                             <svg width="64" height="64" className="-rotate-90">
-                              <circle
-                                cx="32"
-                                cy="32"
-                                r="26"
-                                fill="none"
-                                stroke="#1a1a24"
-                                strokeWidth="5"
-                              />
+                              <circle cx="32" cy="32" r="26" fill="none" stroke="#1a1a24" strokeWidth="5" />
                               <circle
                                 cx="32"
                                 cy="32"
@@ -542,8 +589,7 @@ export default function Home() {
                                 strokeLinecap="round"
                                 strokeDasharray={2 * Math.PI * 26}
                                 strokeDashoffset={
-                                  2 * Math.PI * 26 -
-                                  (roiVisual / 100) * 2 * Math.PI * 26
+                                  2 * Math.PI * 26 - (roiVisual / 100) * 2 * Math.PI * 26
                                 }
                                 className="transition-all duration-500"
                               />
@@ -630,10 +676,7 @@ export default function Home() {
                         { label: "Hot Set", value: "Ascended Heroes", color: "text-purple-300" },
                         { label: "Sports EV", value: "+1.2%", color: "text-cyan-400" },
                       ].map((row) => (
-                        <div
-                          key={row.label}
-                          className="flex items-center justify-between text-sm"
-                        >
+                        <div key={row.label} className="flex items-center justify-between text-sm">
                           <span className="text-zinc-400">{row.label}</span>
                           <span className={`font-medium ${row.color}`}>{row.value}</span>
                         </div>
@@ -655,9 +698,7 @@ export default function Home() {
                           className="flex items-center justify-between text-sm border-b border-zinc-800/40 pb-2 last:border-0 last:pb-0"
                         >
                           <div className="min-w-0">
-                            <div className="text-zinc-200 truncate text-[12px]">
-                              {r.set}
-                            </div>
+                            <div className="text-zinc-200 truncate text-[12px]">{r.set}</div>
                             <div className="text-[10px] text-zinc-500">
                               {r.packs} pack{r.packs > 1 ? "s" : ""}
                             </div>
@@ -685,12 +726,8 @@ export default function Home() {
                       <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
                         Top EV Contributor
                       </h3>
-                      <div className="text-sm font-medium text-zinc-100 mb-1">
-                        {topSlot.name}
-                      </div>
-                      <div className="text-xs text-zinc-500 mb-2">
-                        Odds {topSlot.odds}
-                      </div>
+                      <div className="text-sm font-medium text-zinc-100 mb-1">{topSlot.name}</div>
+                      <div className="text-xs text-zinc-500 mb-2">Odds {topSlot.odds}</div>
                       <div className="text-lg font-mono text-green-400">
                         ${(topSlot.oddsNum * topSlot.avgValue).toFixed(2)}
                       </div>
