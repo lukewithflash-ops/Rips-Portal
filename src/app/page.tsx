@@ -8,6 +8,7 @@ import {
   type Category,
   type Product,
 } from "@/lib/products";
+import { chaseCards, searchCards, type ChaseCard } from "@/lib/cards";
 
 const RECENT_RIPS = [
   { set: "Ascended Heroes", packs: 12, ev: 9.1, roi: -18 },
@@ -22,12 +23,16 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [customPrice, setCustomPrice] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
-  const [view, setView] = useState<"calculator" | "insider">("calculator");
+  const [view, setView] = useState<"calculator" | "insider" | "cards">("calculator");
   const [claimEmail, setClaimEmail] = useState("");
   const [claimName, setClaimName] = useState("");
   const [claimDone, setClaimDone] = useState(false);
   const [claimLoading, setClaimLoading] = useState(false);
+  const [cardQuery, setCardQuery] = useState("");
+  const [selectedCard, setSelectedCard] = useState<ChaseCard | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+
+  const filteredCards = useMemo(() => searchCards(cardQuery), [cardQuery]);
 
   const handleClaim = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,8 +136,8 @@ export default function Home() {
           {[
             { icon: "⚡", label: "EV Calculator", id: "calculator" as const, active: view === "calculator" },
             { icon: "🔐", label: "Insider Pro", id: "insider" as const, active: view === "insider", pro: true },
+            { icon: "🃏", label: "Card Values", id: "cards" as const, active: view === "cards" },
             { icon: "📦", label: "Packs & Sets", soon: true },
-            { icon: "🃏", label: "Card Database", soon: true },
             { icon: "📊", label: "Market Tracker", soon: true },
             { icon: "⭐", label: "Watchlist", soon: true },
             { icon: "🔬", label: "Simulations", soon: true },
@@ -292,7 +297,17 @@ export default function Home() {
                   : "border-zinc-800 text-zinc-400"
               }`}
             >
-              ⚡ Calculator
+              ⚡ EV
+            </button>
+            <button
+              onClick={() => setView("cards")}
+              className={`flex-1 py-2 rounded-xl text-sm font-medium border ${
+                view === "cards"
+                  ? "bg-cyan-500/15 border-cyan-400/60 text-cyan-300"
+                  : "border-zinc-800 text-zinc-400"
+              }`}
+            >
+              🃏 Cards
             </button>
             <button
               onClick={() => setView("insider")}
@@ -302,11 +317,122 @@ export default function Home() {
                   : "border-zinc-800 text-zinc-400"
               }`}
             >
-              🔐 Insider Pro
+              🔐 VIP
             </button>
           </div>
 
-          {view === "insider" ? (
+          {view === "cards" ? (
+            <div className="space-y-5 max-w-4xl">
+              <div className="panel rounded-2xl p-5 border border-cyan-500/30 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-purple-500/10 pointer-events-none" />
+                <div className="relative">
+                  <div className="text-[10px] uppercase tracking-widest text-cyan-400/80 mb-1">Card Lookup</div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Card Values</h2>
+                  <p className="text-sm text-zinc-400 mb-4 max-w-xl">
+                    Search chase cards for raw ranges and PSA estimates. Curated list — not live market feed yet.
+                  </p>
+                  <input
+                    type="search"
+                    value={cardQuery}
+                    onChange={(e) => {
+                      setCardQuery(e.target.value);
+                      setSelectedCard(null);
+                    }}
+                    placeholder="Search: Gengar, Pikachu, Kurtz, Ascended..."
+                    className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-cyan-400/60"
+                  />
+                </div>
+              </div>
+
+              {selectedCard && (
+                <div className="panel rounded-2xl p-5 border border-cyan-500/40 portal-glow">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-14 h-20 rounded-xl bg-gradient-to-br from-cyan-700 to-purple-600 flex items-center justify-center text-3xl shrink-0 border border-white/10">
+                      {selectedCard.emoji || "🃏"}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-lg font-bold text-white">{selectedCard.name}</h3>
+                      <div className="text-sm text-zinc-400">{selectedCard.set}</div>
+                      <div className="text-xs text-zinc-500 mt-0.5">
+                        {selectedCard.number && <span className="mr-2">#{selectedCard.number}</span>}
+                        {selectedCard.rarity}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="rounded-xl bg-zinc-900/80 border border-zinc-800 p-3 text-center">
+                      <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Raw mid</div>
+                      <div className="text-xl font-mono font-bold text-green-400">${selectedCard.rawMid.toLocaleString()}</div>
+                      <div className="text-[10px] text-zinc-500 mt-1">
+                        ${selectedCard.rawLow}–${selectedCard.rawHigh}
+                      </div>
+                    </div>
+                    <div className="rounded-xl bg-zinc-900/80 border border-zinc-800 p-3 text-center">
+                      <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">PSA 9</div>
+                      <div className="text-xl font-mono font-bold text-cyan-300">
+                        {selectedCard.psa9 ? `$${selectedCard.psa9.toLocaleString()}` : "—"}
+                      </div>
+                    </div>
+                    <div className="rounded-xl bg-zinc-900/80 border border-amber-500/30 p-3 text-center">
+                      <div className="text-[10px] uppercase tracking-wider text-amber-400/80 mb-1">PSA 10</div>
+                      <div className="text-xl font-mono font-bold text-amber-300">
+                        {selectedCard.psa10 ? `$${selectedCard.psa10.toLocaleString()}` : "—"}
+                      </div>
+                    </div>
+                  </div>
+                  {selectedCard.notes && (
+                    <p className="text-xs text-zinc-500 border-t border-zinc-800 pt-3">{selectedCard.notes}</p>
+                  )}
+                  <p className="text-[10px] text-zinc-600 mt-2">
+                    Approximate ranges for guidance only. Always check recent sold comps.
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">
+                  {cardQuery ? `${filteredCards.length} results` : `${chaseCards.length} chase cards`}
+                </div>
+                <div className="space-y-2">
+                  {filteredCards.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setSelectedCard(c)}
+                      className={`w-full text-left flex items-center gap-3 p-3 rounded-xl border transition ${
+                        selectedCard?.id === c.id
+                          ? "border-cyan-400/60 bg-cyan-500/10"
+                          : "border-zinc-800 bg-zinc-900/50 hover:border-cyan-500/30"
+                      }`}
+                    >
+                      <span className="text-xl w-8 text-center">{c.emoji || "🃏"}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-zinc-100 truncate">{c.name}</div>
+                        <div className="text-[11px] text-zinc-500 truncate">
+                          {c.set} {c.number ? `· #${c.number}` : ""}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-sm font-mono text-green-400">${c.rawMid.toLocaleString()}</div>
+                        <div className="text-[10px] text-zinc-500">
+                          PSA10 {c.psa10 ? `$${c.psa10.toLocaleString()}` : "—"}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                  {filteredCards.length === 0 && (
+                    <div className="text-center text-zinc-500 py-10 text-sm">
+                      No cards match. Try Gengar, Pikachu, or Kurtz.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <p className="text-[11px] text-zinc-600">
+                Starter database of chase cards. More sets and live feeds coming — request cards in Discord.
+              </p>
+            </div>
+          ) : view === "insider" ? (
             <div className="space-y-5 max-w-4xl">
               <div className="panel rounded-2xl p-5 border border-amber-500/30 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-purple-500/10 pointer-events-none" />
