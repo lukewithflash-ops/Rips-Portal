@@ -9,6 +9,14 @@ import {
   type Product,
 } from "@/lib/products";
 
+const RECENT_RIPS = [
+  { set: "Ascended Heroes", packs: 12, ev: 9.1, roi: -18 },
+  { set: "Chrome Update Hobby", packs: 1, ev: 720, roi: -24 },
+  { set: "Prismatic Evolutions", packs: 24, ev: 11.2, roi: -12 },
+  { set: "OP-16 Box", packs: 1, ev: 98, roi: -15 },
+  { set: "Surging Sparks", packs: 36, ev: 4.8, roi: -13 },
+];
+
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -59,9 +67,12 @@ export default function Home() {
     .slice()
     .sort((a, b) => b.oddsNum * b.avgValue - a.oddsNum * a.avgValue)[0];
 
+  const roiVisual = Math.min(100, Math.max(0, Math.abs(roi)));
+  const roiCirc = 2 * Math.PI * 28;
+  const roiOffset = roiCirc - (roiVisual / 100) * roiCirc;
+
   return (
     <div className="flex min-h-screen portal-bg">
-      {/* ========== LEFT SIDEBAR ========== */}
       <aside className="sidebar w-56 flex-shrink-0 hidden lg:flex flex-col">
         <div className="p-4 border-b border-green-500/10">
           <div className="flex items-center gap-2.5">
@@ -96,9 +107,7 @@ export default function Home() {
             <div
               key={item.label}
               className={`sidebar-item rounded-lg px-3 py-2.5 text-sm flex items-center gap-2.5 ${
-                item.active
-                  ? "active font-medium"
-                  : "text-zinc-500 cursor-default"
+                item.active ? "active font-medium" : "text-zinc-500 cursor-default"
               }`}
             >
               <span className="text-base w-5 text-center">{item.icon}</span>
@@ -114,19 +123,20 @@ export default function Home() {
 
         <div className="p-3 border-t border-green-500/10">
           <div className="rounded-xl overflow-hidden border border-purple-500/30 purple-glow relative">
-            <div className="h-24 bg-gradient-to-br from-purple-900/40 via-black to-green-900/30 flex items-center justify-center">
-              <div className="w-14 h-14 rounded-full border-2 border-green-400/60 portal-glow flex items-center justify-center">
-                <div className="w-8 h-8 rounded-full bg-green-400/20" />
+            <div className="h-28 bg-gradient-to-br from-purple-900/50 via-black to-green-900/40 flex items-center justify-center relative">
+              <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,rgba(57,255,20,0.25),transparent_70%)]" />
+              <div className="w-16 h-16 rounded-full border-2 border-green-400/70 portal-glow flex items-center justify-center z-10">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-400/30 to-purple-500/20" />
               </div>
             </div>
-            <div className="p-3 bg-black/60">
+            <div className="p-3 bg-black/70">
               <div className="text-xs font-semibold text-purple-300 mb-1">
                 ENTER THE RIP
               </div>
               <div className="text-[10px] text-zinc-500 leading-snug mb-2">
                 Open packs. Chase hits. Calculate smarter.
               </div>
-              <button className="w-full text-[11px] py-1.5 rounded-lg bg-purple-600/30 border border-purple-500/40 text-purple-200 hover:bg-purple-600/50 transition">
+              <button className="w-full text-[11px] py-1.5 rounded-lg bg-purple-600/30 border border-purple-500/40 text-purple-200">
                 Explore Lab →
               </button>
             </div>
@@ -134,9 +144,7 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* ========== MAIN ========== */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
         <header className="border-b border-green-500/15 bg-black/40 backdrop-blur-md sticky top-0 z-40">
           <div className="px-4 md:px-6 py-3 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -158,135 +166,161 @@ export default function Home() {
               <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-300">
                 ⚡ Free Access
               </span>
-              <span className="text-[11px] text-zinc-600 hidden md:inline">
-                Not financial advice
-              </span>
             </div>
           </div>
         </header>
 
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
-          {/* Hero */}
-          <div className="mb-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-            <div>
+          <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+            <div className="flex-1">
               <div className="text-[11px] uppercase tracking-[0.2em] text-green-400/70 mb-1.5">
                 Calculate. Rip. Repeat.
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                 Pack EV. <span className="text-green-400 neon-text">Perfected.</span>
               </h1>
-              <p className="text-sm text-zinc-500 mt-1 max-w-md">
-                Expected value analysis across Pokémon, Sports, and TCG multiverse.
+              <p className="text-sm text-zinc-500 mt-1 max-w-lg">
+                Expected value for Pokémon, Sports & One Piece — know before you rip.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCategory(cat.id)}
-                  className={`
-                    px-3.5 py-1.5 rounded-xl text-sm font-medium border transition-all
-                    ${
-                      activeCategory === cat.id
-                        ? "bg-green-500/15 border-green-400/60 text-green-300 portal-glow"
-                        : "bg-zinc-900/50 border-zinc-800 text-zinc-400 hover:border-green-500/40 hover:text-green-300"
-                    }
-                  `}
-                >
-                  <span className="mr-1">{cat.emoji}</span>
-                  {cat.label}
-                </button>
-              ))}
+            <div className="flex items-end gap-2 shrink-0">
+              <div className="w-14 h-20 rounded-lg bg-gradient-to-br from-violet-600 to-fuchsia-500 border border-white/10 shadow-lg shadow-purple-500/20 rotate-[-6deg] flex items-center justify-center text-2xl">
+                🦸
+              </div>
+              <div className="w-16 h-24 rounded-lg bg-gradient-to-br from-orange-500 to-amber-400 border border-white/10 shadow-lg shadow-orange-500/20 flex items-center justify-center text-3xl z-10">
+                🏀
+              </div>
+              <div className="w-14 h-20 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 border border-white/10 shadow-lg shadow-cyan-500/20 rotate-[6deg] flex items-center justify-center text-2xl">
+                🏴‍☠️
+              </div>
             </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-6">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategory(cat.id)}
+                className={`
+                  px-3.5 py-1.5 rounded-xl text-sm font-medium border transition-all
+                  ${
+                    activeCategory === cat.id
+                      ? "bg-green-500/15 border-green-400/60 text-green-300 portal-glow"
+                      : "bg-zinc-900/50 border-zinc-800 text-zinc-400 hover:border-green-500/40 hover:text-green-300"
+                  }
+                `}
+              >
+                <span className="mr-1">{cat.emoji}</span>
+                {cat.label}
+              </button>
+            ))}
           </div>
 
           {effectiveProduct ? (
             <div className="grid xl:grid-cols-12 gap-5">
-              {/* LEFT: Product list */}
-              <div className="xl:col-span-3 space-y-2">
+              <div className="xl:col-span-3 space-y-3">
                 <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
-                  Select Pack / Set
+                  Select Pack / Box
                 </h2>
-                {categoryProducts.map((p) => {
-                  const isTrending =
-                    p.id.includes("ascended") || p.id.includes("chrome-update");
-                  const isActive = effectiveProduct.id === p.id;
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => handleSelectProduct(p.id)}
-                      className={`
-                        w-full text-left p-3.5 rounded-xl border transition-all card-hover
-                        ${
-                          isActive
-                            ? "bg-green-500/10 border-green-400/50 portal-glow"
-                            : "bg-zinc-900/40 border-zinc-800/80 hover:border-green-500/30"
-                        }
-                      `}
-                    >
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-zinc-100 text-sm">
-                          {p.name}
-                        </span>
-                        {isTrending && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-300 border border-green-500/40 font-medium trending-pulse">
-                            TRENDING
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-xs text-zinc-500 mt-0.5">{p.format}</div>
-                      <div className="text-[11px] text-green-400/70 mt-1.5 font-mono">
-                        Default ~${p.defaultPrice.toFixed(2)}
-                      </div>
-                    </button>
-                  );
-                })}
+                <div className="grid grid-cols-1 gap-2.5 max-h-[70vh] overflow-y-auto pr-1">
+                  {categoryProducts.map((p) => {
+                    const isTrending =
+                      p.id.includes("ascended") || p.id.includes("chrome-update");
+                    const isActive = effectiveProduct.id === p.id;
+                    return (
+                      <button
+                        key={p.id}
+                        onClick={() => handleSelectProduct(p.id)}
+                        className={`
+                          w-full text-left rounded-xl border overflow-hidden transition-all card-hover
+                          ${
+                            isActive
+                              ? "border-green-400/60 portal-glow"
+                              : "border-zinc-800/80 hover:border-green-500/30"
+                          }
+                        `}
+                      >
+                        <div
+                          className={`h-16 bg-gradient-to-br ${
+                            p.accent || "from-zinc-700 to-zinc-800"
+                          } flex items-center justify-center relative`}
+                        >
+                          <span className="text-3xl drop-shadow-lg">{p.emoji || "📦"}</span>
+                          {isTrending && (
+                            <span className="absolute top-1.5 right-1.5 text-[8px] px-1.5 py-0.5 rounded bg-black/50 text-green-300 border border-green-500/40 font-medium trending-pulse">
+                              HOT
+                            </span>
+                          )}
+                        </div>
+                        <div className="p-3 bg-zinc-900/80">
+                          <div className="font-semibold text-zinc-100 text-sm leading-tight">
+                            {p.name}
+                          </div>
+                          <div className="text-[11px] text-zinc-500 mt-0.5">
+                            {p.format}
+                          </div>
+                          <div className="text-[11px] text-green-400/80 mt-1.5 font-mono">
+                            ~${p.defaultPrice.toFixed(2)}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* CENTER: Calculator */}
               <div className="xl:col-span-6 space-y-4">
                 <div className="panel rounded-2xl p-5 portal-border">
-                  <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
-                    <div>
-                      <h2 className="text-xl font-bold text-white">
+                  <div className="flex gap-4 mb-5">
+                    <div
+                      className={`w-20 h-28 rounded-xl bg-gradient-to-br ${
+                        effectiveProduct.accent || "from-zinc-700 to-zinc-800"
+                      } flex items-center justify-center text-4xl shrink-0 shadow-lg border border-white/10`}
+                    >
+                      {effectiveProduct.emoji || "📦"}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-xl font-bold text-white leading-tight">
                         {effectiveProduct.name}
                       </h2>
-                      <p className="text-sm text-zinc-400">{effectiveProduct.format}</p>
-                    </div>
-                    <div className="flex items-end gap-3">
-                      <div>
-                        <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
-                          Pack Cost ($)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={customPrice !== "" ? customPrice : price}
-                          onChange={(e) => setCustomPrice(e.target.value)}
-                          className="w-28 bg-black/70 border border-zinc-700 rounded-lg px-3 py-2 text-right text-green-300 font-mono text-sm focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/40"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
-                          Qty
-                        </label>
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            className="w-8 h-9 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 hover:border-green-500/50"
-                          >
-                            −
-                          </button>
-                          <span className="w-10 text-center font-mono text-sm">
-                            {quantity}
-                          </span>
-                          <button
-                            onClick={() => setQuantity(quantity + 1)}
-                            className="w-8 h-9 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 hover:border-green-500/50"
-                          >
-                            +
-                          </button>
+                      <p className="text-sm text-zinc-400 mt-0.5">
+                        {effectiveProduct.format}
+                      </p>
+                      <div className="flex flex-wrap items-end gap-3 mt-3">
+                        <div>
+                          <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+                            Your Price ($)
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            value={customPrice !== "" ? customPrice : price}
+                            onChange={(e) => setCustomPrice(e.target.value)}
+                            className="w-28 bg-black/70 border border-zinc-700 rounded-lg px-3 py-2 text-right text-green-300 font-mono text-sm focus:outline-none focus:border-green-400"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+                            Qty
+                          </label>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                              className="w-8 h-9 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300"
+                            >
+                              −
+                            </button>
+                            <span className="w-9 text-center font-mono text-sm">
+                              {quantity}
+                            </span>
+                            <button
+                              onClick={() => setQuantity(quantity + 1)}
+                              className="w-8 h-9 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300"
+                            >
+                              +
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -300,16 +334,16 @@ export default function Home() {
                           : "bg-red-500/10 border-red-400/30"
                       }`}
                     >
-                      <div className="flex flex-wrap items-end justify-between gap-6">
+                      <div className="flex flex-wrap items-center justify-between gap-6">
                         <div>
                           <div className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">
-                            Expected Value (EV)
+                            Expected Value
                           </div>
                           <div className="text-4xl font-bold font-mono text-white tracking-tight">
                             ${result.totalEV.toFixed(2)}
                           </div>
                           <div className="text-sm text-zinc-400 mt-1">
-                            per pack
+                            per unit
                             {quantity > 1 && (
                               <span className="text-zinc-500">
                                 {" "}
@@ -318,9 +352,10 @@ export default function Home() {
                             )}
                           </div>
                         </div>
+
                         <div className="text-right">
                           <div className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">
-                            vs Your Price
+                            vs Price
                           </div>
                           <div
                             className={`text-2xl font-bold font-mono ${
@@ -339,26 +374,39 @@ export default function Home() {
                             {roi.toFixed(1)}% ROI
                           </div>
                         </div>
-                        <div className="hidden sm:flex flex-col items-center">
-                          <div
-                            className="w-16 h-16 rounded-full flex items-center justify-center border-4"
-                            style={{
-                              borderColor:
-                                roi >= 0
-                                  ? "rgba(57,255,20,0.6)"
-                                  : "rgba(248,113,113,0.5)",
-                            }}
+
+                        <div className="flex flex-col items-center">
+                          <svg width="72" height="72" className="-rotate-90">
+                            <circle
+                              cx="36"
+                              cy="36"
+                              r="28"
+                              fill="none"
+                              stroke="#1a1a24"
+                              strokeWidth="6"
+                            />
+                            <circle
+                              cx="36"
+                              cy="36"
+                              r="28"
+                              fill="none"
+                              stroke={roi >= 0 ? "#39ff14" : "#f87171"}
+                              strokeWidth="6"
+                              strokeLinecap="round"
+                              strokeDasharray={roiCirc}
+                              strokeDashoffset={roiOffset}
+                              className="transition-all duration-500"
+                            />
+                          </svg>
+                          <span
+                            className={`text-xs font-bold font-mono -mt-10 ${
+                              roi >= 0 ? "text-green-400" : "text-red-400"
+                            }`}
                           >
-                            <span
-                              className={`text-xs font-bold font-mono ${
-                                roi >= 0 ? "text-green-400" : "text-red-400"
-                              }`}
-                            >
-                              {roi >= 0 ? "+" : ""}
-                              {Math.round(roi)}%
-                            </span>
-                          </div>
-                          <span className="text-[9px] text-zinc-500 mt-1">ROI</span>
+                            {roi >= 0 ? "+" : ""}
+                            {Math.round(roi)}%
+                          </span>
+                          <span className="text-[9px] text-zinc-500 mt-5">ROI</span>
                         </div>
                       </div>
                       <div className="mt-3 text-sm">
@@ -377,7 +425,7 @@ export default function Home() {
 
                   <div>
                     <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
-                      Value Breakdown (approx)
+                      Value Breakdown
                     </h3>
                     <div className="space-y-1">
                       {effectiveProduct.slots.map((slot, i) => {
@@ -421,7 +469,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* RIGHT column */}
               <div className="xl:col-span-3 space-y-4">
                 <div className="panel rounded-2xl p-4">
                   <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
@@ -453,6 +500,45 @@ export default function Home() {
                   </div>
                 </div>
 
+                <div className="panel rounded-2xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                      Recent Rips
+                    </h3>
+                    <span className="text-[9px] text-zinc-600">Sample</span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {RECENT_RIPS.map((r, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between text-sm border-b border-zinc-800/40 pb-2 last:border-0 last:pb-0"
+                      >
+                        <div className="min-w-0">
+                          <div className="text-zinc-200 truncate text-[12px]">
+                            {r.set}
+                          </div>
+                          <div className="text-[10px] text-zinc-500">
+                            {r.packs} pack{r.packs > 1 ? "s" : ""}
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="font-mono text-[12px] text-zinc-300">
+                            ${r.ev.toFixed(2)}
+                          </div>
+                          <div
+                            className={`text-[10px] font-mono ${
+                              r.roi >= 0 ? "text-green-400" : "text-red-400/80"
+                            }`}
+                          >
+                            {r.roi >= 0 ? "+" : ""}
+                            {r.roi}%
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {topSlot && (
                   <div className="panel rounded-2xl p-4">
                     <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
@@ -467,9 +553,6 @@ export default function Home() {
                     <div className="text-lg font-mono text-green-400">
                       ${(topSlot.oddsNum * topSlot.avgValue).toFixed(2)}
                     </div>
-                    <div className="text-[10px] text-zinc-600 mt-1">
-                      EV contribution per pack
-                    </div>
                   </div>
                 )}
 
@@ -480,13 +563,13 @@ export default function Home() {
                   <p className="text-xs text-zinc-500 leading-relaxed mb-3">
                     Advanced filters. Custom sims. Edge in every rip.
                   </p>
-                  <button className="w-full text-[11px] py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/20 transition">
+                  <button className="w-full text-[11px] py-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-300">
                     Coming Soon →
                   </button>
                 </div>
 
                 <p className="text-[10px] text-zinc-600 leading-relaxed px-1">
-                  All values and odds are approximate community estimates and change constantly. This is a decision aid, not financial advice. Ripping is for fun.
+                  Values are approximate community estimates. Decision aid only — not financial advice.
                 </p>
               </div>
             </div>
