@@ -22,6 +22,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [customPrice, setCustomPrice] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
+  const [view, setView] = useState<"calculator" | "insider">("calculator");
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const categoryProducts = useMemo(
@@ -97,29 +98,38 @@ export default function Home() {
             Tools
           </div>
           {[
-            { icon: "⚡", label: "EV Calculator", active: true },
-            { icon: "📦", label: "Packs & Sets" },
-            { icon: "🃏", label: "Card Database" },
-            { icon: "📊", label: "Market Tracker" },
-            { icon: "⭐", label: "Watchlist" },
-            { icon: "🔬", label: "Simulations" },
-            { icon: "🕐", label: "History" },
-            { icon: "📑", label: "Reports" },
+            { icon: "⚡", label: "EV Calculator", id: "calculator" as const, active: view === "calculator" },
+            { icon: "🔐", label: "Insider Pro", id: "insider" as const, active: view === "insider", pro: true },
+            { icon: "📦", label: "Packs & Sets", soon: true },
+            { icon: "🃏", label: "Card Database", soon: true },
+            { icon: "📊", label: "Market Tracker", soon: true },
+            { icon: "⭐", label: "Watchlist", soon: true },
+            { icon: "🔬", label: "Simulations", soon: true },
+            { icon: "🕐", label: "History", soon: true },
           ].map((item) => (
-            <div
+            <button
               key={item.label}
-              className={`sidebar-item rounded-lg px-3 py-2.5 text-sm flex items-center gap-2.5 ${
-                item.active ? "active font-medium" : "text-zinc-500 cursor-default"
-              }`}
+              type="button"
+              onClick={() => {
+                if ("id" in item && item.id) setView(item.id);
+              }}
+              className={`sidebar-item w-full rounded-lg px-3 py-2.5 text-sm flex items-center gap-2.5 text-left ${
+                item.active ? "active font-medium" : "text-zinc-500"
+              } ${"soon" in item && item.soon ? "cursor-default" : "cursor-pointer hover:text-green-300"}`}
             >
               <span className="text-base w-5 text-center">{item.icon}</span>
               <span>{item.label}</span>
-              {!item.active && (
+              {"pro" in item && item.pro && (
+                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wide">
+                  Pro
+                </span>
+              )}
+              {"soon" in item && item.soon && (
                 <span className="ml-auto text-[9px] text-zinc-600 uppercase tracking-wide">
                   Soon
                 </span>
               )}
-            </div>
+            </button>
           ))}
         </nav>
 
@@ -183,27 +193,131 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-5">
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => handleCategory(cat.id)}
-                className={`
-                  px-3.5 py-1.5 rounded-xl text-sm font-medium border transition-all
-                  ${
-                    activeCategory === cat.id
-                      ? "bg-green-500/15 border-green-400/60 text-green-300 portal-glow"
-                      : "bg-zinc-900/50 border-zinc-800 text-zinc-400 hover:border-green-500/40 hover:text-green-300"
-                  }
-                `}
-              >
-                <span className="mr-1">{cat.emoji}</span>
-                {cat.label}
-              </button>
-            ))}
+          <div className="flex gap-2 mb-4 lg:hidden">
+            <button
+              onClick={() => setView("calculator")}
+              className={`flex-1 py-2 rounded-xl text-sm font-medium border ${
+                view === "calculator"
+                  ? "bg-green-500/15 border-green-400/60 text-green-300"
+                  : "border-zinc-800 text-zinc-400"
+              }`}
+            >
+              ⚡ Calculator
+            </button>
+            <button
+              onClick={() => setView("insider")}
+              className={`flex-1 py-2 rounded-xl text-sm font-medium border ${
+                view === "insider"
+                  ? "bg-amber-500/15 border-amber-400/60 text-amber-300"
+                  : "border-zinc-800 text-zinc-400"
+              }`}
+            >
+              🔐 Insider Pro
+            </button>
           </div>
 
-          {effectiveProduct ? (
+          {view === "insider" ? (
+            <div className="space-y-5 max-w-4xl">
+              <div className="panel rounded-2xl p-5 border border-amber-500/30 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-purple-500/10 pointer-events-none" />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[10px] uppercase tracking-widest text-amber-400/80">Portal Protocol</span>
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">PRO</span>
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Insider Access</h2>
+                  <p className="text-sm text-zinc-400 max-w-xl mb-4">
+                    Best EV ranks, avoid lists, deeper odds notes, and early set data — built for people who want an edge before they rip.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <button className="px-4 py-2 rounded-xl text-sm font-medium bg-amber-500/20 border border-amber-400/50 text-amber-200">
+                      Join Insider — $4.99/mo
+                    </button>
+                    <button className="px-4 py-2 rounded-xl text-sm border border-zinc-700 text-zinc-400">
+                      Waitlist
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="panel rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-white">Best EV Packs This Week</h3>
+                  <span className="text-[10px] text-zinc-500">Sample preview</span>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { rank: 1, name: "Journey Together Pack", price: 3.75, ev: 4.1, roi: 9, note: "Strong IR/SIR floor at current prices" },
+                    { rank: 2, name: "Surging Sparks Pack", price: 4.25, ev: 4.6, roi: 8, note: "Consistent modern value" },
+                    { rank: 3, name: "OP-16 Booster Box", price: 95, ev: 102, roi: 7, note: "Box math cleaner than singles" },
+                    { rank: 4, name: "2026 Topps Series 1 Blaster", price: 25, ev: 26.5, roi: 6, note: "Cheap entry, low downside" },
+                    { rank: 5, name: "Obsidian Flames Pack", price: 3.5, ev: 3.7, roi: 6, note: "Older set, fair secondary" },
+                  ].map((row) => (
+                    <div key={row.rank} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80">
+                      <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-xs font-bold text-emerald-300">
+                        {row.rank}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-zinc-100 font-medium truncate">{row.name}</div>
+                        <div className="text-[11px] text-zinc-500 truncate">{row.note}</div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-sm font-mono text-green-400">+{row.roi}%</div>
+                        <div className="text-[10px] text-zinc-500">${row.price} → ${row.ev}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="panel rounded-2xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-white">Avoid These (Overpriced)</h3>
+                  <span className="text-[10px] text-red-400/70">High premium</span>
+                </div>
+                <div className="space-y-2">
+                  {[
+                    { name: "Ascended Heroes Pack", price: 14, ev: 8.3, roi: -41, note: "Chase tax — fun, not EV" },
+                    { name: "Prismatic Evolutions Pack", price: 15, ev: 7.2, roi: -52, note: "Still inflated secondary" },
+                    { name: "Chrome Update Hobby", price: 950, ev: 720, roi: -24, note: "Need huge hits to win" },
+                  ].map((row) => (
+                    <div key={row.name} className="flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/20">
+                      <div className="w-7 h-7 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center text-xs text-red-300">
+                        ✕
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-zinc-100 font-medium truncate">{row.name}</div>
+                        <div className="text-[11px] text-zinc-500 truncate">{row.note}</div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-sm font-mono text-red-400">{row.roi}%</div>
+                        <div className="text-[10px] text-zinc-500">${row.price} → ${row.ev}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                {[
+                  { title: "Deeper Odds Notes", desc: "Line-by-line variance and hit rate context per set." },
+                  { title: "Collection / Pull Tracker", desc: "Log pulls and see personal EV over time." },
+                  { title: "Early Set Data", desc: "First-look EV models when new products drop." },
+                  { title: "Custom Simulations", desc: "Run box/case sims before you buy." },
+                ].map((f) => (
+                  <div key={f.title} className="panel rounded-xl p-4 border border-zinc-800">
+                    <div className="text-sm font-medium text-zinc-200 mb-1">{f.title}</div>
+                    <div className="text-[12px] text-zinc-500">{f.desc}</div>
+                    <div className="mt-2 text-[10px] text-amber-400/70 uppercase tracking-wide">Insider soon</div>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-[11px] text-zinc-600">
+                Preview data is illustrative. Live Insider rankings will update weekly. Free calculator stays free forever.
+              </p>
+            </div>
+          ) : effectiveProduct ? (
             <div className="flex flex-col gap-5">
               <div>
                 <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
@@ -234,11 +348,7 @@ export default function Home() {
                         >
                           {p.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={p.image}
-                              alt={p.name}
-                              className="h-full w-full object-contain p-1"
-                            />
+                            <img src={p.image} alt={p.name} className="h-full w-full object-contain p-1" />
                           ) : (
                             <span className="text-3xl drop-shadow-lg">{p.emoji || "📦"}</span>
                           )}
@@ -324,9 +434,7 @@ export default function Home() {
                               >
                                 −
                               </button>
-                              <span className="w-9 text-center font-mono text-sm">
-                                {quantity}
-                              </span>
+                              <span className="w-9 text-center font-mono text-sm">{quantity}</span>
                               <button
                                 onClick={() => setQuantity(quantity + 1)}
                                 className="w-9 h-10 rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300 text-lg"
@@ -358,14 +466,10 @@ export default function Home() {
                             <div className="text-sm text-zinc-400 mt-1">
                               per unit
                               {quantity > 1 && (
-                                <span className="text-zinc-500">
-                                  {" "}
-                                  · ${totalEVScaled.toFixed(2)} total
-                                </span>
+                                <span className="text-zinc-500"> · ${totalEVScaled.toFixed(2)} total</span>
                               )}
                             </div>
                           </div>
-
                           <div className="text-right">
                             <div className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">
                               vs Price
@@ -375,8 +479,7 @@ export default function Home() {
                                 totalProfit >= 0 ? "text-green-400" : "text-red-400"
                               }`}
                             >
-                              {totalProfit >= 0 ? "+" : ""}
-                              ${totalProfit.toFixed(2)}
+                              {totalProfit >= 0 ? "+" : ""}${totalProfit.toFixed(2)}
                             </div>
                             <div
                               className={`text-sm font-mono ${
@@ -387,7 +490,6 @@ export default function Home() {
                               {roi.toFixed(1)}% ROI
                             </div>
                           </div>
-
                           <div className="flex flex-col items-center">
                             <svg width="64" height="64" className="-rotate-90">
                               <circle cx="32" cy="32" r="26" fill="none" stroke="#1a1a24" strokeWidth="5" />
@@ -448,20 +550,14 @@ export default function Home() {
                               className="flex items-center justify-between text-sm py-2 border-b border-zinc-800/50 last:border-0"
                             >
                               <div className="flex-1 min-w-0 pr-3">
-                                <div className="text-zinc-200 truncate text-[13px]">
-                                  {slot.name}
-                                </div>
-                                <div className="text-[11px] text-zinc-500">
-                                  Odds {slot.odds}
-                                </div>
+                                <div className="text-zinc-200 truncate text-[13px]">{slot.name}</div>
+                                <div className="text-[11px] text-zinc-500">Odds {slot.odds}</div>
                               </div>
                               <div className="text-right">
                                 <div className="font-mono text-zinc-300 text-sm">
                                   ${contribution.toFixed(2)}
                                 </div>
-                                <div className="text-[10px] text-zinc-600">
-                                  {pct.toFixed(0)}%
-                                </div>
+                                <div className="text-[10px] text-zinc-600">{pct.toFixed(0)}%</div>
                               </div>
                             </div>
                           );
@@ -516,9 +612,7 @@ export default function Home() {
                             </div>
                           </div>
                           <div className="text-right shrink-0">
-                            <div className="font-mono text-[12px] text-zinc-300">
-                              ${r.ev.toFixed(2)}
-                            </div>
+                            <div className="font-mono text-[12px] text-zinc-300">${r.ev.toFixed(2)}</div>
                             <div
                               className={`text-[10px] font-mono ${
                                 r.roi >= 0 ? "text-green-400" : "text-red-400/80"
@@ -538,12 +632,8 @@ export default function Home() {
                       <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
                         Top EV Contributor
                       </h3>
-                      <div className="text-sm font-medium text-zinc-100 mb-1">
-                        {topSlot.name}
-                      </div>
-                      <div className="text-xs text-zinc-500 mb-2">
-                        Odds {topSlot.odds}
-                      </div>
+                      <div className="text-sm font-medium text-zinc-100 mb-1">{topSlot.name}</div>
+                      <div className="text-xs text-zinc-500 mb-2">Odds {topSlot.odds}</div>
                       <div className="text-lg font-mono text-green-400">
                         ${(topSlot.oddsNum * topSlot.avgValue).toFixed(2)}
                       </div>
@@ -557,9 +647,7 @@ export default function Home() {
               </div>
             </div>
           ) : (
-            <div className="text-center text-zinc-500 py-20">
-              No products in this category yet.
-            </div>
+            <div className="text-center text-zinc-500 py-20">No products in this category yet.</div>
           )}
         </main>
       </div>
