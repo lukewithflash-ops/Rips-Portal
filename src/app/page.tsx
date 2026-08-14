@@ -39,7 +39,7 @@ export default function Home() {
     if (!claimEmail.trim() || claimDone) return;
     setClaimLoading(true);
     try {
-      const res = await fetch("https://formspree.io/f/xkjwzryd", {
+      await fetch("https://formspree.io/f/xkjwzryd", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
@@ -78,7 +78,6 @@ export default function Home() {
       : effectiveProduct?.defaultPrice ?? 0;
 
   const result = effectiveProduct ? calculateEV(effectiveProduct, price) : null;
-
   const totalEVScaled = result ? result.totalEV * quantity : 0;
   const totalCost = price * quantity;
   const totalProfit = totalEVScaled - totalCost;
@@ -164,7 +163,6 @@ export default function Home() {
             <div className="p-3 bg-black/70">
               <div className="text-xs font-semibold text-purple-300 mb-1">ENTER THE RIP</div>
               <div className="text-[10px] text-zinc-500 leading-snug mb-2">Open packs. Chase hits. Calculate smarter.</div>
-              <button className="w-full text-[11px] py-1.5 rounded-lg bg-purple-600/30 border border-purple-500/40 text-purple-200">Explore Lab →</button>
             </div>
           </div>
         </div>
@@ -251,20 +249,17 @@ export default function Home() {
 
           {view === "cards" ? (
             <div className="space-y-5 max-w-4xl">
-              <div className="panel rounded-2xl p-5 border border-cyan-500/30 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-purple-500/10 pointer-events-none" />
-                <div className="relative">
-                  <div className="text-[10px] uppercase tracking-widest text-cyan-400/80 mb-1">Card Lookup</div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Card Values</h2>
-                  <p className="text-sm text-zinc-400 mb-4 max-w-xl">Search chase cards for raw ranges and PSA estimates. Curated list — not live market feed yet.</p>
-                  <input
-                    type="search"
-                    value={cardQuery}
-                    onChange={(e) => { setCardQuery(e.target.value); setSelectedCard(null); }}
-                    placeholder="Search: Gengar, Pikachu, Kurtz, Ascended..."
-                    className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-cyan-400/60"
-                  />
-                </div>
+              <div className="panel rounded-2xl p-5 border border-cyan-500/30">
+                <div className="text-[10px] uppercase tracking-widest text-cyan-400/80 mb-1">Card Lookup</div>
+                <h2 className="text-2xl font-bold text-white mb-2">Card Values</h2>
+                <p className="text-sm text-zinc-400 mb-4">Search chase cards for raw ranges and PSA estimates.</p>
+                <input
+                  type="search"
+                  value={cardQuery}
+                  onChange={(e) => { setCardQuery(e.target.value); setSelectedCard(null); }}
+                  placeholder="Search: Gengar, Pikachu, Kurtz, Ascended..."
+                  className="w-full bg-black/60 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-cyan-400/60"
+                />
               </div>
 
               {selectedCard && (
@@ -293,30 +288,37 @@ export default function Home() {
                     </div>
                   </div>
                   {selectedCard.notes && <p className="text-xs text-zinc-500 border-t border-zinc-800 pt-3">{selectedCard.notes}</p>}
-                  <p className="text-[10px] text-zinc-600 mt-2">Approximate ranges for guidance only. Always check recent sold comps.</p>
                 </div>
               )}
 
-              <div>
-                <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">{cardQuery ? `${filteredCards.length} results` : `${chaseCards.length} chase cards`}</div>
-                <div className="space-y-2">
-                  {filteredCards.map((c) => (
-                    <button key={c.id} type="button" onClick={() => setSelectedCard(c)} className={`w-full text-left flex items-center gap-3 p-3 rounded-xl border transition ${selectedCard?.id === c.id ? "border-cyan-400/60 bg-cyan-500/10" : "border-zinc-800 bg-zinc-900/50 hover:border-cyan-500/30"}`}>
-                      <span className="text-xl w-8 text-center">{c.emoji || "🃏"}</span>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-zinc-100 truncate">{c.name}</div>
-                        <div className="text-[11px] text-zinc-500 truncate">{c.set} {c.number ? `· #${c.number}` : ""}</div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-sm font-mono text-green-400">${c.rawMid.toLocaleString()}</div>
-                        <div className="text-[10px] text-zinc-500">PSA10 {c.psa10 ? `$${c.psa10.toLocaleString()}` : "—"}</div>
-                      </div>
-                    </button>
-                  ))}
-                  {filteredCards.length === 0 && <div className="text-center text-zinc-500 py-10 text-sm">No cards match. Try Gengar, Pikachu, or Kurtz.</div>}
+              <div className="space-y-2">
+                <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">
+                  {cardQuery ? `${filteredCards.length} results` : `${chaseCards.length} chase cards`}
                 </div>
+                {filteredCards.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => setSelectedCard(c)}
+                    className={`w-full text-left flex items-center gap-3 p-3 rounded-xl border transition ${
+                      selectedCard?.id === c.id ? "border-cyan-400/60 bg-cyan-500/10" : "border-zinc-800 bg-zinc-900/50 hover:border-cyan-500/30"
+                    }`}
+                  >
+                    <span className="text-xl w-8 text-center">{c.emoji || "🃏"}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-zinc-100 truncate">{c.name}</div>
+                      <div className="text-[11px] text-zinc-500 truncate">{c.set} {c.number ? `· #${c.number}` : ""}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-sm font-mono text-green-400">${c.rawMid.toLocaleString()}</div>
+                      <div className="text-[10px] text-zinc-500">PSA10 {c.psa10 ? `$${c.psa10.toLocaleString()}` : "—"}</div>
+                    </div>
+                  </button>
+                ))}
+                {filteredCards.length === 0 && (
+                  <div className="text-center text-zinc-500 py-10 text-sm">No cards match. Try Gengar, Pikachu, or Kurtz.</div>
+                )}
               </div>
-              <p className="text-[11px] text-zinc-600">Starter database of chase cards. More sets and live feeds coming.</p>
             </div>
           ) : view === "insider" ? (
             <div className="space-y-5 max-w-4xl">
@@ -345,7 +347,7 @@ export default function Home() {
                         <label className="block text-[10px] uppercase tracking-wider text-zinc-500 mb-1">Email *</label>
                         <input type="email" required value={claimEmail} onChange={(e) => setClaimEmail(e.target.value)} placeholder="you@email.com" className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-amber-400/60" />
                       </div>
-                      <button type="submit" disabled={claimLoading || !claimEmail.trim()} className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-medium bg-amber-500/25 border border-amber-400/50 text-amber-100 hover:bg-amber-500/35 transition disabled:opacity-50">
+                      <button type="submit" disabled={claimLoading || !claimEmail.trim()} className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-medium bg-amber-500/25 border border-amber-400/50 text-amber-100 disabled:opacity-50">
                         {claimLoading ? "Claiming..." : "Claim 3 Months Free"}
                       </button>
                     </form>
@@ -410,11 +412,24 @@ export default function Home() {
                     const isTrending = p.id.includes("ascended") || p.id.includes("chrome-update");
                     const isActive = effectiveProduct.id === p.id;
                     return (
-                      <button key={p.id} onClick={() => handleSelectProduct(p.id)} className={`snap-start flex-shrink-0 w-[140px] lg:w-auto text-left rounded-xl border overflow-hidden transition-all card-hover ${isActive ? "border-green-400/70 portal-glow ring-1 ring-green-400/30" : "border-zinc-800/80 hover:border-green-500/30"}`}>
+                      <button
+                        key={p.id}
+                        onClick={() => handleSelectProduct(p.id)}
+                        className={`snap-start flex-shrink-0 w-[140px] lg:w-auto text-left rounded-xl border overflow-hidden transition-all card-hover ${
+                          isActive ? "border-green-400/70 portal-glow ring-1 ring-green-400/30" : "border-zinc-800/80 hover:border-green-500/30"
+                        }`}
+                      >
                         <div className={`h-24 lg:h-20 bg-gradient-to-br ${p.accent || "from-zinc-700 to-zinc-800"} flex items-center justify-center relative overflow-hidden`}>
-                          {p.image ? <img src={p.image} alt={p.name} className="h-full w-full object-contain p-1" /> : <span className="text-3xl drop-shadow-lg">{p.emoji || "📦"}</span>}
+                          {p.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={p.image} alt={p.name} className="h-full w-full object-contain p-1" />
+                          ) : (
+                            <span className="text-3xl drop-shadow-lg">{p.emoji || "📦"}</span>
+                          )}
                           {(p.tag === "value" || p.tag === "hot" || isTrending) && (
-                            <span className={`absolute top-1.5 right-1.5 text-[8px] px-1.5 py-0.5 rounded font-medium border ${p.tag === "value" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-black/50 text-green-300 border-green-500/40"}`}>{p.tag === "value" ? "VALUE" : "HOT"}</span>
+                            <span className={`absolute top-1.5 right-1.5 text-[8px] px-1.5 py-0.5 rounded font-medium border ${
+                              p.tag === "value" ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-black/50 text-green-300 border-green-500/40"
+                            }`}>{p.tag === "value" ? "VALUE" : "HOT"}</span>
                           )}
                         </div>
                         <div className="p-2.5 bg-zinc-900/90">
@@ -433,7 +448,12 @@ export default function Home() {
                   <div className="panel rounded-2xl p-4 md:p-5 portal-border">
                     <div className="flex gap-3 md:gap-4 mb-4">
                       <div className={`w-16 h-24 md:w-20 md:h-28 rounded-xl bg-gradient-to-br ${effectiveProduct.accent || "from-zinc-700 to-zinc-800"} flex items-center justify-center text-3xl md:text-4xl shrink-0 shadow-lg border border-white/10 overflow-hidden`}>
-                        {effectiveProduct.image ? <img src={effectiveProduct.image} alt={effectiveProduct.name} className="h-full w-full object-contain p-1" /> : (effectiveProduct.emoji || "📦")}
+                        {effectiveProduct.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={effectiveProduct.image} alt={effectiveProduct.name} className="h-full w-full object-contain p-1" />
+                        ) : (
+                          effectiveProduct.emoji || "📦"
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h2 className="text-lg md:text-xl font-bold text-white leading-tight">{effectiveProduct.name}</h2>
