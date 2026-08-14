@@ -228,14 +228,29 @@ export default function Home() {
                         `}
                       >
                         <div
-                          className={`h-20 lg:h-16 bg-gradient-to-br ${
+                          className={`h-24 lg:h-20 bg-gradient-to-br ${
                             p.accent || "from-zinc-700 to-zinc-800"
-                          } flex items-center justify-center relative`}
+                          } flex items-center justify-center relative overflow-hidden`}
                         >
-                          <span className="text-3xl drop-shadow-lg">{p.emoji || "📦"}</span>
-                          {isTrending && (
-                            <span className="absolute top-1.5 right-1.5 text-[8px] px-1.5 py-0.5 rounded bg-black/50 text-green-300 border border-green-500/40 font-medium">
-                              HOT
+                          {p.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={p.image}
+                              alt={p.name}
+                              className="h-full w-full object-contain p-1"
+                            />
+                          ) : (
+                            <span className="text-3xl drop-shadow-lg">{p.emoji || "📦"}</span>
+                          )}
+                          {(p.tag === "value" || p.tag === "hot" || isTrending) && (
+                            <span
+                              className={`absolute top-1.5 right-1.5 text-[8px] px-1.5 py-0.5 rounded font-medium border ${
+                                p.tag === "value"
+                                  ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                                  : "bg-black/50 text-green-300 border-green-500/40"
+                              }`}
+                            >
+                              {p.tag === "value" ? "VALUE" : "HOT"}
                             </span>
                           )}
                         </div>
@@ -263,9 +278,18 @@ export default function Home() {
                       <div
                         className={`w-16 h-24 md:w-20 md:h-28 rounded-xl bg-gradient-to-br ${
                           effectiveProduct.accent || "from-zinc-700 to-zinc-800"
-                        } flex items-center justify-center text-3xl md:text-4xl shrink-0 shadow-lg border border-white/10`}
+                        } flex items-center justify-center text-3xl md:text-4xl shrink-0 shadow-lg border border-white/10 overflow-hidden`}
                       >
-                        {effectiveProduct.emoji || "📦"}
+                        {effectiveProduct.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={effectiveProduct.image}
+                            alt={effectiveProduct.name}
+                            className="h-full w-full object-contain p-1"
+                          />
+                        ) : (
+                          effectiveProduct.emoji || "📦"
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h2 className="text-lg md:text-xl font-bold text-white leading-tight">
