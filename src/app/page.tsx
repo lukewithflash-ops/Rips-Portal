@@ -1066,10 +1066,19 @@ export default function Home() {
                       </div>
                     </div>
                   )}
-                  <p className="text-[10px] text-zinc-600 leading-relaxed px-1">
-                    Values are approximate. Decision aid only — not financial
-                    advice.
-                  </p>
+                 <div className="mb-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-zinc-300">
+  <p className="font-medium text-emerald-400">
+    Updated: August 17, 2026
+  </p>
+  <p className="mt-1 leading-relaxed">
+    Odds and values are estimates based on pull rates and recent market ranges.
+    Always double-check live prices before you buy or rip.
+  </p>
+  <p className="mt-1 text-zinc-400">
+    We take community pack recommendations — tell us what you&apos;re opening.
+  </p>
+
+</div>
                 </div>
               </div>
             </div>
