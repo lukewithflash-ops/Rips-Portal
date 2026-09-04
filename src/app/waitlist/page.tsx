@@ -69,8 +69,8 @@ export default function WaitlistPage() {
           : "(none selected)"
       }\n\n— Sent from ripsportal.com/waitlist`
     );
-    // No published contact inbox in-repo; opens a draft the visitor can send.
-    return `mailto:?subject=${subject}&body=${body}`;
+    // Backup inbox from project author identity.
+    return `mailto:lukewithflash@gmail.com?subject=${subject}&body=${body}`;
   }, [email, interests]);
 
   const toggleInterest = (id: InterestId) => {
@@ -231,7 +231,7 @@ export default function WaitlistPage() {
             <p className="text-[11px] text-zinc-600 leading-relaxed">
               MVP stores your email in{" "}
               <span className="font-mono text-zinc-500">localStorage</span> on
-              this device only — not a server database. Prefer email?{" "}
+              this device only — not a server database. Backup email to Luke?{" "}
               <a
                 href={mailtoHref}
                 className="text-purple-300/90 hover:text-purple-200 underline-offset-2 hover:underline"
