@@ -1,6 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
@@ -18,15 +25,130 @@ import {
   fmtMoney,
   fmtPct,
   type SimSession,
+  type SimPull,
+  type PackResult,
 } from "@/lib/simulate";
 
-type Phase = "idle" | "spinning" | "reveal";
+type Phase = "idle" | "tearing" | "reveal";
+
+type RarityTier = "common" | "uncommon" | "rare" | "chase";
+
+function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduced(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+  return reduced;
+}
+
+/** Rarity-weighted intensity from EV model inputs (does not change odds math). */
+function rarityTier(pull: SimPull, unitPrice: number): RarityTier {
+  const valueScore =
+    unitPrice > 0 ? pull.avgValue / unitPrice : pull.avgValue / 50;
+  const rarityScore =
+    pull.oddsNum > 0 ? Math.min(4, 0.08 / pull.oddsNum) : 0;
+  const score = valueScore * 0.65 + rarityScore * 0.35;
+  if (score >= 1.15 || pull.avgValue >= unitPrice * 1.5) return "chase";
+  if (score >= 0.55 || pull.avgValue >= unitPrice * 0.6) return "rare";
+  if (score >= 0.22 || pull.avgValue >= 15) return "uncommon";
+  return "common";
+}
+
+function packRarity(pack: PackResult, unitPrice: number): RarityTier {
+  if (!pack.highlight) return "common";
+  return rarityTier(pack.highlight, unitPrice);
+}
+
+function useCountUp(
+  target: number,
+  active: boolean,
+  durationMs: number,
+  reduced: boolean
+): number {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!active) {
+      setValue(0);
+      return;
+    }
+    if (reduced || durationMs <= 0) {
+      setValue(target);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const from = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / durationMs);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setValue(from + (target - from) * eased);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, active, durationMs, reduced]);
+  return value;
+}
+
+const CONFETTI_COLORS = [
+  "#22d3ee",
+  "#39ff14",
+  "#facc15",
+  "#bf00ff",
+  "#f472b6",
+  "#ffffff",
+];
+
+function ConfettiBurst({ show }: { show: boolean }) {
+  const bits = useMemo(() => {
+    return Array.from({ length: 14 }, (_, i) => {
+      const angle = (Math.PI * 2 * i) / 14 + (i % 3) * 0.2;
+      const dist = 48 + (i % 5) * 14;
+      return {
+        id: i,
+        color: CONFETTI_COLORS[i % CONFETTI_COLORS.length]!,
+        cx: `${Math.cos(angle) * dist}px`,
+        cy: `${Math.sin(angle) * dist - 20}px`,
+        cr: `${(i * 47) % 360}deg`,
+        delay: `${(i % 6) * 28}ms`,
+        w: 4 + (i % 3) * 2,
+        h: 4 + ((i + 1) % 3) * 2,
+      };
+    });
+  }, []);
+
+  if (!show) return null;
+  return (
+    <div className="confetti-burst" aria-hidden>
+      {bits.map((b) => (
+        <span
+          key={b.id}
+          style={{
+            background: b.color,
+            width: b.w,
+            height: b.h,
+            ["--cx" as string]: b.cx,
+            ["--cy" as string]: b.cy,
+            ["--cr" as string]: b.cr,
+            animationDelay: b.delay,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function OpenInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const packFromUrl = searchParams.get("pack");
+  const reducedMotion = usePrefersReducedMotion();
 
   const [category, setCategory] = useState<Category>("pokemon");
   const [productId, setProductId] = useState<string | null>(null);
@@ -37,6 +159,29 @@ function OpenInner() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [revealIdx, setRevealIdx] = useState(0);
   const [reelLabel, setReelLabel] = useState("?");
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [summaryReady, setSummaryReady] = useState(false);
+  const timersRef = useRef<Array<{ id: number; kind: "t" | "i" }>>([]);
+
+  const clearTimers = useCallback(() => {
+    timersRef.current.forEach(({ id, kind }) => {
+      if (kind === "i") window.clearInterval(id);
+      else window.clearTimeout(id);
+    });
+    timersRef.current = [];
+  }, []);
+
+  const trackTimeout = useCallback((id: number) => {
+    timersRef.current.push({ id, kind: "t" });
+    return id;
+  }, []);
+
+  const trackInterval = useCallback((id: number) => {
+    timersRef.current.push({ id, kind: "i" });
+    return id;
+  }, []);
+
+  useEffect(() => () => clearTimers(), [clearTimers]);
 
   const product: Product | null = useMemo(() => {
     if (productId) return findProduct(productId) ?? null;
@@ -72,6 +217,8 @@ function OpenInner() {
       setPriceStr("");
       setSession(null);
       setPhase("idle");
+      setSummaryReady(false);
+      setShowConfetti(false);
     }
   }, [packFromUrl]);
 
@@ -82,6 +229,8 @@ function OpenInner() {
       setPriceStr("");
       setSession(null);
       setPhase("idle");
+      setSummaryReady(false);
+      setShowConfetti(false);
       const params = new URLSearchParams();
       params.set("pack", p.id);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -94,43 +243,150 @@ function OpenInner() {
     [category]
   );
 
+  /** Cap multi-open reveal total ~2–3s for 10 packs. */
+  const revealStepMs = useCallback(
+    (qty: number) => {
+      if (reducedMotion) return 0;
+      if (qty <= 1) return 0;
+      if (qty <= 5) return Math.min(280, Math.floor(2200 / qty));
+      return Math.min(220, Math.floor(2600 / qty));
+    },
+    [reducedMotion]
+  );
+
+  const tearDurationMs = reducedMotion ? 0 : 520;
+
   const runOpen = useCallback(() => {
-    if (!product || phase === "spinning") return;
+    if (!product || phase === "tearing") return;
+    clearTimers();
     const next = simulateOpen(product, quantity, price);
     setSession(next);
-    setPhase("spinning");
+    setPhase("tearing");
     setRevealIdx(0);
+    setSummaryReady(false);
+    setShowConfetti(false);
 
     const labels = product.slots.map((s) => s.name);
+    const hi = next.packs[0]?.highlight?.name ?? labels[0] ?? "Pull";
+
+    if (reducedMotion) {
+      setReelLabel(hi);
+      setPhase("reveal");
+      setRevealIdx(Math.max(0, next.packs.length - 1));
+      setSummaryReady(true);
+      const hasChase = next.packs.some(
+        (pk) => packRarity(pk, price) === "chase"
+      );
+      setShowConfetti(hasChase);
+      return;
+    }
+
+    // Brief reel flicker during tear
     let ticks = 0;
-    const spin = window.setInterval(() => {
-      setReelLabel(labels[Math.floor(Math.random() * labels.length)] ?? "?");
-      ticks += 1;
-      if (ticks > 14) {
-        window.clearInterval(spin);
-        const hi = next.packs[0]?.highlight?.name ?? labels[0] ?? "Pull";
+    const flicker = trackInterval(
+      window.setInterval(() => {
+        setReelLabel(labels[Math.floor(Math.random() * labels.length)] ?? "?");
+        ticks += 1;
+        if (ticks > 8) window.clearInterval(flicker);
+      }, 55)
+    );
+
+    trackTimeout(
+      window.setTimeout(() => {
+        window.clearInterval(flicker);
         setReelLabel(hi);
         setPhase("reveal");
-      }
-    }, 70);
-  }, [product, quantity, price, phase]);
 
-  useEffect(() => {
-    if (phase !== "reveal" || !session) return;
-    if (revealIdx >= session.packs.length) return;
-    if (session.packs.length <= 1) return;
-    const t = window.setTimeout(() => {
-      setRevealIdx((i) => Math.min(i + 1, session.packs.length));
-    }, 180);
-    return () => window.clearTimeout(t);
-  }, [phase, session, revealIdx]);
+        // Chase confetti if any pack is a chase hit
+        const hasChase = next.packs.some(
+          (pk) => packRarity(pk, price) === "chase"
+        );
+        if (hasChase) {
+          setShowConfetti(true);
+          trackTimeout(
+            window.setTimeout(() => setShowConfetti(false), 1100)
+          );
+        }
+
+        if (next.packs.length <= 1) {
+          setRevealIdx(0);
+          setSummaryReady(true);
+          return;
+        }
+
+        // Sequential reveal capped ~2–3s total for 10 packs
+        const step = revealStepMs(next.packs.length);
+        let i = 0;
+        const advance = () => {
+          i += 1;
+          if (i >= next.packs.length) {
+            setRevealIdx(next.packs.length - 1);
+            setSummaryReady(true);
+            return;
+          }
+          setRevealIdx(i);
+          const pk = next.packs[i];
+          if (pk && packRarity(pk, price) === "chase") {
+            setShowConfetti(true);
+            trackTimeout(
+              window.setTimeout(() => setShowConfetti(false), 900)
+            );
+          }
+          trackTimeout(window.setTimeout(advance, step));
+        };
+        trackTimeout(window.setTimeout(advance, step));
+      }, tearDurationMs)
+    );
+  }, [
+    product,
+    quantity,
+    price,
+    phase,
+    reducedMotion,
+    clearTimers,
+    revealStepMs,
+    tearDurationMs,
+    trackTimeout,
+    trackInterval,
+  ]);
 
   const shownPacks =
     session && phase === "reveal"
       ? session.packs.slice(0, Math.max(1, revealIdx + 1))
-      : session && phase === "spinning"
-        ? []
-        : session?.packs ?? [];
+      : [];
+
+  const allRevealed =
+    !!session &&
+    phase === "reveal" &&
+    (summaryReady || revealIdx >= session.packs.length - 1);
+
+  const countedSim = useCountUp(
+    session?.totalSimValue ?? 0,
+    allRevealed && !!session,
+    reducedMotion ? 0 : 700,
+    reducedMotion
+  );
+  const countedEV = useCountUp(
+    session?.expectedEV ?? 0,
+    allRevealed && !!session,
+    reducedMotion ? 0 : 700,
+    reducedMotion
+  );
+  const countedVs = useCountUp(
+    session?.vsExpected ?? 0,
+    allRevealed && !!session,
+    reducedMotion ? 0 : 750,
+    reducedMotion
+  );
+
+  const packStageClass =
+    phase === "idle"
+      ? "pack-idle"
+      : phase === "tearing"
+        ? "pack-tear"
+        : phase === "reveal"
+          ? "pack-flip-reveal"
+          : "";
 
   return (
     <div className="flex min-h-screen portal-bg flex-col">
@@ -320,7 +576,9 @@ function OpenInner() {
                         : "border-zinc-800 text-zinc-400"
                     }`}
                   >
-                    {m === "custom" ? "Custom" : `${m} pack${m === "1" ? "" : "s"}`}
+                    {m === "custom"
+                      ? "Custom"
+                      : `${m} pack${m === "1" ? "" : "s"}`}
                   </button>
                 ))}
               </div>
@@ -336,7 +594,10 @@ function OpenInner() {
                     value={customQty}
                     onChange={(e) =>
                       setCustomQty(
-                        Math.max(1, Math.min(100, parseInt(e.target.value, 10) || 1))
+                        Math.max(
+                          1,
+                          Math.min(100, parseInt(e.target.value, 10) || 1)
+                        )
                       )
                     }
                     className="w-28 bg-black/60 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-cyan-400/60"
@@ -359,14 +620,16 @@ function OpenInner() {
               </div>
 
               <div
-                className={`relative mx-auto w-full max-w-sm h-28 rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-black to-emerald-950/30 flex items-center justify-center overflow-hidden ${
-                  phase === "spinning" ? "pack-reel-spin" : ""
-                } ${phase === "reveal" ? "pack-flip-reveal" : ""}`}
+                className={`pack-stage relative mx-auto w-full max-w-sm h-32 rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-black to-emerald-950/30 flex items-center justify-center overflow-hidden ${packStageClass}`}
               >
                 <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.35),transparent_70%)]" />
+                {phase === "tearing" && (
+                  <div className="pack-tear-flash" aria-hidden />
+                )}
+                <ConfettiBurst show={showConfetti && !reducedMotion} />
                 <div className="relative z-10 text-center px-4">
                   <div className="text-[10px] uppercase tracking-widest text-cyan-500/80 mb-1">
-                    {phase === "spinning"
+                    {phase === "tearing"
                       ? "Opening…"
                       : phase === "reveal"
                         ? "Reveal"
@@ -377,16 +640,23 @@ function OpenInner() {
                       ? `${product.emoji ?? "📦"} ${product.name}`
                       : reelLabel}
                   </div>
+                  {phase === "idle" && (
+                    <div className="mt-1.5 text-[10px] text-zinc-500 tracking-wide">
+                      Tap Open · free sim
+                    </div>
+                  )}
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={runOpen}
-                disabled={phase === "spinning"}
-                className="w-full py-3 rounded-xl text-sm font-semibold bg-cyan-500/20 border border-cyan-400/50 text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-50 portal-glow transition-colors"
+                disabled={phase === "tearing"}
+                className={`w-full py-3 rounded-xl text-sm font-semibold bg-cyan-500/20 border border-cyan-400/50 text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-50 portal-glow transition-colors ${
+                  phase === "idle" ? "open-cta-pulse" : ""
+                }`}
               >
-                {phase === "spinning"
+                {phase === "tearing"
                   ? "Opening…"
                   : `Open ${quantity} simulated pack${quantity === 1 ? "" : "s"}`}
               </button>
@@ -399,123 +669,159 @@ function OpenInner() {
             <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
               Results
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2.5">
-                <div className="text-[9px] uppercase tracking-wider text-zinc-600">
-                  Sim value
+
+            {allRevealed && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 summary-punch">
+                <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2.5">
+                  <div className="text-[9px] uppercase tracking-wider text-zinc-600">
+                    Sim value
+                  </div>
+                  <div className="text-sm font-mono text-white count-up-glow">
+                    {fmtMoney(countedSim)}
+                  </div>
                 </div>
-                <div className="text-sm font-mono text-white">
-                  {fmtMoney(session.totalSimValue)}
+                <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2.5">
+                  <div className="text-[9px] uppercase tracking-wider text-zinc-600">
+                    Expected EV
+                  </div>
+                  <div className="text-sm font-mono text-zinc-200 count-up-glow">
+                    {fmtMoney(countedEV)}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2.5">
+                  <div className="text-[9px] uppercase tracking-wider text-zinc-600">
+                    Cost × qty
+                  </div>
+                  <div className="text-sm font-mono text-zinc-200">
+                    {fmtMoney(session.costPaid)}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-3 py-2.5">
+                  <div className="text-[9px] uppercase tracking-wider text-emerald-500/80">
+                    Vs EV
+                  </div>
+                  <div
+                    className={`text-sm font-mono count-up-glow ${
+                      session.vsExpected >= 0
+                        ? "text-emerald-300"
+                        : "text-amber-300"
+                    }`}
+                  >
+                    {fmtMoney(countedVs)} (
+                    {fmtPct(
+                      session.expectedEV > 0
+                        ? (session.vsExpected / session.expectedEV) * 100
+                        : 0
+                    )}
+                    )
+                  </div>
                 </div>
               </div>
-              <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2.5">
-                <div className="text-[9px] uppercase tracking-wider text-zinc-600">
-                  Expected EV
-                </div>
-                <div className="text-sm font-mono text-zinc-200">
-                  {fmtMoney(session.expectedEV)}
-                </div>
-              </div>
-              <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2.5">
-                <div className="text-[9px] uppercase tracking-wider text-zinc-600">
-                  Cost × qty
-                </div>
-                <div className="text-sm font-mono text-zinc-200">
-                  {fmtMoney(session.costPaid)}
-                </div>
-              </div>
-              <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-3 py-2.5">
-                <div className="text-[9px] uppercase tracking-wider text-emerald-500/80">
-                  Vs EV
-                </div>
-                <div
-                  className={`text-sm font-mono ${
-                    session.vsExpected >= 0
-                      ? "text-emerald-300"
-                      : "text-amber-300"
-                  }`}
+            )}
+
+            {allRevealed && (
+              <p className="text-[12px] text-zinc-400 summary-punch">
+                Vs cost:{" "}
+                <span
+                  className={
+                    session.vsCost >= 0 ? "text-emerald-300" : "text-amber-300"
+                  }
                 >
-                  {fmtMoney(session.vsExpected)} (
-                  {fmtPct(
-                    session.expectedEV > 0
-                      ? (session.vsExpected / session.expectedEV) * 100
-                      : 0
-                  )}
-                  )
-                </div>
-              </div>
-            </div>
-            <p className="text-[12px] text-zinc-400">
-              Vs cost:{" "}
-              <span
-                className={
-                  session.vsCost >= 0 ? "text-emerald-300" : "text-amber-300"
-                }
-              >
-                {fmtMoney(session.vsCost)}
-              </span>{" "}
-              on {session.quantity}× {session.product.name} (
-              {session.product.format}).
-            </p>
+                  {fmtMoney(session.vsCost)}
+                </span>{" "}
+                on {session.quantity}× {session.product.name} (
+                {session.product.format}).
+              </p>
+            )}
 
             <ul className="space-y-2 max-h-80 overflow-y-auto">
-              {shownPacks.map((pack) => (
-                <li
-                  key={pack.packIndex}
-                  className="rounded-xl border border-zinc-800 bg-black/30 px-3 py-2.5"
-                >
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="text-[11px] font-semibold text-cyan-300/90">
-                      Pack {pack.packIndex}
-                    </span>
-                    <span className="text-[11px] font-mono text-zinc-300">
-                      {fmtMoney(pack.packValue)}
-                    </span>
-                  </div>
-                  {pack.pulls.length === 0 ? (
-                    <div className="text-[12px] text-zinc-500">No hits rolled</div>
-                  ) : (
-                    <div className="flex flex-wrap gap-1.5">
-                      {pack.pulls.map((pull, i) => (
-                        <span
-                          key={`${pack.packIndex}-${i}`}
-                          className={`text-[11px] rounded-lg px-2 py-1 border ${
-                            pack.highlight?.name === pull.name &&
-                            pull.avgValue === pack.highlight.avgValue
-                              ? "border-cyan-400/40 bg-cyan-500/15 text-cyan-100"
-                              : "border-zinc-800 bg-zinc-900/50 text-zinc-300"
-                          }`}
-                        >
-                          {pull.name} · {fmtMoney(pull.avgValue)}
-                        </span>
-                      ))}
+              {shownPacks.map((pack, listIdx) => {
+                const tier = packRarity(pack, session.pricePerUnit);
+                const isLatest = listIdx === shownPacks.length - 1;
+                return (
+                  <li
+                    key={pack.packIndex}
+                    className={`rounded-xl border px-3 py-2.5 hit-reveal rarity-${tier} ${
+                      isLatest && tier === "chase" ? "hit-reveal-flip" : ""
+                    }`}
+                    style={
+                      reducedMotion
+                        ? undefined
+                        : { animationDelay: `${Math.min(listIdx, 4) * 40}ms` }
+                    }
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <span className="text-[11px] font-semibold text-cyan-300/90">
+                        Pack {pack.packIndex}
+                        {tier === "chase" && (
+                          <span className="ml-1.5 text-[9px] uppercase tracking-wider text-amber-300/90">
+                            Chase
+                          </span>
+                        )}
+                        {tier === "rare" && (
+                          <span className="ml-1.5 text-[9px] uppercase tracking-wider text-cyan-400/80">
+                            Hit
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-[11px] font-mono text-zinc-300">
+                        {fmtMoney(pack.packValue)}
+                      </span>
                     </div>
-                  )}
-                </li>
-              ))}
+                    {pack.pulls.length === 0 ? (
+                      <div className="text-[12px] text-zinc-500">
+                        No hits rolled
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {pack.pulls.map((pull, i) => {
+                          const pt = rarityTier(pull, session.pricePerUnit);
+                          return (
+                            <span
+                              key={`${pack.packIndex}-${i}`}
+                              className={`pull-chip text-[11px] rounded-lg px-2 py-1 border pull-chip-${pt}`}
+                              style={
+                                reducedMotion
+                                  ? undefined
+                                  : {
+                                      animationDelay: `${40 + i * 55}ms`,
+                                    }
+                              }
+                            >
+                              {pull.name} · {fmtMoney(pull.avgValue)}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
 
-            <div className="flex flex-wrap gap-2 pt-1">
-              <button
-                type="button"
-                onClick={runOpen}
-                className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-100 hover:bg-cyan-500/25"
-              >
-                Open again
-              </button>
-              <Link
-                href={`/log?pack=${session.product.id}&qty=${session.quantity}`}
-                className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20"
-              >
-                Log this rip →
-              </Link>
-              <Link
-                href={`/?pack=${session.product.id}`}
-                className="text-[12px] px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/25"
-              >
-                Verdict / Calculator →
-              </Link>
-            </div>
+            {allRevealed && (
+              <div className="flex flex-wrap gap-2 pt-1 summary-punch">
+                <button
+                  type="button"
+                  onClick={runOpen}
+                  className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-100 hover:bg-cyan-500/25 open-cta-pulse"
+                >
+                  Open again
+                </button>
+                <Link
+                  href={`/log?pack=${session.product.id}&qty=${session.quantity}`}
+                  className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20"
+                >
+                  Log this rip →
+                </Link>
+                <Link
+                  href={`/?pack=${session.product.id}`}
+                  className="text-[12px] px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/25"
+                >
+                  Verdict / Calculator →
+                </Link>
+              </div>
+            )}
           </section>
         )}
       </main>
