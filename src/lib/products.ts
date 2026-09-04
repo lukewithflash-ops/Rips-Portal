@@ -41,7 +41,7 @@ const rawProducts: Product[] = [
     accent: "from-violet-600 to-fuchsia-500",
     emoji: "🦸",
     tag: "hot",
-    image: "/products/pokemon.png",
+    image: "/products/poke-ascended-pack.png",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 1.87 },
       { name: "Double Rare (RR)", odds: "1:5", oddsNum: 0.2, avgValue: 1.3 },
