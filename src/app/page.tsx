@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
   categories,
@@ -234,40 +235,55 @@ function HomeInner() {
               id: "cards" as const,
               active: view === "cards",
             },
+            { icon: "📝", label: "Rip Log", href: "/log" as const },
             { icon: "📦", label: "Packs & Sets", soon: true },
             { icon: "📊", label: "Market Tracker", soon: true },
             { icon: "⭐", label: "Watchlist", soon: true },
             { icon: "🔬", label: "Simulations", soon: true },
-            { icon: "🕐", label: "History", soon: true },
-          ].map((item) => (
-            <button
-              key={item.label}
-              type="button"
-              onClick={() => {
-                if ("id" in item && item.id) setView(item.id);
-              }}
-              className={`sidebar-item w-full rounded-lg px-3 py-2.5 text-sm flex items-center gap-2.5 text-left ${
-                item.active ? "active font-medium" : "text-zinc-500"
-              } ${
-                "soon" in item && item.soon
-                  ? "cursor-default"
-                  : "cursor-pointer hover:text-green-300"
-              }`}
-            >
-              <span className="text-base w-5 text-center">{item.icon}</span>
-              <span>{item.label}</span>
-              {"pro" in item && item.pro && (
-                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wide">
-                  Pro
-                </span>
-              )}
-              {"soon" in item && item.soon && (
-                <span className="ml-auto text-[9px] text-zinc-600 uppercase tracking-wide">
-                  Soon
-                </span>
-              )}
-            </button>
-          ))}
+          ].map((item) => {
+            const className = `sidebar-item w-full rounded-lg px-3 py-2.5 text-sm flex items-center gap-2.5 text-left ${
+              "active" in item && item.active ? "active font-medium" : "text-zinc-500"
+            } ${
+              "soon" in item && item.soon
+                ? "cursor-default"
+                : "cursor-pointer hover:text-green-300"
+            }`;
+            const inner = (
+              <>
+                <span className="text-base w-5 text-center">{item.icon}</span>
+                <span>{item.label}</span>
+                {"pro" in item && item.pro && (
+                  <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wide">
+                    Pro
+                  </span>
+                )}
+                {"soon" in item && item.soon && (
+                  <span className="ml-auto text-[9px] text-zinc-600 uppercase tracking-wide">
+                    Soon
+                  </span>
+                )}
+              </>
+            );
+            if ("href" in item && item.href) {
+              return (
+                <Link key={item.label} href={item.href} className={className}>
+                  {inner}
+                </Link>
+              );
+            }
+            return (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => {
+                  if ("id" in item && item.id) setView(item.id);
+                }}
+                className={className}
+              >
+                {inner}
+              </button>
+            );
+          })}
         </nav>
 
         <div className="p-3 border-t border-green-500/10">
@@ -424,6 +440,12 @@ function HomeInner() {
             >
               🔐 VIP
             </button>
+            <Link
+              href="/log"
+              className="flex-1 py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-cyan-500/40 hover:text-cyan-300"
+            >
+              📝 Log
+            </Link>
           </div>
 
           {view === "cards" ? (
@@ -819,17 +841,25 @@ function HomeInner() {
                         <p className="text-sm text-zinc-400 mt-0.5">
                           {effectiveProduct.format}
                         </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const url = `${window.location.origin}${pathname}?pack=${effectiveProduct.id}`;
-                            navigator.clipboard?.writeText(url).catch(() => {});
-                            syncPackToUrl(effectiveProduct.id);
-                          }}
-                          className="mt-2 text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
-                        >
-                          Copy share link
-                        </button>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const url = `${window.location.origin}${pathname}?pack=${effectiveProduct.id}`;
+                              navigator.clipboard?.writeText(url).catch(() => {});
+                              syncPackToUrl(effectiveProduct.id);
+                            }}
+                            className="text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
+                          >
+                            Copy share link
+                          </button>
+                          <Link
+                            href={`/log?pack=${effectiveProduct.id}&qty=${quantity}`}
+                            className="text-[11px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline"
+                          >
+                            Log this rip
+                          </Link>
+                        </div>
                         <div className="flex flex-wrap items-end gap-3 mt-3">
                           <div>
                             <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
@@ -1059,6 +1089,12 @@ function HomeInner() {
                         <p className="mt-3 text-[10px] text-zinc-500 leading-relaxed border-t border-zinc-800/60 pt-2.5">
                           {VERDICT_DISCLAIMER}
                         </p>
+                        <Link
+                          href={`/log?pack=${effectiveProduct.id}&qty=${quantity}`}
+                          className="mt-3 inline-flex items-center justify-center w-full sm:w-auto rounded-lg border border-cyan-500/35 bg-cyan-500/10 px-3 py-2 text-[12px] font-medium text-cyan-300 hover:bg-cyan-500/20"
+                        >
+                          📝 Log this rip — compare pulls to EV
+                        </Link>
                       </div>
                     )}
 
