@@ -41,7 +41,7 @@ const rawProducts: Product[] = [
     accent: "from-violet-600 to-fuchsia-500",
     emoji: "🦸",
     tag: "hot",
-    image: "https://archives.bulbagarden.net/media/upload/1/1b/Ascended_Heroes_Booster.png",
+    image: "/products/pokemon.png",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 1.87 },
       { name: "Double Rare (RR)", odds: "1:5", oddsNum: 0.2, avgValue: 1.3 },
@@ -61,7 +61,7 @@ const rawProducts: Product[] = [
     defaultPrice: 168,
     accent: "from-violet-700 to-purple-500",
     emoji: "📦",
-    image: "https://archives.bulbagarden.net/media/upload/d/dd/ME2.5_Elite_Trainer_Box_outer.png",
+    image: "/products/poke-ascended-etb.jpg",
     tag: "chase",
     slots: [
       { name: "Bulk value across 9 packs", odds: "guaranteed", oddsNum: 1, avgValue: 7 },
@@ -80,7 +80,7 @@ const rawProducts: Product[] = [
     defaultPrice: 84,
     accent: "from-fuchsia-700 to-violet-600",
     emoji: "📦",
-    image: "https://archives.bulbagarden.net/media/upload/4/4e/ME2.5_Booster_Bundle.png",
+    image: "/products/poke-ascended-bundle.jpg",
     tag: "hot",
     slots: [
       { name: "Bulk across 6 packs", odds: "guaranteed", oddsNum: 1, avgValue: 4.8 },
@@ -174,7 +174,7 @@ const rawProducts: Product[] = [
     defaultPrice: 12.9,
     accent: "from-orange-700 to-red-500",
     emoji: "🌋",
-    image: "https://archives.bulbagarden.net/media/upload/5/52/SV3_Booster_Charizard.png",
+    image: "/products/poke-obsidian-pack.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.0 },
@@ -192,7 +192,7 @@ const rawProducts: Product[] = [
     defaultPrice: 11.0,
     accent: "from-sky-600 to-indigo-400",
     emoji: "⏳",
-    image: "https://archives.bulbagarden.net/media/upload/d/d7/SV5_Booster_Walking_Wake.png",
+    image: "/products/poke-temporal-pack.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.1 },
@@ -210,7 +210,7 @@ const rawProducts: Product[] = [
     defaultPrice: 8.15,
     accent: "from-violet-600 to-blue-500",
     emoji: "🌀",
-    image: "https://archives.bulbagarden.net/media/upload/3/3d/SV4_Booster_Iron_Valiant.png",
+    image: "/products/poke-paradox-pack.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.15 },
@@ -228,7 +228,7 @@ const rawProducts: Product[] = [
     defaultPrice: 16.25,
     accent: "from-lime-500 to-green-500",
     emoji: "🌿",
-    image: "https://archives.bulbagarden.net/media/upload/0/0b/SV2_Booster_Meowscarada.png",
+    image: "/products/poke-paldea-pack.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.28 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.0 },
@@ -246,7 +246,7 @@ const rawProducts: Product[] = [
     defaultPrice: 300,
     accent: "from-yellow-600 to-orange-500",
     emoji: "🗃️",
-    image: "https://archives.bulbagarden.net/media/upload/4/4e/SV8_Booster_Display_Box.png",
+    image: "/products/poke-surging-bb.png",
     slots: [
       { name: "Bulk across box", odds: "guaranteed", oddsNum: 1, avgValue: 16 },
       { name: "Rares / EXs expected", odds: "many", oddsNum: 1, avgValue: 45 },
@@ -265,7 +265,7 @@ const rawProducts: Product[] = [
     defaultPrice: 5.36,
     accent: "from-cyan-600 to-teal-400",
     emoji: "🌊",
-    image: "https://archives.bulbagarden.net/media/upload/1/19/ME4_Booster_Mega_Greninja.png",
+    image: "/products/poke-chaos-rising-pack.png",
     tag: "value",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -284,7 +284,7 @@ const rawProducts: Product[] = [
     defaultPrice: 5.45,
     accent: "from-stone-500 to-zinc-400",
     emoji: "🧩",
-    image: "https://archives.bulbagarden.net/media/upload/3/34/ME3_Booster_Mega_Zygarde.png",
+    image: "/products/poke-perfect-order-pack.png",
     tag: "value",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -303,7 +303,7 @@ const rawProducts: Product[] = [
     defaultPrice: 5.67,
     accent: "from-zinc-800 to-violet-700",
     emoji: "🌑",
-    image: "https://archives.bulbagarden.net/media/upload/a/ae/ME5_Booster_Mega_Darkrai.png",
+    image: "/products/poke-pitch-black-pack.png",
     tag: "value",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
