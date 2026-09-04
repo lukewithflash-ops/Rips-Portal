@@ -28,6 +28,21 @@ function fmtRoi(roi: number): string {
 export default function DealsPage() {
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
   const [sortKey, setSortKey] = useState<SortKey>("roi");
+  const [copiedShare, setCopiedShare] = useState(false);
+
+  const copyShareLink = async () => {
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/deals`
+        : "https://ripsportal.com/deals";
+    try {
+      await navigator.clipboard?.writeText(url);
+      setCopiedShare(true);
+      window.setTimeout(() => setCopiedShare(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
 
   const underEv = useMemo(() => {
     const rows = products
@@ -111,6 +126,13 @@ export default function DealsPage() {
                 ? ` · ${filtered.length} in filter`
                 : ""}
             </p>
+            <button
+              type="button"
+              onClick={copyShareLink}
+              className="mt-3 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-200/90 hover:bg-emerald-500/20 transition-colors"
+            >
+              {copiedShare ? "Copied!" : "Copy share link"}
+            </button>
           </div>
         </section>
 

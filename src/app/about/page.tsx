@@ -4,8 +4,16 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Portal — Rip Portal, Portal Verdict, and Rip Log. Multi-hobby pack EV tools for collectors.",
+    "Portal — Rip Portal, Portal Verdict, Rip Log, Free Pack Opener, and more. Multi-hobby pack EV tools for collectors.",
   alternates: { canonical: "https://ripsportal.com/about" },
+  openGraph: {
+    title: "About Portal · Rip Portal",
+    description:
+      "Math-first collector tools: EV calculator, Verdict, Rip Log, Deals, and free pack simulation.",
+    url: "https://ripsportal.com/about",
+    siteName: "Rip Portal",
+    type: "website",
+  },
 };
 
 export default function AboutPage() {
@@ -55,6 +63,19 @@ export default function AboutPage() {
               device for the MVP — a personal notebook, not a marketplace.
             </p>
           </div>
+          <div className="panel rounded-xl p-4">
+            <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mb-2">
+              Free Pack Opener
+            </h2>
+            <p>
+              Educational simulation only — drop tables from our EV model, no
+              gems, no paid opens, no gambling.{" "}
+              <Link href="/open" className="text-cyan-300 hover:underline">
+                Try /open
+              </Link>
+              .
+            </p>
+          </div>
         </section>
 
         <section className="mt-8 text-sm text-zinc-400 leading-relaxed space-y-3">
@@ -73,6 +94,22 @@ export default function AboutPage() {
             claims are published here until they exist.
           </p>
         </section>
+
+        <div className="mt-8 panel rounded-xl p-4 border border-purple-500/25">
+          <h2 className="text-xs font-semibold text-purple-300/90 uppercase tracking-widest mb-2">
+            Portal waitlist
+          </h2>
+          <p className="text-sm text-zinc-300 leading-relaxed">
+            Want early notes when Portal expands beyond Rip tools?{" "}
+            <Link
+              href="/waitlist"
+              className="text-purple-300 hover:text-purple-200 underline-offset-2 hover:underline font-medium"
+            >
+              Join waitlist
+            </Link>
+            .
+          </p>
+        </div>
 
         <p className="mt-8 text-[12px] text-zinc-500">
           Questions or pack tips? Reach out via the Insider form on the home

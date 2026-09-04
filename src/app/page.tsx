@@ -237,12 +237,12 @@ function HomeInner() {
               id: "cards" as const,
               active: view === "cards",
             },
+            { icon: "🎁", label: "Open", href: "/open" as const },
             { icon: "📝", label: "Rip Log", href: "/log" as const },
             { icon: "💎", label: "Deals", href: "/deals" as const },
             { icon: "📦", label: "Packs & Sets", soon: true },
             { icon: "📊", label: "Market Tracker", soon: true },
             { icon: "⭐", label: "Watchlist", soon: true },
-            { icon: "🔬", label: "Simulations", soon: true },
           ].map((item) => {
             const className = `sidebar-item w-full rounded-lg px-3 py-2.5 text-sm flex items-center gap-2.5 text-left ${
               "active" in item && item.active ? "active font-medium" : "text-zinc-500"
@@ -451,6 +451,12 @@ function HomeInner() {
             >
               🔐 VIP
             </button>
+            <Link
+              href="/open"
+              className="flex-1 py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-cyan-500/40 hover:text-cyan-300"
+            >
+              🎁 Open
+            </Link>
             <Link
               href="/log"
               className="flex-1 py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-cyan-500/40 hover:text-cyan-300"
@@ -870,6 +876,12 @@ function HomeInner() {
                           >
                             Copy share link
                           </button>
+                          <Link
+                            href={`/open?pack=${effectiveProduct.id}`}
+                            className="text-[11px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline"
+                          >
+                            Simulate open
+                          </Link>
                           <Link
                             href={`/log?pack=${effectiveProduct.id}&qty=${quantity}`}
                             className="text-[11px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline"

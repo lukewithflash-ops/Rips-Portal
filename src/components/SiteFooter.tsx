@@ -20,6 +20,12 @@ export default function SiteFooter() {
             About
           </Link>
           <Link
+            href="/waitlist"
+            className="hover:text-purple-300 transition-colors"
+          >
+            Join waitlist
+          </Link>
+          <Link
             href="/privacy"
             className="hover:text-green-300 transition-colors"
           >
@@ -27,6 +33,9 @@ export default function SiteFooter() {
           </Link>
           <Link href="/terms" className="hover:text-green-300 transition-colors">
             Terms
+          </Link>
+          <Link href="/open" className="hover:text-cyan-300 transition-colors">
+            Open
           </Link>
           <Link href="/deals" className="hover:text-emerald-300 transition-colors">
             Deals
