@@ -59,6 +59,7 @@ export const products: Product[] = [
     defaultPrice: 168,
     accent: "from-violet-700 to-purple-500",
     emoji: "📦",
+    image: "https://archives.bulbagarden.net/media/upload/d/dd/ME2.5_Elite_Trainer_Box_outer.png",
     tag: "chase",
     slots: [
       { name: "Bulk value across 9 packs", odds: "guaranteed", oddsNum: 1, avgValue: 7 },
@@ -77,6 +78,7 @@ export const products: Product[] = [
     defaultPrice: 84,
     accent: "from-fuchsia-700 to-violet-600",
     emoji: "📦",
+    image: "https://archives.bulbagarden.net/media/upload/4/4e/ME2.5_Booster_Bundle.png",
     tag: "hot",
     slots: [
       { name: "Bulk across 6 packs", odds: "guaranteed", oddsNum: 1, avgValue: 4.8 },
@@ -95,6 +97,7 @@ export const products: Product[] = [
     defaultPrice: 7.85,
     accent: "from-yellow-500 to-orange-400",
     emoji: "⚡",
+    image: "https://archives.bulbagarden.net/media/upload/8/8b/SV8_Booster_Pikachu.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.45 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.4 },
@@ -112,6 +115,7 @@ export const products: Product[] = [
     defaultPrice: 9.0,
     accent: "from-red-600 to-orange-500",
     emoji: "🔥",
+    image: "https://archives.bulbagarden.net/media/upload/2/24/SV10_Booster_Team_Rocket.png",
     tag: "chase",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -130,6 +134,7 @@ export const products: Product[] = [
     defaultPrice: 6.6,
     accent: "from-emerald-500 to-teal-400",
     emoji: "🗺️",
+    image: "https://archives.bulbagarden.net/media/upload/e/e0/SV9_Booster_N_Zoroark.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.35 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.2 },
@@ -147,6 +152,7 @@ export const products: Product[] = [
     defaultPrice: 14.8,
     accent: "from-pink-500 to-rose-400",
     emoji: "✨",
+    image: "https://archives.bulbagarden.net/media/upload/5/53/Prismatic_Evolutions_Booster_Eevee_Sylveon.png",
     tag: "hot",
     slots: [
       { name: "Bulk / Commons", odds: "~50%", oddsNum: 0.5, avgValue: 0.3 },
@@ -166,6 +172,7 @@ export const products: Product[] = [
     defaultPrice: 12.9,
     accent: "from-orange-700 to-red-500",
     emoji: "🌋",
+    image: "https://archives.bulbagarden.net/media/upload/5/52/SV3_Booster_Charizard.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.0 },
@@ -183,6 +190,7 @@ export const products: Product[] = [
     defaultPrice: 11.0,
     accent: "from-sky-600 to-indigo-400",
     emoji: "⏳",
+    image: "https://archives.bulbagarden.net/media/upload/d/d7/SV5_Booster_Walking_Wake.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.1 },
@@ -200,6 +208,7 @@ export const products: Product[] = [
     defaultPrice: 8.15,
     accent: "from-violet-600 to-blue-500",
     emoji: "🌀",
+    image: "https://archives.bulbagarden.net/media/upload/3/3d/SV4_Booster_Iron_Valiant.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.15 },
@@ -217,6 +226,7 @@ export const products: Product[] = [
     defaultPrice: 16.25,
     accent: "from-lime-500 to-green-500",
     emoji: "🌿",
+    image: "https://archives.bulbagarden.net/media/upload/0/0b/SV2_Booster_Meowscarada.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.28 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.0 },
@@ -234,6 +244,7 @@ export const products: Product[] = [
     defaultPrice: 300,
     accent: "from-yellow-600 to-orange-500",
     emoji: "🗃️",
+    image: "https://archives.bulbagarden.net/media/upload/4/4e/SV8_Booster_Display_Box.png",
     slots: [
       { name: "Bulk across box", odds: "guaranteed", oddsNum: 1, avgValue: 16 },
       { name: "Rares / EXs expected", odds: "many", oddsNum: 1, avgValue: 45 },
@@ -252,6 +263,7 @@ export const products: Product[] = [
     defaultPrice: 5.36,
     accent: "from-cyan-600 to-teal-400",
     emoji: "🌊",
+    image: "https://archives.bulbagarden.net/media/upload/1/19/ME4_Booster_Mega_Greninja.png",
     tag: "value",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -270,6 +282,7 @@ export const products: Product[] = [
     defaultPrice: 5.45,
     accent: "from-stone-500 to-zinc-400",
     emoji: "🧩",
+    image: "https://archives.bulbagarden.net/media/upload/3/34/ME3_Booster_Mega_Zygarde.png",
     tag: "value",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -288,6 +301,7 @@ export const products: Product[] = [
     defaultPrice: 5.67,
     accent: "from-zinc-800 to-violet-700",
     emoji: "🌑",
+    image: "https://archives.bulbagarden.net/media/upload/a/ae/ME5_Booster_Mega_Darkrai.png",
     tag: "value",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -308,6 +322,7 @@ export const products: Product[] = [
     defaultPrice: 55,
     accent: "from-yellow-600 to-orange-300",
     emoji: "🎴",
+    image: "https://theawesomecardshop.com/cdn/shop/files/2025-26_Topps_Chrome_Update_Series_Basketball_Blaster_Box1.png?v=1783801038",
     tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 14 },
@@ -324,6 +339,7 @@ export const products: Product[] = [
     defaultPrice: 130,
     accent: "from-amber-600 to-yellow-400",
     emoji: "📦",
+    image: "https://theawesomecardshop.com/cdn/shop/files/2025-26_Topps_Chrome_Update_Series_Basketball_Mega_Box1.png?v=1783801576",
     tag: "value",
     slots: [
       { name: "Base + Refractors / X-Fractors", odds: "strong", oddsNum: 1, avgValue: 28 },
@@ -341,6 +357,7 @@ export const products: Product[] = [
     defaultPrice: 950,
     accent: "from-orange-600 to-amber-400",
     emoji: "🏀",
+    image: "https://theawesomecardshop.com/cdn/shop/files/2025-26ToppsChromeUpdateSeriesBasketballHobbyBox1.png?v=1783742983",
     tag: "chase",
     slots: [
       { name: "Base + Refractors (box total)", odds: "many", oddsNum: 1, avgValue: 60 },
@@ -359,6 +376,7 @@ export const products: Product[] = [
     defaultPrice: 28,
     accent: "from-red-600 to-orange-500",
     emoji: "🏀",
+    image: "https://www.kingofhoops.eu/cdn/shop/files/25HOOP_FGC6701_VALUE_5fe7c17d-823d-4bf7-84b9-0c176ab80c2d.webp?v=1778771735",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 10 },
@@ -393,6 +411,7 @@ export const products: Product[] = [
     defaultPrice: 75,
     accent: "from-rose-600 to-red-400",
     emoji: "📦",
+    image: "https://ripped.topps.com/wp-content/uploads/2026/07/ecom_26TCBB_FGC6629EA_30SE_MBX.webp",
     tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 20 },
@@ -409,6 +428,7 @@ export const products: Product[] = [
     defaultPrice: 280,
     accent: "from-red-600 to-rose-400",
     emoji: "⚾",
+    image: "https://ripped.topps.com/wp-content/uploads/2026/07/ecom_26TCBB_FGC6625_HOBBY.webp",
     tag: "chase",
     slots: [
       { name: "Base + Refractors", odds: "many", oddsNum: 1, avgValue: 50 },
@@ -427,6 +447,7 @@ export const products: Product[] = [
     defaultPrice: 240,
     accent: "from-sky-600 to-blue-400",
     emoji: "🏟️",
+    image: "https://skyboxct.com/cdn/shop/files/2025-topps-update-series-baseball-hobby-box-71610-1753842266.jpg?v=1788535297",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 45 },
@@ -444,6 +465,7 @@ export const products: Product[] = [
     defaultPrice: 25,
     accent: "from-blue-600 to-sky-400",
     emoji: "⚾",
+    image: "https://dickandjanes.com/cdn/shop/files/2026-topps-series-1-baseball-6-pack-blaster-box-mlb-435.jpg?v=1770762849",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 9 },
@@ -460,6 +482,7 @@ export const products: Product[] = [
     defaultPrice: 30,
     accent: "from-amber-700 to-yellow-500",
     emoji: "📜",
+    image: "https://theawesomecardshop.com/cdn/shop/files/2025_Topps_Heritage_Baseball_Blaster_Box.png?v=1745278149",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 11 },
@@ -478,6 +501,7 @@ export const products: Product[] = [
     defaultPrice: 4.5,
     accent: "from-cyan-600 to-blue-400",
     emoji: "🏴‍☠️",
+    image: "https://web.archive.org/web/20260526120708im_/https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/03/26/olc1E9Gg9WXeLP6V/img_item01.webp",
     tag: "value",
     slots: [
       { name: "Common / Uncommon", odds: "~60%", oddsNum: 0.6, avgValue: 0.25 },
@@ -496,6 +520,7 @@ export const products: Product[] = [
     defaultPrice: 95,
     accent: "from-blue-700 to-cyan-500",
     emoji: "🗃️",
+    image: "https://web.archive.org/web/20260526120701im_/https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/03/26/Ig0IEvjgiopFCRqh/img_item02.webp",
     tag: "value",
     slots: [
       { name: "Bulk + Rares", odds: "guaranteed", oddsNum: 1, avgValue: 22 },
