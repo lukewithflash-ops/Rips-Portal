@@ -11,6 +11,7 @@ import {
   type Product,
 } from "@/lib/products";
 import { chaseCards, searchCards, type ChaseCard } from "@/lib/cards";
+import { computeVerdict, VERDICT_DISCLAIMER } from "@/lib/verdict";
 
 function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
@@ -26,6 +27,8 @@ function HomeInner() {
   const [selectedCard, setSelectedCard] = useState<ChaseCard | null>(null);
   const [packQuery, setPackQuery] = useState("");
   const resultsRef = useRef<HTMLDivElement>(null);
+  const verdictRef = useRef<HTMLDivElement>(null);
+  const [verdictHighlight, setVerdictHighlight] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -41,6 +44,15 @@ function HomeInner() {
     setCustomPrice("");
     setView("calculator");
     setPackQuery("");
+    setVerdictHighlight(true);
+    const t = window.setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 120);
+    const clear = window.setTimeout(() => setVerdictHighlight(false), 2600);
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(clear);
+    };
   }, [packFromUrl]);
 
   const syncPackToUrl = (id: string) => {
@@ -151,6 +163,7 @@ function HomeInner() {
       : effectiveProduct?.defaultPrice ?? 0;
 
   const result = effectiveProduct ? calculateEV(effectiveProduct, price) : null;
+  const verdict = effectiveProduct ? computeVerdict(effectiveProduct, price) : null;
   const totalEVScaled = result ? result.totalEV * quantity : 0;
   const totalCost = price * quantity;
   const totalProfit = totalEVScaled - totalCost;
@@ -356,7 +369,6 @@ function HomeInner() {
                       </div>
                     </button>
                   ))}
-                </div>
                 </div>
               </div>
             </div>
@@ -963,6 +975,90 @@ function HomeInner() {
                             </span>
                           )}
                         </div>
+                      </div>
+                    )}
+
+                    {verdict && (
+                      <div
+                        ref={verdictRef}
+                        className={`rounded-xl p-4 mb-4 border transition-shadow duration-500 ${
+                          verdictHighlight
+                            ? "border-emerald-400/70 portal-glow bg-emerald-500/5"
+                            : "border-green-500/25 bg-black/40"
+                        }`}
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                          <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                            Portal Verdict
+                          </h3>
+                          <span
+                            className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                              verdict.primary === "rip"
+                                ? "bg-green-500/15 text-green-300 border-green-400/40"
+                                : verdict.primary === "singles"
+                                  ? "bg-cyan-500/15 text-cyan-300 border-cyan-400/40"
+                                  : "bg-amber-500/15 text-amber-300 border-amber-400/40"
+                            }`}
+                          >
+                            Primary:{" "}
+                            {verdict.primary === "rip"
+                              ? "Rip"
+                              : verdict.primary === "singles"
+                                ? "Buy singles"
+                                : "Hold sealed"}
+                          </span>
+                        </div>
+
+                        <p className="text-sm text-zinc-200 leading-relaxed mb-3">
+                          {verdict.rationale}
+                        </p>
+
+                        <div className="grid sm:grid-cols-3 gap-2">
+                          {verdict.options.map((opt) => {
+                            const isPrimary = opt.kind === verdict.primary;
+                            const accent =
+                              opt.kind === "rip"
+                                ? isPrimary
+                                  ? "border-green-400/50 bg-green-500/10"
+                                  : "border-zinc-700/80 bg-zinc-900/50"
+                                : opt.kind === "singles"
+                                  ? isPrimary
+                                    ? "border-cyan-400/50 bg-cyan-500/10"
+                                    : "border-zinc-700/80 bg-zinc-900/50"
+                                  : isPrimary
+                                    ? "border-amber-400/50 bg-amber-500/10"
+                                    : "border-zinc-700/80 bg-zinc-900/50";
+                            return (
+                              <div
+                                key={opt.kind}
+                                className={`rounded-lg border p-3 ${accent} ${
+                                  isPrimary ? "ring-1 ring-white/10" : "opacity-90"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between gap-1 mb-1">
+                                  <span className="text-xs font-semibold text-zinc-100">
+                                    {opt.label}
+                                  </span>
+                                  {isPrimary && (
+                                    <span className="text-[9px] text-zinc-400 uppercase tracking-wider">
+                                      pick
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="font-mono text-[11px] text-zinc-200 leading-snug">
+                                  {opt.metric}
+                                </div>
+                                <div className="text-[10px] text-zinc-500 mt-1.5 leading-relaxed">
+                                  {opt.detail}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <p className="mt-3 text-[10px] text-zinc-500 leading-relaxed border-t border-zinc-800/60 pt-2.5">
+                          {VERDICT_DISCLAIMER}
+                        </p>
                       </div>
                     )}
 
