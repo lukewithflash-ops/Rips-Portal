@@ -625,7 +625,7 @@ const rawProducts: Product[] = [
       { name: "Parallels / courtside", odds: "some", oddsNum: 1, avgValue: 16 },
       { name: "Numbered / auto chance", odds: "low", oddsNum: 0.05, avgValue: 70 },
     ],
-    notes: "Mid-tier product — better EV profile than flagship hobby. 2025-26 Select basketball has no retail blaster yet — image is 2024-25 Select blaster stand-in. ,
+    notes: "Mid-tier product — better EV profile than flagship hobby. 2025-26 Select basketball has no retail blaster yet — image is 2024-25 Select blaster stand-in.",
   },
 
   // ========== BASEBALL ==========
