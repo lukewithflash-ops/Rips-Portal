@@ -30,9 +30,26 @@ export default function Home() {
   const [claimLoading, setClaimLoading] = useState(false);
   const [cardQuery, setCardQuery] = useState("");
   const [selectedCard, setSelectedCard] = useState<ChaseCard | null>(null);
+  const [packQuery, setPackQuery] = useState("");
   const resultsRef = useRef<HTMLDivElement>(null);
 
   const filteredCards = useMemo(() => searchCards(cardQuery), [cardQuery]);
+
+  const rankedByRoi = useMemo(() => {
+    return products
+      .map((p) => {
+        const { totalEV, roi, profit } = calculateEV(p, p.defaultPrice);
+        return { product: p, totalEV, roi, profit };
+      })
+      .sort((a, b) => b.roi - a.roi);
+  }, []);
+
+  const bestValuePicks = useMemo(() => rankedByRoi.slice(0, 3), [rankedByRoi]);
+  const bestEvPacks = useMemo(() => rankedByRoi.slice(0, 5), [rankedByRoi]);
+  const avoidPacks = useMemo(
+    () => [...rankedByRoi].reverse().slice(0, 3),
+    [rankedByRoi]
+  );
 
   const handleClaim = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,10 +74,14 @@ export default function Home() {
     }
   };
 
-  const categoryProducts = useMemo(
-    () => products.filter((p) => p.category === activeCategory),
-    [activeCategory]
-  );
+  const categoryProducts = useMemo(() => {
+    const q = packQuery.trim().toLowerCase();
+    return products.filter((p) => {
+      if (p.category !== activeCategory) return false;
+      if (!q) return true;
+      return `${p.name} ${p.format}`.toLowerCase().includes(q);
+    });
+  }, [activeCategory, packQuery]);
 
   const selectedProduct: Product | null = useMemo(() => {
     if (!selectedId) return categoryProducts[0] ?? null;
@@ -87,6 +108,7 @@ export default function Home() {
     setActiveCategory(cat);
     setSelectedId(null);
     setCustomPrice("");
+    setPackQuery("");
   };
 
   const handleSelectProduct = (id: string) => {
@@ -253,40 +275,34 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="flex-1 flex flex-wrap gap-2">
-                  {[
-                    {
-                      name: "Chaos Rising",
-                      note: "Lowest modern floor",
-                      price: "~$5.36",
-                    },
-                    {
-                      name: "Perfect Order",
-                      note: "Near-floor modern",
-                      price: "~$5.45",
-                    },
-                    {
-                      name: "Pitch Black",
-                      note: "Newest main set",
-                      price: "~$5.67",
-                    },
-                  ].map((p) => (
-                    <div
-                      key={p.name}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/25"
+                  {bestValuePicks.map(({ product: p, totalEV, roi }) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveCategory(p.category);
+                        setSelectedId(p.id);
+                        setCustomPrice("");
+                        setView("calculator");
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/25 text-left hover:border-emerald-400/50 transition-colors"
                     >
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                        VALUE
+                        {roi >= 0 ? "VALUE" : "LEAST −EV"}
                       </span>
                       <div>
                         <div className="text-xs font-medium text-zinc-100">
                           {p.name}
                         </div>
                         <div className="text-[10px] text-zinc-500">
-                          {p.note} · {p.price}
+                          {roi >= 0 ? "+" : ""}
+                          {roi.toFixed(0)}% ROI · ~${p.defaultPrice.toFixed(2)} → $
+                          {totalEV.toFixed(2)}
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
+                </div>
                 </div>
               </div>
             </div>
@@ -548,74 +564,34 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="panel rounded-2xl p-5">
+                            <div className="panel rounded-2xl p-5">
                 <h3 className="text-sm font-semibold text-white mb-4">
-                  Best EV Packs This Week
+                  Best EV Packs (from catalog math)
                 </h3>
                 <div className="space-y-2">
-                  {[
-                    {
-                      rank: 1,
-                      name: "Chaos Rising Pack",
-                      price: 5.36,
-                      ev: 5.7,
-                      roi: 6,
-                      note: "Cheapest recent ME main set",
-                    },
-                    {
-                      rank: 2,
-                      name: "Perfect Order Pack",
-                      price: 5.45,
-                      ev: 5.75,
-                      roi: 5,
-                      note: "Near-floor modern",
-                    },
-                    {
-                      rank: 3,
-                      name: "OP-16 Booster Box",
-                      price: 95,
-                      ev: 102,
-                      roi: 7,
-                      note: "Box math cleaner",
-                    },
-                    {
-                      rank: 4,
-                      name: "2026 Topps Series 1 Blaster",
-                      price: 25,
-                      ev: 26.5,
-                      roi: 6,
-                      note: "Cheap entry",
-                    },
-                    {
-                      rank: 5,
-                      name: "Obsidian Flames Pack",
-                      price: 3.5,
-                      ev: 3.7,
-                      roi: 6,
-                      note: "Older set, fair secondary",
-                    },
-                  ].map((row) => (
+                  {bestEvPacks.map(({ product: p, totalEV, roi }, idx) => (
                     <div
-                      key={row.rank}
+                      key={p.id}
                       className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80"
                     >
                       <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-xs font-bold text-emerald-300">
-                        {row.rank}
+                        {idx + 1}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm text-zinc-100 font-medium truncate">
-                          {row.name}
+                          {p.name} {p.format}
                         </div>
                         <div className="text-[11px] text-zinc-500 truncate">
-                          {row.note}
+                          Live from default price × slot EV
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-sm font-mono text-green-400">
-                          +{row.roi}%
+                        <div className={`text-sm font-mono ${roi >= 0 ? "text-green-400" : "text-amber-300"}`}>
+                          {roi >= 0 ? "+" : ""}
+                          {roi.toFixed(0)}%
                         </div>
                         <div className="text-[10px] text-zinc-500">
-                          ${row.price} → ${row.ev}
+                          ${p.defaultPrice.toFixed(2)} → ${totalEV.toFixed(2)}
                         </div>
                       </div>
                     </div>
@@ -623,36 +599,14 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="panel rounded-2xl p-5">
+                            <div className="panel rounded-2xl p-5">
                 <h3 className="text-sm font-semibold text-white mb-4">
-                  Avoid These (Overpriced)
+                  Avoid These (Worst ROI in catalog)
                 </h3>
                 <div className="space-y-2">
-                  {[
-                    {
-                      name: "Ascended Heroes Pack",
-                      price: 14,
-                      ev: 8.3,
-                      roi: -41,
-                      note: "Chase tax — fun, not EV",
-                    },
-                    {
-                      name: "Prismatic Evolutions Pack",
-                      price: 15,
-                      ev: 7.2,
-                      roi: -52,
-                      note: "Still inflated",
-                    },
-                    {
-                      name: "Chrome Update Hobby",
-                      price: 950,
-                      ev: 720,
-                      roi: -24,
-                      note: "Need huge hits",
-                    },
-                  ].map((row) => (
+                  {avoidPacks.map(({ product: p, totalEV, roi }) => (
                     <div
-                      key={row.name}
+                      key={p.id}
                       className="flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/20"
                     >
                       <div className="w-7 h-7 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center text-xs text-red-300">
@@ -660,18 +614,18 @@ export default function Home() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm text-zinc-100 font-medium truncate">
-                          {row.name}
+                          {p.name} {p.format}
                         </div>
                         <div className="text-[11px] text-zinc-500 truncate">
-                          {row.note}
+                          Chase tax / inflated sealed — fun, not +EV
                         </div>
                       </div>
                       <div className="text-right shrink-0">
                         <div className="text-sm font-mono text-red-400">
-                          {row.roi}%
+                          {roi.toFixed(0)}%
                         </div>
                         <div className="text-[10px] text-zinc-500">
-                          ${row.price} → ${row.ev}
+                          ${p.defaultPrice.toFixed(2)} → ${totalEV.toFixed(2)}
                         </div>
                       </div>
                     </div>
@@ -682,9 +636,29 @@ export default function Home() {
           ) : effectiveProduct ? (
             <div className="flex flex-col gap-5">
               <div>
-                <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
-                  Select Pack / Box
-                </h2>
+                <div className="sticky top-0 z-10 -mx-1 px-1 py-2 mb-1 bg-black/80 backdrop-blur-sm border-b border-zinc-900/80 lg:static lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:py-0 lg:mb-2">
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                      Select Pack / Box
+                    </h2>
+                    <span className="text-[10px] text-zinc-600 lg:hidden">
+                      swipe →
+                    </span>
+                  </div>
+                  <input
+                    type="search"
+                    value={packQuery}
+                    onChange={(e) => setPackQuery(e.target.value)}
+                    placeholder="Search set or format…"
+                    className="w-full bg-black/70 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-green-400"
+                    aria-label="Search packs"
+                  />
+                  {categoryProducts.length === 0 ? (
+                    <div className="text-sm text-zinc-500 py-4 text-center">
+                      No packs match “{packQuery}”.
+                    </div>
+                  ) : null}
+                </div>
                 <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 snap-x snap-mandatory lg:grid lg:grid-cols-3 xl:grid-cols-4 lg:overflow-visible">
                   {categoryProducts.map((p) => {
                     const isTrending =
@@ -695,14 +669,14 @@ export default function Home() {
                       <button
                         key={p.id}
                         onClick={() => handleSelectProduct(p.id)}
-                        className={`snap-start flex-shrink-0 w-[140px] lg:w-auto text-left rounded-xl border overflow-hidden transition-all card-hover ${
+                        className={`snap-start flex-shrink-0 w-[152px] sm:w-[160px] lg:w-auto text-left rounded-xl border overflow-hidden transition-all card-hover touch-manipulation ${
                           isActive
                             ? "border-green-400/70 portal-glow ring-1 ring-green-400/30"
                             : "border-zinc-800/80 hover:border-green-500/30"
                         }`}
                       >
                         <div
-                          className={`h-24 lg:h-20 bg-gradient-to-br ${
+                          className={`h-28 lg:h-24 bg-gradient-to-br ${
                             p.accent || "from-zinc-700 to-zinc-800"
                           } flex items-center justify-center relative overflow-hidden`}
                         >
@@ -1066,19 +1040,20 @@ export default function Home() {
                       </div>
                     </div>
                   )}
-                 <div className="mb-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-zinc-300">
-  <p className="font-medium text-emerald-400">
-    Updated: September 4, 2026
-  </p>
-  <p className="mt-1 leading-relaxed">
-    Odds and values are estimates based on pull rates and recent market ranges.
-    Always double-check live prices before you buy or rip.
-  </p>
-  <p className="mt-1 text-zinc-400">
-    We take community pack recommendations — tell us what you&apos;re opening.
-  </p>
-
-</div>
+                  <div className="mb-2 rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 text-sm text-zinc-300">
+                    <p className="font-medium text-amber-300">
+                      EV is an estimate — not a guarantee
+                    </p>
+                    <p className="mt-1 leading-relaxed text-zinc-400">
+                      Pull rates, card prices, and sealed markets move daily. Expected
+                      value is a model, not a promise you&apos;ll profit. Variance is
+                      huge on SIRs and hits — most opens still lose money at secondary
+                      prices. Always verify live listings before you buy or rip.
+                    </p>
+                    <p className="mt-2 text-[11px] text-zinc-500">
+                      Catalog defaults updated: September 4, 2026 · Community pack tips welcome
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
