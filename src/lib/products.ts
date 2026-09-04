@@ -1,3 +1,5 @@
+import priceSheet from "@/data/prices.json";
+
 export type Category = "pokemon" | "baseball" | "basketball" | "onepiece";
 
 export interface RaritySlot {
@@ -28,7 +30,7 @@ export const categories: { id: Category; label: string; emoji: string; color: st
   { id: "onepiece", label: "One Piece", emoji: "🏴‍☠️", color: "from-blue-500 to-cyan-500" },
 ];
 
-export const products: Product[] = [
+const rawProducts: Product[] = [
   // ========== POKÉMON ==========
   {
     id: "poke-ascended-pack",
@@ -323,7 +325,7 @@ export const products: Product[] = [
     accent: "from-yellow-400 to-amber-600",
     emoji: "🎉",
     tag: "chase",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Elite_Trainer_Box_EN.webp",
+    image: "/products/poke-30th-etb.webp",
     slots: [
       { name: "Pack hits across 9 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 19.12 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 15 },
@@ -340,7 +342,7 @@ export const products: Product[] = [
     accent: "from-amber-500 to-orange-400",
     emoji: "🎉",
     tag: "chase",
-    image: "https://images.squarespace-cdn.com/content/v1/5e3b1164feb39b444b58f15b/1782831735125-V6BL2F3O306JUY163TLM/pokemon-center-elite-trainer-box-en+%281%29.png",
+    image: "/products/poke-30th-pc-etb.webp",
     slots: [
       { name: "Pack hits across 11 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 23.38 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 15 },
@@ -357,7 +359,7 @@ export const products: Product[] = [
     accent: "from-yellow-400 to-amber-600",
     emoji: "🎉",
     tag: "hot",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Booster_Bundle_EN.webp",
+    image: "/products/poke-30th-bundle.webp",
     slots: [
       { name: "Pack hits across 6 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 15.0 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 10 },
@@ -374,7 +376,7 @@ export const products: Product[] = [
     accent: "from-amber-500 to-orange-400",
     emoji: "🎉",
     tag: "hot",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Poster_Collection_EN.webp",
+    image: "/products/poke-30th-poster.webp",
     slots: [
       { name: "Pack hits across 3 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 7.5 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 10 },
@@ -391,7 +393,7 @@ export const products: Product[] = [
     accent: "from-yellow-400 to-amber-600",
     emoji: "🎉",
     tag: "hot",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Tech_Sticker_Collection_Alolan_Exeggutor_EN.webp",
+    image: "/products/poke-30th-tech-sticker-exeggutor.webp",
     slots: [
       { name: "Pack hits across 3 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 7.5 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 10 },
@@ -408,7 +410,7 @@ export const products: Product[] = [
     accent: "from-amber-500 to-orange-400",
     emoji: "🎉",
     tag: "hot",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Tech_Sticker_Collection_Lucario_EN.webp",
+    image: "/products/poke-30th-tech-sticker-lucario.webp",
     slots: [
       { name: "Pack hits across 3 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 7.5 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 10 },
@@ -425,7 +427,7 @@ export const products: Product[] = [
     accent: "from-yellow-400 to-amber-600",
     emoji: "🎉",
     tag: "hot",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Sylveon_ex_Box_EN.webp",
+    image: "/products/poke-30th-ex-box-sylveon.webp",
     slots: [
       { name: "Pack hits across 4 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 10.0 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 10 },
@@ -442,7 +444,7 @@ export const products: Product[] = [
     accent: "from-amber-500 to-orange-400",
     emoji: "🎉",
     tag: "hot",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Greninja_ex_Box_EN.webp",
+    image: "/products/poke-30th-ex-box-greninja.webp",
     slots: [
       { name: "Pack hits across 4 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 10.0 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 10 },
@@ -459,7 +461,7 @@ export const products: Product[] = [
     accent: "from-yellow-400 to-amber-600",
     emoji: "🎉",
     tag: "hot",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Knock_Out_Collection.webp",
+    image: "/products/poke-30th-knockout.webp",
     slots: [
       { name: "Pack hits across 2 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 5.6 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 8 },
@@ -476,7 +478,7 @@ export const products: Product[] = [
     accent: "from-amber-500 to-orange-400",
     emoji: "🎉",
     tag: "hot",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Binder_Collection_EN.webp",
+    image: "/products/poke-30th-binder.webp",
     slots: [
       { name: "Pack hits across 5 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 12.5 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 10 },
@@ -493,7 +495,7 @@ export const products: Product[] = [
     accent: "from-yellow-400 to-amber-600",
     emoji: "🎉",
     tag: "hot",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_Mini_Tin_Day_Pikachu.webp",
+    image: "/products/poke-30th-mini-tin.webp",
     slots: [
       { name: "Pack hits across 2 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 5.6 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 8 },
@@ -510,7 +512,7 @@ export const products: Product[] = [
     accent: "from-amber-500 to-orange-400",
     emoji: "🎉",
     tag: "chase",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_UPC_Day_EN.webp",
+    image: "/products/poke-30th-upc-day.webp",
     slots: [
       { name: "Pack hits across 30 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 63.75 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 15 },
@@ -527,7 +529,7 @@ export const products: Product[] = [
     accent: "from-yellow-400 to-amber-600",
     emoji: "🎉",
     tag: "chase",
-    image: "https://bills-archive.nyc3.cdn.digitaloceanspaces.com/30th/Pokemon_TCG_30th_Celebration_UPC_Night_EN.webp",
+    image: "/products/poke-30th-upc-night.webp",
     slots: [
       { name: "Pack hits across 30 packs (pre-release est.)", odds: "est.", oddsNum: 1, avgValue: 63.75 },
       { name: "Promo / accessories (est.)", odds: "included", oddsNum: 1, avgValue: 15 },
@@ -545,7 +547,7 @@ export const products: Product[] = [
     defaultPrice: 55,
     accent: "from-yellow-600 to-orange-300",
     emoji: "🎴",
-    image: "https://theawesomecardshop.com/cdn/shop/files/2025-26_Topps_Chrome_Update_Series_Basketball_Blaster_Box1.png?v=1783801038",
+    image: "/products/bball-chrome-update-value.png",
     tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 14 },
@@ -562,7 +564,7 @@ export const products: Product[] = [
     defaultPrice: 130,
     accent: "from-amber-600 to-yellow-400",
     emoji: "📦",
-    image: "https://theawesomecardshop.com/cdn/shop/files/2025-26_Topps_Chrome_Update_Series_Basketball_Mega_Box1.png?v=1783801576",
+    image: "/products/bball-chrome-update-mega.png",
     tag: "value",
     slots: [
       { name: "Base + Refractors / X-Fractors", odds: "strong", oddsNum: 1, avgValue: 28 },
@@ -580,7 +582,7 @@ export const products: Product[] = [
     defaultPrice: 950,
     accent: "from-orange-600 to-amber-400",
     emoji: "🏀",
-    image: "https://theawesomecardshop.com/cdn/shop/files/2025-26ToppsChromeUpdateSeriesBasketballHobbyBox1.png?v=1783742983",
+    image: "/products/bball-chrome-update-hobby.png",
     tag: "chase",
     slots: [
       { name: "Base + Refractors (box total)", odds: "many", oddsNum: 1, avgValue: 60 },
@@ -599,7 +601,7 @@ export const products: Product[] = [
     defaultPrice: 28,
     accent: "from-red-600 to-orange-500",
     emoji: "🏀",
-    image: "https://www.kingofhoops.eu/cdn/shop/files/25HOOP_FGC6701_VALUE_5fe7c17d-823d-4bf7-84b9-0c176ab80c2d.webp?v=1778771735",
+    image: "/products/bball-hoops-blaster.jpg",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 10 },
@@ -616,7 +618,7 @@ export const products: Product[] = [
     defaultPrice: 40,
     accent: "from-slate-600 to-zinc-400",
     emoji: "🎯",
-    image: "https://kingcard.ca/cdn/shop/files/2024-25-panini-select-basketball-blaster-box-3055061.jpg?v=1786645925",
+    image: "/products/bball-select-blaster.jpg",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 14 },
@@ -635,7 +637,7 @@ export const products: Product[] = [
     defaultPrice: 75,
     accent: "from-rose-600 to-red-400",
     emoji: "📦",
-    image: "https://ripped.topps.com/wp-content/uploads/2026/07/ecom_26TCBB_FGC6629EA_30SE_MBX.webp",
+    image: "/products/base-chrome-mega.webp",
     tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 20 },
@@ -652,7 +654,7 @@ export const products: Product[] = [
     defaultPrice: 280,
     accent: "from-red-600 to-rose-400",
     emoji: "⚾",
-    image: "https://ripped.topps.com/wp-content/uploads/2026/07/ecom_26TCBB_FGC6625_HOBBY.webp",
+    image: "/products/base-chrome-hobby.webp",
     tag: "chase",
     slots: [
       { name: "Base + Refractors", odds: "many", oddsNum: 1, avgValue: 50 },
@@ -671,7 +673,7 @@ export const products: Product[] = [
     defaultPrice: 240,
     accent: "from-sky-600 to-blue-400",
     emoji: "🏟️",
-    image: "https://skyboxct.com/cdn/shop/files/2025-topps-update-series-baseball-hobby-box-71610-1753842266.jpg?v=1788535297",
+    image: "/products/base-update-hobby.jpg",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 45 },
@@ -689,7 +691,7 @@ export const products: Product[] = [
     defaultPrice: 25,
     accent: "from-blue-600 to-sky-400",
     emoji: "⚾",
-    image: "https://dickandjanes.com/cdn/shop/files/2026-topps-series-1-baseball-6-pack-blaster-box-mlb-435.jpg?v=1770762849",
+    image: "/products/base-series1-blaster.jpg",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 9 },
@@ -706,7 +708,7 @@ export const products: Product[] = [
     defaultPrice: 30,
     accent: "from-amber-700 to-yellow-500",
     emoji: "📜",
-    image: "https://theawesomecardshop.com/cdn/shop/files/2025_Topps_Heritage_Baseball_Blaster_Box.png?v=1745278149",
+    image: "/products/base-heritage-blaster.png",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 11 },
@@ -725,7 +727,7 @@ export const products: Product[] = [
     defaultPrice: 4.5,
     accent: "from-cyan-600 to-blue-400",
     emoji: "🏴‍☠️",
-    image: "https://web.archive.org/web/20260526120708im_/https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/03/26/olc1E9Gg9WXeLP6V/img_item01.webp",
+    image: "/products/op-16-pack.webp",
     tag: "value",
     slots: [
       { name: "Common / Uncommon", odds: "~60%", oddsNum: 0.6, avgValue: 0.25 },
@@ -744,7 +746,7 @@ export const products: Product[] = [
     defaultPrice: 95,
     accent: "from-blue-700 to-cyan-500",
     emoji: "🗃️",
-    image: "https://web.archive.org/web/20260526120701im_/https://en.onepiece-cardgame.com/onepiececg/bccard/en/products/2026/03/26/Ig0IEvjgiopFCRqh/img_item02.webp",
+    image: "/products/op-16-box.webp",
     tag: "value",
     slots: [
       { name: "Bulk + Rares", odds: "guaranteed", oddsNum: 1, avgValue: 22 },
@@ -762,7 +764,7 @@ export const products: Product[] = [
     defaultPrice: 5.5,
     accent: "from-indigo-600 to-purple-400",
     emoji: "👑",
-    image: "https://cdn11.bigcommerce.com/s-0kvv9/images/stencil/1280x1280/products/478500/742578/onepiecefourlegendspack__45972.1733579766.jpg?c=2",
+    image: "/products/op-09-pack.jpg",
     tag: "chase",
     slots: [
       { name: "Common / Uncommon", odds: "~60%", oddsNum: 0.6, avgValue: 0.25 },
@@ -774,6 +776,13 @@ export const products: Product[] = [
     notes: "Popular earlier set. Still demand-driven pricing.",
   },
 ];
+
+export const pricesUpdated: string = priceSheet.updated;
+
+export const products: Product[] = rawProducts.map((p) => {
+  const override = (priceSheet.prices as Record<string, number | undefined>)[p.id];
+  return override != null ? { ...p, defaultPrice: override } : p;
+});
 
 export function calculateEV(product: Product, price: number) {
   const totalEV = product.slots.reduce(
