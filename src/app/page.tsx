@@ -5,18 +5,11 @@ import {
   categories,
   products,
   calculateEV,
+  pricesUpdated,
   type Category,
   type Product,
 } from "@/lib/products";
 import { chaseCards, searchCards, type ChaseCard } from "@/lib/cards";
-
-const RECENT_RIPS = [
-  { set: "Ascended Heroes", packs: 12, ev: 9.1, roi: -18 },
-  { set: "Chrome Update Hobby", packs: 1, ev: 720, roi: -24 },
-  { set: "Prismatic Evolutions", packs: 24, ev: 11.2, roi: -12 },
-  { set: "OP-16 Box", packs: 1, ev: 98, roi: -15 },
-  { set: "Surging Sparks", packs: 36, ev: 4.8, roi: -13 },
-];
 
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
@@ -50,6 +43,42 @@ export default function Home() {
     () => [...rankedByRoi].reverse().slice(0, 3),
     [rankedByRoi]
   );
+
+  const marketPulse = useMemo(() => {
+    if (!rankedByRoi.length) {
+      return { avgRoi: 0, hotSet: "—", bestRoiLabel: "—" };
+    }
+    const avgRoi =
+      rankedByRoi.reduce((sum, row) => sum + row.roi, 0) / rankedByRoi.length;
+    const hotSet = [...rankedByRoi].sort(
+      (a, b) => b.product.defaultPrice - a.product.defaultPrice
+    )[0]?.product.name;
+    const best = rankedByRoi[0];
+    const bestRoiLabel = `${best.roi >= 0 ? "+" : ""}${best.roi.toFixed(0)}% ${best.product.name}`;
+    return {
+      avgRoi,
+      hotSet: hotSet || "—",
+      bestRoiLabel,
+    };
+  }, [rankedByRoi]);
+
+  const recentRips = useMemo(() => {
+    // Illustrative "rip sessions" scaled from catalog EV (not user-submitted logs yet)
+    return rankedByRoi.slice(0, 5).map((row, i) => {
+      const packs = row.product.format.toLowerCase().includes("box")
+        ? 1
+        : row.product.format.toLowerCase().includes("etb")
+          ? 1
+          : [12, 24, 36, 6, 18][i] || 10;
+      const perUnit = row.totalEV;
+      return {
+        set: row.product.name,
+        packs,
+        ev: Math.round(perUnit * 100) / 100,
+        roi: Math.round(row.roi),
+      };
+    });
+  }, [rankedByRoi]);
 
   const handleClaim = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -954,43 +983,49 @@ export default function Home() {
                     <div className="space-y-3">
                       {[
                         {
-                          label: "TCG Index",
-                          value: "+2.3%",
-                          color: "text-green-400",
+                          label: "Catalog avg ROI",
+                          value: `${marketPulse.avgRoi >= 0 ? "+" : ""}${marketPulse.avgRoi.toFixed(1)}%`,
+                          color:
+                            marketPulse.avgRoi >= 0
+                              ? "text-green-400"
+                              : "text-red-400/80",
                         },
                         {
-                          label: "Hot Set",
-                          value: "Ascended Heroes",
+                          label: "Priciest SKU",
+                          value: marketPulse.hotSet,
                           color: "text-purple-300",
                         },
                         {
-                          label: "Sports EV",
-                          value: "+1.2%",
+                          label: "Best ROI",
+                          value: marketPulse.bestRoiLabel,
                           color: "text-cyan-400",
                         },
                       ].map((row) => (
                         <div
                           key={row.label}
-                          className="flex items-center justify-between text-sm"
+                          className="flex items-center justify-between text-sm gap-3"
                         >
-                          <span className="text-zinc-400">{row.label}</span>
-                          <span className={`font-medium ${row.color}`}>
+                          <span className="text-zinc-400 shrink-0">{row.label}</span>
+                          <span className={`font-medium text-right truncate ${row.color}`}>
                             {row.value}
                           </span>
                         </div>
                       ))}
+                      <p className="text-[10px] text-zinc-600 pt-1">
+                        From live catalog math · prices sheet {pricesUpdated}
+                      </p>
                     </div>
                   </div>
 
                   <div className="panel rounded-2xl p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                        Recent Rips
+                        Catalog Rips
                       </h3>
-                      <span className="text-[9px] text-zinc-600">Sample</span>
+                      <span className="text-[9px] text-zinc-600">From EV model</span>
                     </div>
                     <div className="space-y-2.5">
-                      {RECENT_RIPS.map((r, i) => (
+                      {recentRips.map((r, i) => (
                         <div
                           key={i}
                           className="flex items-center justify-between text-sm border-b border-zinc-800/40 pb-2 last:border-0 last:pb-0"
@@ -1051,7 +1086,7 @@ export default function Home() {
                       prices. Always verify live listings before you buy or rip.
                     </p>
                     <p className="mt-2 text-[11px] text-zinc-500">
-                      Catalog defaults updated: September 4, 2026 · Community pack tips welcome
+                      {`Catalog defaults updated: ${pricesUpdated} · Community pack tips welcome`}
                     </p>
                   </div>
                 </div>
