@@ -41,7 +41,7 @@ const rawProducts: Product[] = [
     accent: "from-violet-600 to-fuchsia-500",
     emoji: "🦸",
     tag: "hot",
-    image: "/products/poke-ascended-pack.png",
+    image: "/products/poke-ascended-pack.webp",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 1.87 },
       { name: "Double Rare (RR)", odds: "1:5", oddsNum: 0.2, avgValue: 1.3 },
@@ -99,7 +99,7 @@ const rawProducts: Product[] = [
     defaultPrice: 7.85,
     accent: "from-yellow-500 to-orange-400",
     emoji: "⚡",
-    image: "/products/poke-surging-pack.png",
+    image: "/products/poke-surging-pack.webp",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.45 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.4 },
@@ -117,7 +117,7 @@ const rawProducts: Product[] = [
     defaultPrice: 9.0,
     accent: "from-red-600 to-orange-500",
     emoji: "🔥",
-    image: "/products/poke-destined-pack.png",
+    image: "/products/poke-destined-pack.webp",
     tag: "chase",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -136,7 +136,7 @@ const rawProducts: Product[] = [
     defaultPrice: 6.6,
     accent: "from-emerald-500 to-teal-400",
     emoji: "🗺️",
-    image: "/products/poke-journey-pack.png",
+    image: "/products/poke-journey-pack.webp",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.35 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.2 },
@@ -154,7 +154,7 @@ const rawProducts: Product[] = [
     defaultPrice: 14.8,
     accent: "from-pink-500 to-rose-400",
     emoji: "✨",
-    image: "/products/poke-prismatic-pack.png",
+    image: "/products/poke-prismatic-pack.webp",
     tag: "hot",
     slots: [
       { name: "Bulk / Commons", odds: "~50%", oddsNum: 0.5, avgValue: 0.3 },
@@ -174,7 +174,7 @@ const rawProducts: Product[] = [
     defaultPrice: 12.9,
     accent: "from-orange-700 to-red-500",
     emoji: "🌋",
-    image: "/products/poke-obsidian-pack.png",
+    image: "/products/poke-obsidian-pack.webp",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.0 },
@@ -192,7 +192,7 @@ const rawProducts: Product[] = [
     defaultPrice: 11.0,
     accent: "from-sky-600 to-indigo-400",
     emoji: "⏳",
-    image: "/products/poke-temporal-pack.png",
+    image: "/products/poke-temporal-pack.webp",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.1 },
@@ -228,7 +228,7 @@ const rawProducts: Product[] = [
     defaultPrice: 16.25,
     accent: "from-lime-500 to-green-500",
     emoji: "🌿",
-    image: "/products/poke-paldea-pack.png",
+    image: "/products/poke-paldea-pack.webp",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.28 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.0 },
@@ -246,7 +246,7 @@ const rawProducts: Product[] = [
     defaultPrice: 300,
     accent: "from-yellow-600 to-orange-500",
     emoji: "🗃️",
-    image: "/products/poke-surging-bb.png",
+    image: "/products/poke-surging-bb.webp",
     slots: [
       { name: "Bulk across box", odds: "guaranteed", oddsNum: 1, avgValue: 16 },
       { name: "Rares / EXs expected", odds: "many", oddsNum: 1, avgValue: 45 },
@@ -265,7 +265,7 @@ const rawProducts: Product[] = [
     defaultPrice: 5.36,
     accent: "from-cyan-600 to-teal-400",
     emoji: "🌊",
-    image: "/products/poke-chaos-rising-pack.png",
+    image: "/products/poke-chaos-rising-pack.webp",
     tag: "value",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -284,7 +284,7 @@ const rawProducts: Product[] = [
     defaultPrice: 5.45,
     accent: "from-stone-500 to-zinc-400",
     emoji: "🧩",
-    image: "/products/poke-perfect-order-pack.png",
+    image: "/products/poke-perfect-order-pack.webp",
     tag: "value",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -303,7 +303,7 @@ const rawProducts: Product[] = [
     defaultPrice: 5.67,
     accent: "from-zinc-800 to-violet-700",
     emoji: "🌑",
-    image: "/products/poke-pitch-black-pack.png",
+    image: "/products/poke-pitch-black-pack.webp",
     tag: "value",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -547,7 +547,7 @@ const rawProducts: Product[] = [
     defaultPrice: 55,
     accent: "from-yellow-600 to-orange-300",
     emoji: "🎴",
-    image: "/products/bball-chrome-update-value.png",
+    image: "/products/bball-chrome-update-value.webp",
     tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 14 },
@@ -564,7 +564,7 @@ const rawProducts: Product[] = [
     defaultPrice: 130,
     accent: "from-amber-600 to-yellow-400",
     emoji: "📦",
-    image: "/products/bball-chrome-update-mega.png",
+    image: "/products/bball-chrome-update-mega.webp",
     tag: "value",
     slots: [
       { name: "Base + Refractors / X-Fractors", odds: "strong", oddsNum: 1, avgValue: 28 },
@@ -582,7 +582,7 @@ const rawProducts: Product[] = [
     defaultPrice: 950,
     accent: "from-orange-600 to-amber-400",
     emoji: "🏀",
-    image: "/products/bball-chrome-update-hobby.png",
+    image: "/products/bball-chrome-update-hobby.webp",
     tag: "chase",
     slots: [
       { name: "Base + Refractors (box total)", odds: "many", oddsNum: 1, avgValue: 60 },
@@ -601,7 +601,7 @@ const rawProducts: Product[] = [
     defaultPrice: 28,
     accent: "from-red-600 to-orange-500",
     emoji: "🏀",
-    image: "/products/bball-hoops-blaster.jpg",
+    image: "/products/bball-hoops-blaster.webp",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 10 },
@@ -691,7 +691,7 @@ const rawProducts: Product[] = [
     defaultPrice: 25,
     accent: "from-blue-600 to-sky-400",
     emoji: "⚾",
-    image: "/products/base-series1-blaster.jpg",
+    image: "/products/base-series1-blaster.webp",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 9 },
