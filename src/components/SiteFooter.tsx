@@ -1,4 +1,5 @@
 import Link from "next/link";
+import InstallAppButton from "@/components/InstallAppButton";
 
 export default function SiteFooter() {
   return (
@@ -16,6 +17,7 @@ export default function SiteFooter() {
           className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-zinc-400"
           aria-label="Legal"
         >
+          <InstallAppButton />
           <Link href="/about" className="hover:text-green-300 transition-colors">
             About
           </Link>
