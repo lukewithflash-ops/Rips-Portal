@@ -99,7 +99,7 @@ const rawProducts: Product[] = [
     defaultPrice: 7.85,
     accent: "from-yellow-500 to-orange-400",
     emoji: "⚡",
-    image: "https://archives.bulbagarden.net/media/upload/8/8b/SV8_Booster_Pikachu.png",
+    image: "/products/poke-surging-pack.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.45 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.4 },
@@ -117,7 +117,7 @@ const rawProducts: Product[] = [
     defaultPrice: 9.0,
     accent: "from-red-600 to-orange-500",
     emoji: "🔥",
-    image: "https://archives.bulbagarden.net/media/upload/2/24/SV10_Booster_Team_Rocket.png",
+    image: "/products/poke-destined-pack.png",
     tag: "chase",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -136,7 +136,7 @@ const rawProducts: Product[] = [
     defaultPrice: 6.6,
     accent: "from-emerald-500 to-teal-400",
     emoji: "🗺️",
-    image: "https://archives.bulbagarden.net/media/upload/e/e0/SV9_Booster_N_Zoroark.png",
+    image: "/products/poke-journey-pack.png",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.35 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.2 },
@@ -154,7 +154,7 @@ const rawProducts: Product[] = [
     defaultPrice: 14.8,
     accent: "from-pink-500 to-rose-400",
     emoji: "✨",
-    image: "https://archives.bulbagarden.net/media/upload/5/53/Prismatic_Evolutions_Booster_Eevee_Sylveon.png",
+    image: "/products/poke-prismatic-pack.png",
     tag: "hot",
     slots: [
       { name: "Bulk / Commons", odds: "~50%", oddsNum: 0.5, avgValue: 0.3 },
