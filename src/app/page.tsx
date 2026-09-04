@@ -13,6 +13,8 @@ import {
 } from "@/lib/products";
 import { chaseCards, searchCards, type ChaseCard } from "@/lib/cards";
 import { computeVerdict, VERDICT_DISCLAIMER } from "@/lib/verdict";
+import { computeKeeperEV } from "@/lib/keeper";
+import KeeperEvPanel from "@/components/KeeperEvPanel";
 
 function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
@@ -1008,6 +1010,17 @@ function HomeInner() {
                       </div>
                     )}
 
+
+                    {result && (
+                      <div className="mb-4">
+                        <KeeperEvPanel
+                          grossEV={result.totalEV}
+                          price={price}
+                          quantity={quantity}
+                        />
+                      </div>
+                    )}
+
                     {verdict && (
                       <div
                         ref={verdictRef}
@@ -1042,6 +1055,18 @@ function HomeInner() {
                         <p className="text-sm text-zinc-200 leading-relaxed mb-3">
                           {verdict.rationale}
                         </p>
+                        {(() => {
+                          const k = computeKeeperEV(verdict.totalEV, price, 13);
+                          return (
+                            <p className="text-[11px] text-zinc-500 mb-3 font-mono">
+                              Keeper lens (eBay ~13% est.): net EV $
+                              {k.netEV.toFixed(2)} · net ROI{" "}
+                              {k.netRoi >= 0 ? "+" : ""}
+                              {k.netRoi.toFixed(1)}% — fees vary; see Keeper EV
+                              above.
+                            </p>
+                          );
+                        })()}
 
                         <div className="grid sm:grid-cols-3 gap-2">
                           {verdict.options.map((opt) => {
