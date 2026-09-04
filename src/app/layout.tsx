@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import SiteFooter from "@/components/SiteFooter";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import InstallPrompt from "@/components/InstallPrompt";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,6 +36,21 @@ export const metadata: Metadata = {
     "Rip Portal",
   ],
   authors: [{ name: "Rip Portal" }],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Rip Portal",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
   openGraph: {
     type: "website",
     url: siteUrl,
@@ -56,6 +73,17 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#030306" },
+    { media: "(prefers-color-scheme: light)", color: "#030306" },
+  ],
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -71,6 +99,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col portal-bg">
         {children}
         <SiteFooter />
+        <InstallPrompt />
+        <ServiceWorkerRegister />
         <Analytics />
       </body>
     </html>
