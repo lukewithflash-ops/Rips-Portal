@@ -61,7 +61,7 @@ const rawProducts: Product[] = [
     defaultPrice: 168,
     accent: "from-violet-700 to-purple-500",
     emoji: "📦",
-    image: "/products/poke-ascended-etb.jpg",
+    image: "/products/poke-ascended-etb.webp",
     tag: "chase",
     slots: [
       { name: "Bulk value across 9 packs", odds: "guaranteed", oddsNum: 1, avgValue: 7 },
@@ -80,7 +80,7 @@ const rawProducts: Product[] = [
     defaultPrice: 84,
     accent: "from-fuchsia-700 to-violet-600",
     emoji: "📦",
-    image: "/products/poke-ascended-bundle.jpg",
+    image: "/products/poke-ascended-bundle.webp",
     tag: "hot",
     slots: [
       { name: "Bulk across 6 packs", odds: "guaranteed", oddsNum: 1, avgValue: 4.8 },
@@ -210,7 +210,7 @@ const rawProducts: Product[] = [
     defaultPrice: 8.15,
     accent: "from-violet-600 to-blue-500",
     emoji: "🌀",
-    image: "/products/poke-paradox-pack.png",
+    image: "/products/poke-paradox-pack.webp",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.15 },
@@ -618,7 +618,7 @@ const rawProducts: Product[] = [
     defaultPrice: 40,
     accent: "from-slate-600 to-zinc-400",
     emoji: "🎯",
-    image: "/products/bball-select-blaster.jpg",
+    image: "/products/bball-select-blaster.webp",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 14 },
@@ -673,7 +673,7 @@ const rawProducts: Product[] = [
     defaultPrice: 240,
     accent: "from-sky-600 to-blue-400",
     emoji: "🏟️",
-    image: "/products/base-update-hobby.jpg",
+    image: "/products/base-update-hobby.webp",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 45 },
@@ -708,7 +708,7 @@ const rawProducts: Product[] = [
     defaultPrice: 30,
     accent: "from-amber-700 to-yellow-500",
     emoji: "📜",
-    image: "/products/base-heritage-blaster.png",
+    image: "/products/base-heritage-blaster.webp",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 11 },
@@ -764,7 +764,7 @@ const rawProducts: Product[] = [
     defaultPrice: 5.5,
     accent: "from-indigo-600 to-purple-400",
     emoji: "👑",
-    image: "/products/op-09-pack.jpg",
+    image: "/products/op-09-pack.webp",
     tag: "chase",
     slots: [
       { name: "Common / Uncommon", odds: "~60%", oddsNum: 0.6, avgValue: 0.25 },

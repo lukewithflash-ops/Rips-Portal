@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
   categories,
   products,
@@ -11,7 +12,7 @@ import {
 } from "@/lib/products";
 import { chaseCards, searchCards, type ChaseCard } from "@/lib/cards";
 
-export default function Home() {
+function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [customPrice, setCustomPrice] = useState<string>("");
@@ -25,6 +26,28 @@ export default function Home() {
   const [selectedCard, setSelectedCard] = useState<ChaseCard | null>(null);
   const [packQuery, setPackQuery] = useState("");
   const resultsRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const packFromUrl = searchParams.get("pack");
+
+  // Deep link: ?pack=<productId>
+  useEffect(() => {
+    if (!packFromUrl) return;
+    const match = products.find((p) => p.id === packFromUrl);
+    if (!match) return;
+    setActiveCategory(match.category);
+    setSelectedId(match.id);
+    setCustomPrice("");
+    setView("calculator");
+    setPackQuery("");
+  }, [packFromUrl]);
+
+  const syncPackToUrl = (id: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("pack", id);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const filteredCards = useMemo(() => searchCards(cardQuery), [cardQuery]);
 
@@ -143,6 +166,7 @@ export default function Home() {
   const handleSelectProduct = (id: string) => {
     setSelectedId(id);
     setCustomPrice("");
+    syncPackToUrl(id);
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 80);
@@ -313,6 +337,7 @@ export default function Home() {
                         setSelectedId(p.id);
                         setCustomPrice("");
                         setView("calculator");
+                        syncPackToUrl(p.id);
                       }}
                       className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/25 text-left hover:border-emerald-400/50 transition-colors"
                     >
@@ -782,6 +807,17 @@ export default function Home() {
                         <p className="text-sm text-zinc-400 mt-0.5">
                           {effectiveProduct.format}
                         </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const url = `${window.location.origin}${pathname}?pack=${effectiveProduct.id}`;
+                            navigator.clipboard?.writeText(url).catch(() => {});
+                            syncPackToUrl(effectiveProduct.id);
+                          }}
+                          className="mt-2 text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
+                        >
+                          Copy share link
+                        </button>
                         <div className="flex flex-wrap items-end gap-3 mt-3">
                           <div>
                             <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
@@ -1100,5 +1136,20 @@ export default function Home() {
         </main>
       </div>
     </div>
+  );
+}
+
+
+export default function Home() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen portal-bg flex items-center justify-center text-zinc-500 text-sm">
+          Loading calculator…
+        </div>
+      }
+    >
+      <HomeInner />
+    </Suspense>
   );
 }
