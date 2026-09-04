@@ -238,6 +238,7 @@ function HomeInner() {
               active: view === "cards",
             },
             { icon: "📝", label: "Rip Log", href: "/log" as const },
+            { icon: "💎", label: "Deals", href: "/deals" as const },
             { icon: "📦", label: "Packs & Sets", soon: true },
             { icon: "📊", label: "Market Tracker", soon: true },
             { icon: "⭐", label: "Watchlist", soon: true },
@@ -388,6 +389,14 @@ function HomeInner() {
                     </button>
                   ))}
                 </div>
+                <div className="shrink-0 sm:ml-auto">
+                  <Link
+                    href="/deals"
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline whitespace-nowrap"
+                  >
+                    See all under-EV →
+                  </Link>
+                </div>
               </div>
             </div>
           )}
@@ -447,6 +456,12 @@ function HomeInner() {
               className="flex-1 py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-cyan-500/40 hover:text-cyan-300"
             >
               📝 Log
+            </Link>
+            <Link
+              href="/deals"
+              className="flex-1 py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-emerald-500/40 hover:text-emerald-300"
+            >
+              💎 Deals
             </Link>
           </div>
 
