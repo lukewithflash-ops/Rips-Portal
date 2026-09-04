@@ -255,19 +255,19 @@ export default function Home() {
                 <div className="flex-1 flex flex-wrap gap-2">
                   {[
                     {
-                      name: "Journey Together",
-                      note: "+EV floor",
-                      price: "~$3.75",
+                      name: "Chaos Rising",
+                      note: "Lowest modern floor",
+                      price: "~$5.36",
                     },
                     {
-                      name: "Surging Sparks",
-                      note: "Consistent value",
-                      price: "~$4.25",
+                      name: "Perfect Order",
+                      note: "Near-floor modern",
+                      price: "~$5.45",
                     },
                     {
-                      name: "Destined Rivals",
-                      note: "Solid modern",
-                      price: "~$4.50",
+                      name: "Pitch Black",
+                      note: "Newest main set",
+                      price: "~$5.67",
                     },
                   ].map((p) => (
                     <div
@@ -556,19 +556,19 @@ export default function Home() {
                   {[
                     {
                       rank: 1,
-                      name: "Journey Together Pack",
-                      price: 3.75,
-                      ev: 4.1,
-                      roi: 9,
-                      note: "Strong IR/SIR floor",
+                      name: "Chaos Rising Pack",
+                      price: 5.36,
+                      ev: 5.7,
+                      roi: 6,
+                      note: "Cheapest recent ME main set",
                     },
                     {
                       rank: 2,
-                      name: "Surging Sparks Pack",
-                      price: 4.25,
-                      ev: 4.6,
-                      roi: 8,
-                      note: "Consistent modern value",
+                      name: "Perfect Order Pack",
+                      price: 5.45,
+                      ev: 5.75,
+                      roi: 5,
+                      note: "Near-floor modern",
                     },
                     {
                       rank: 3,
@@ -1068,7 +1068,7 @@ export default function Home() {
                   )}
                  <div className="mb-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-sm text-zinc-300">
   <p className="font-medium text-emerald-400">
-    Updated: August 17, 2026
+    Updated: September 4, 2026
   </p>
   <p className="mt-1 leading-relaxed">
     Odds and values are estimates based on pull rates and recent market ranges.
