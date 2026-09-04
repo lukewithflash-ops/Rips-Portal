@@ -23,6 +23,7 @@ import {
   sessionSharePath,
   type RipLogSessionV1,
 } from "@/lib/riplog";
+import { computeKeeperEV } from "@/lib/keeper";
 
 function emptyCounts(product: Product | null): number[] {
   return product ? product.slots.map(() => 0) : [];
@@ -474,6 +475,16 @@ function LogInner() {
                 <div className="text-[10px] text-zinc-500">
                   catalog model × qty
                 </div>
+                {(() => {
+                  const per = stats.expectedEV / Math.max(1, stats.quantity);
+                  const k = computeKeeperEV(per, stats.pricePerUnit, 13);
+                  return (
+                    <div className="text-[10px] text-cyan-500/80 mt-1 font-mono">
+                      Keeper net ~{fmtMoney(k.netEV * stats.quantity)} @13% fee
+                      est.
+                    </div>
+                  );
+                })()}
               </div>
               <div>
                 <div className="text-[10px] uppercase tracking-widest text-zinc-500">
