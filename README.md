@@ -60,3 +60,14 @@ Redeploy after changes.
 ---
 
 Built for collectors who want the math before the dopamine.
+
+## Web Push (under-EV deal alerts)
+
+Background notifications for installed PWAs (no OneSignal).
+
+1. Create a free Upstash Redis database → copy REST URL + token.
+2. Set Vercel env vars (see `.env.example`): `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `CRON_SECRET`.
+3. `vercel.json` cron hits `/api/push/notify-deals` Mondays 16:00 UTC (≈9am PT). Vercel Hobby may require Pro for crons — otherwise trigger the route manually with `Authorization: Bearer $CRON_SECRET`.
+
+Never commit `VAPID_PRIVATE_KEY`.
+
