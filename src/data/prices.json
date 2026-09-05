@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-04",
+  "updated": "2026-09-05",
   "note": "Override defaultPrice by product id. Edit this file (or open a PR) to refresh market defaults without rewriting slot math.",
   "prices": {
     "pokemon": 13.85,

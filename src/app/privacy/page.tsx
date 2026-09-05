@@ -51,6 +51,17 @@ export default function PrivacyPage() {
 
           <section className="panel rounded-xl p-4 space-y-2">
             <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
+              Waitlist
+            </h2>
+            <p>
+              If you join the Portal waitlist, your email and selected interests
+              are sent to the site operator so we can follow up about new tools.
+              A copy may also be cached in this browser&apos;s localStorage.
+            </p>
+          </section>
+
+          <section className="panel rounded-xl p-4 space-y-2">
+            <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
               Analytics
             </h2>
             <p>

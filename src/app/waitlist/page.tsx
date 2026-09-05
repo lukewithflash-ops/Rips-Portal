@@ -51,11 +51,15 @@ export default function WaitlistPage() {
   const [email, setEmail] = useState("");
   const [interests, setInterests] = useState<InterestId[]>(["ev", "biz"]);
   const [done, setDone] = useState(false);
+  const [needsActivation, setNeedsActivation] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [count, setCount] = useState(0);
   const [exportHint, setExportHint] = useState(false);
 
   useEffect(() => {
-    setCount(loadEntries().length);
+    const t = window.setTimeout(() => setCount(loadEntries().length), 0);
+    return () => window.clearTimeout(t);
   }, []);
 
   const mailtoHref = useMemo(() => {
@@ -69,7 +73,6 @@ export default function WaitlistPage() {
           : "(none selected)"
       }\n\n— Sent from ripsportal.com/waitlist`
     );
-    // Backup inbox from project author identity.
     return `mailto:lukewithflash@gmail.com?subject=${subject}&body=${body}`;
   }, [email, interests]);
 
@@ -79,10 +82,42 @@ export default function WaitlistPage() {
     );
   };
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = email.trim().toLowerCase();
     if (!trimmed || !trimmed.includes("@")) return;
+    setLoading(true);
+    setError(null);
+    setNeedsActivation(false);
+
+    let serverOk = false;
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed, interests }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        needsActivation?: boolean;
+        message?: string;
+        error?: string;
+      };
+      if (res.ok && data.ok) {
+        serverOk = true;
+        if (data.needsActivation) setNeedsActivation(true);
+      } else {
+        setError(
+          data.message ||
+            "Could not reach the waitlist inbox. Your signup is still saved on this device — try the mailto backup."
+        );
+      }
+    } catch {
+      setError(
+        "Network error forwarding signup. Saved locally — use mailto backup if needed."
+      );
+    }
+
     const next = saveEntry({
       email: trimmed,
       interests,
@@ -90,6 +125,10 @@ export default function WaitlistPage() {
     });
     setCount(next.length);
     setDone(true);
+    if (!serverOk && !error) {
+      /* error already set */
+    }
+    setLoading(false);
   };
 
   const exportList = () => {
@@ -150,10 +189,21 @@ export default function WaitlistPage() {
               You&apos;re on the list 🌀
             </div>
             <p className="text-sm text-zinc-300 leading-relaxed">
-              We&apos;ll email when Portal expands. Your signup is saved in this
-              browser for the MVP — use the mailto backup if you want a draft
-              in your inbox too.
+              Signup forwarded to the site operator and cached in this browser.
+              We&apos;ll email when Portal expands.
             </p>
+            {needsActivation && (
+              <p className="text-[12px] text-amber-200/90 leading-relaxed rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2">
+                First-time FormSubmit activation: Luke should confirm the
+                activation email at lukewithflash@gmail.com so forwards keep
+                delivering.
+              </p>
+            )}
+            {error && (
+              <p className="text-[12px] text-amber-200/90 leading-relaxed">
+                {error}
+              </p>
+            )}
             <div className="flex flex-wrap gap-2">
               <a
                 href={mailtoHref}
@@ -166,6 +216,8 @@ export default function WaitlistPage() {
                 onClick={() => {
                   setDone(false);
                   setEmail("");
+                  setError(null);
+                  setNeedsActivation(false);
                 }}
                 className="text-[12px] px-3 py-2 rounded-xl border border-zinc-700 text-zinc-400 hover:text-zinc-200"
               >
@@ -181,7 +233,7 @@ export default function WaitlistPage() {
           </div>
         ) : (
           <form
-            onSubmit={onSubmit}
+            onSubmit={(e) => void onSubmit(e)}
             className="mt-6 panel rounded-2xl p-5 space-y-4 portal-border"
           >
             <div>
@@ -223,22 +275,25 @@ export default function WaitlistPage() {
             </div>
             <button
               type="submit"
-              disabled={!email.trim()}
+              disabled={!email.trim() || loading}
               className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-medium bg-green-500/20 border border-green-400/50 text-green-100 disabled:opacity-50 portal-glow"
             >
-              Join waitlist
+              {loading ? "Joining…" : "Join waitlist"}
             </button>
             <p className="text-[11px] text-zinc-600 leading-relaxed">
-              MVP stores your email in{" "}
+              Signups POST to{" "}
+              <span className="font-mono text-zinc-500">/api/waitlist</span> and
+              forward to the site operator (FormSubmit / optional Resend). A
+              copy is also cached in{" "}
               <span className="font-mono text-zinc-500">localStorage</span> on
-              this device only — not a server database. Backup email to Luke?{" "}
+              this device. Backup:{" "}
               <a
                 href={mailtoHref}
                 className="text-purple-300/90 hover:text-purple-200 underline-offset-2 hover:underline"
               >
-                Open a mailto draft
-              </a>{" "}
-              with subject &quot;Portal Waitlist signup&quot;.
+                open a mailto draft
+              </a>
+              .
             </p>
           </form>
         )}
