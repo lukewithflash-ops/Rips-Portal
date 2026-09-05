@@ -51,6 +51,16 @@ export default function PrivacyPage() {
 
           <section className="panel rounded-xl p-4 space-y-2">
             <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
+              Deal alert push subscriptions
+            </h2>
+            <p>
+              If you enable under-EV deal notifications, your browser&apos;s Web
+              Push subscription endpoint is stored so we can send deal alerts.
+            </p>
+          </section>
+
+          <section className="panel rounded-xl p-4 space-y-2">
+            <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
               Waitlist
             </h2>
             <p>

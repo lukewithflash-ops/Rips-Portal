@@ -1,5 +1,5 @@
-/* Rip Portal — minimal offline shell service worker */
-const CACHE_VERSION = "rip-portal-v1";
+/* Rip Portal — offline shell + Web Push */
+const CACHE_VERSION = "rip-portal-v2";
 const SHELL_URLS = [
   "/",
   "/manifest.webmanifest",
@@ -75,5 +75,70 @@ self.addEventListener("fetch", (event) => {
         return response;
       });
     })
+  );
+});
+
+self.addEventListener("push", (event) => {
+  let data = {
+    title: "Rip Portal",
+    body: "New under-EV deals",
+    url: "/deals",
+  };
+  try {
+    if (event.data) {
+      const parsed = event.data.json();
+      if (parsed && typeof parsed === "object") {
+        data = { ...data, ...parsed };
+      }
+    }
+  } catch {
+    try {
+      const text = event.data && event.data.text();
+      if (text) data.body = text;
+    } catch {
+      /* keep defaults */
+    }
+  }
+
+  const targetUrl = data.url || "/deals";
+  event.waitUntil(
+    self.registration.showNotification(data.title || "Rip Portal", {
+      body: data.body || "Under-EV deals updated",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag: "rip-portal-under-ev",
+      renotify: true,
+      data: { url: targetUrl },
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const raw =
+    (event.notification.data && event.notification.data.url) || "/deals";
+  const path = typeof raw === "string" && raw.startsWith("http")
+    ? raw
+    : new URL(raw || "/deals", self.location.origin).href;
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if ("focus" in client) {
+            if ("navigate" in client) {
+              try {
+                return client.navigate(path).then((c) => (c && c.focus ? c.focus() : client.focus()));
+              } catch {
+                return client.focus();
+              }
+            }
+            return client.focus();
+          }
+        }
+        if (self.clients.openWindow) return self.clients.openWindow(path);
+        return undefined;
+      })
   );
 });

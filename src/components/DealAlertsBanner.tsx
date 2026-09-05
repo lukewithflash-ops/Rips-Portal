@@ -14,8 +14,11 @@ import {
   loadSeen,
   loadSettings,
   notificationSupported,
+  pushManagerSupported,
   saveSeen,
   saveSettings,
+  subscribeWebPush,
+  unsubscribeWebPush,
   type DealAlertsSettings,
   type UnderEvDeal,
 } from "@/lib/dealAlerts";
@@ -116,15 +119,43 @@ export default function DealAlertsBanner({ variant = "banner" }: Props) {
       }
       if (perm !== "granted") {
         setPermHint(
-          "Permission blocked — enable notifications for this site in browser settings."
+          "Permission blocked — enable notifications for this site in browser settings. On iPhone, add Rip Portal to the Home Screen first, then Allow."
         );
         saveSettings({ notifyUnderEv: false });
         setSettings({ notifyUnderEv: false });
         return;
       }
-      setPermHint(null);
+
+      // Best-effort Web Push subscribe (does not block local Notification fallback)
+      if (pushManagerSupported()) {
+        const push = await subscribeWebPush();
+        if (!push.ok) {
+          if (push.status === 503) {
+            setPermHint(
+              "Local alerts on. Background push needs server setup (Redis/VAPID) — ask the site operator."
+            );
+          } else if (push.error === "unsupported") {
+            setPermHint(
+              "Local alerts on. Background push needs an installed PWA (Add to Home Screen on iOS)."
+            );
+          } else {
+            setPermHint(
+              `Local alerts on. Background push unavailable (${push.error}).`
+            );
+          }
+        } else {
+          setPermHint(
+            "Notifications enabled — including background push when the app is closed (platform-permitting)."
+          );
+        }
+      } else {
+        setPermHint(
+          "Local alerts on while this tab is open. For background push on iPhone: Safari → Share → Add to Home Screen, open the icon, then enable again."
+        );
+      }
     } else {
       setPermHint(null);
+      void unsubscribeWebPush();
     }
     const next = { notifyUnderEv: nextOn };
     saveSettings(next);
@@ -152,6 +183,9 @@ export default function DealAlertsBanner({ variant = "banner" }: Props) {
             </span>
             <span className="block text-[11px] text-zinc-500 mt-0.5 leading-relaxed">
               {DEAL_ALERTS_PUSH_NOTE}
+            </span>
+            <span className="block text-[11px] text-zinc-600 mt-1 leading-relaxed">
+              iOS: only works after Add to Home Screen; tap Allow when prompted.
             </span>
           </span>
         </label>

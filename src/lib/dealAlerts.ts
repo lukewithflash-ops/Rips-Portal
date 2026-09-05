@@ -176,8 +176,95 @@ export function fireLocalUnderEvNotification(newDeals: UnderEvDeal[]): void {
 }
 
 /**
- * True background push (closed tab) needs a later push vendor (OneSignal, etc.).
- * This helper only covers local notifications while the app/tab is open or focused.
+ * Web Push (background) when PWA + VAPID + Upstash are configured.
+ * Local Notification fallback still fires while the tab is open/focused.
  */
 export const DEAL_ALERTS_PUSH_NOTE =
-  "Local browser notifications only work while this tab is open (or on focus). True background push needs a later service (OneSignal / Web Push).";
+  "Background Web Push works when this app is installed (Add to Home Screen on iOS) and you Allow notifications. Local alerts still work while this tab is open.";
+
+export function pushManagerSupported(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    "serviceWorker" in navigator &&
+    "PushManager" in window
+  );
+}
+
+export async function subscribeWebPush(): Promise<
+  | { ok: true; endpoint: string }
+  | { ok: false; error: string; status?: number }
+> {
+  if (!pushManagerSupported()) {
+    return { ok: false, error: "unsupported" };
+  }
+  try {
+    const { VAPID_PUBLIC_KEY, urlBase64ToUint8Array } = await import(
+      "@/lib/vapidPublic"
+    );
+    // Ensure SW is registered (production layout also registers; this covers race / settings-first).
+    try {
+      await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+    } catch {
+      /* may already be registering */
+    }
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      const keyBytes = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: keyBytes as unknown as BufferSource,
+      });
+    }
+    const json = sub.toJSON() as {
+      endpoint?: string;
+      expirationTime?: number | null;
+      keys?: { p256dh?: string; auth?: string };
+    };
+    const res = await fetch("/api/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: json }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      ok?: boolean;
+      error?: string;
+      message?: string;
+    };
+    if (!res.ok || !data.ok) {
+      return {
+        ok: false,
+        error: data.message || data.error || `subscribe_${res.status}`,
+        status: res.status,
+      };
+    }
+    return { ok: true, endpoint: json.endpoint || sub.endpoint };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "subscribe_failed",
+    };
+  }
+}
+
+export async function unsubscribeWebPush(): Promise<void> {
+  if (!pushManagerSupported()) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return;
+    const endpoint = sub.endpoint;
+    try {
+      await fetch("/api/push/unsubscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endpoint }),
+      });
+    } catch {
+      /* ignore network — still drop local sub */
+    }
+    await sub.unsubscribe().catch(() => undefined);
+  } catch {
+    /* ignore */
+  }
+}
