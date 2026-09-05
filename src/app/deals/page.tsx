@@ -9,6 +9,7 @@ import {
   pricesUpdated,
   type Category,
 } from "@/lib/products";
+import DealAlertsBanner from "@/components/DealAlertsBanner";
 
 const DISCLAIMER =
   "Under-EV Watch ranks catalog products where default/market price sits below modeled expected value (positive ROI / $ edge). Slot odds and averages are estimates — entertainment and math only, not financial, investment, or collecting advice. Markets move; verify live prices before you buy or rip. No gambling features.";
@@ -142,6 +143,9 @@ export default function DealsPage() {
         >
           {DISCLAIMER}
         </div>
+
+        <DealAlertsBanner variant="banner" />
+        <DealAlertsBanner variant="settings" />
 
         <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
           <button
@@ -292,6 +296,16 @@ export default function DealsPage() {
                         >
                           Log a rip
                         </Link>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const url = `${window.location.origin}/pack/${p.id}`;
+                            void navigator.clipboard?.writeText(url);
+                          }}
+                          className="text-[11px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-zinc-700 text-zinc-300 hover:border-emerald-500/40 transition-colors"
+                        >
+                          Copy share link
+                        </button>
                       </div>
                     </div>
                   </div>

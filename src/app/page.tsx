@@ -15,6 +15,7 @@ import { chaseCards, searchCards, type ChaseCard } from "@/lib/cards";
 import { computeVerdict, VERDICT_DISCLAIMER } from "@/lib/verdict";
 import { computeKeeperEV } from "@/lib/keeper";
 import KeeperEvPanel from "@/components/KeeperEvPanel";
+import DealAlertsBanner from "@/components/DealAlertsBanner";
 
 function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
@@ -839,6 +840,7 @@ function HomeInner() {
                 className="grid lg:grid-cols-12 gap-5 scroll-mt-20"
               >
                 <div className="lg:col-span-8 space-y-4">
+                  <DealAlertsBanner variant="compact" />
                   <div className="panel rounded-2xl p-4 md:p-5 portal-border">
                     <div className="flex gap-3 md:gap-4 mb-4">
                       <div
@@ -868,7 +870,7 @@ function HomeInner() {
                           <button
                             type="button"
                             onClick={() => {
-                              const url = `${window.location.origin}${pathname}?pack=${effectiveProduct.id}`;
+                              const url = `${window.location.origin}/pack/${effectiveProduct.id}`;
                               navigator.clipboard?.writeText(url).catch(() => {});
                               syncPackToUrl(effectiveProduct.id);
                             }}
