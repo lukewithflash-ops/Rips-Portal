@@ -173,6 +173,7 @@ function OpenInner() {
   const [reelLabel, setReelLabel] = useState("?");
   const [showConfetti, setShowConfetti] = useState(false);
   const [shareNote, setShareNote] = useState<string | null>(null);
+  const [showSaveFallback, setShowSaveFallback] = useState(false);
   const [imageShareBusy, setImageShareBusy] = useState(false);
   const [summaryReady, setSummaryReady] = useState(false);
   const [zoomCard, setZoomCard] = useState<{
@@ -371,92 +372,49 @@ function OpenInner() {
     trackInterval,
   ]);
 
-  const shareOpen = useCallback(async () => {
-    if (!session) return;
-    const hits = session.packs
-      .flatMap((pk) => pk.pulls)
-      .filter((p) => (p.estValue ?? 0) > 0)
-      .sort((a, b) => (b.estValue ?? 0) - (a.estValue ?? 0))
-      .slice(0, 5);
-    const top =
-      hits.length === 0
-        ? "No big hits this open — still a free sim."
-        : hits
-            .map(
-              (h) =>
-                `• ${h.cardName || h.name} (${fmtMoney(h.estValue ?? 0)})`
-            )
-            .join("\n");
-    const url =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/open?pack=${encodeURIComponent(session.product.id)}`
-        : `/open?pack=${session.product.id}`;
-    const summary = [
-      `Rip Portal · Free Pack Sim`,
-      `${session.quantity}× ${session.product.name} (${session.product.format})`,
-      `Sim ${fmtMoney(session.totalSimValue)} · EV ${fmtMoney(session.expectedEV)} · Cost ${fmtMoney(session.costPaid)}`,
-      `Top hits:`,
-      top,
-      ``,
-      `Try it: ${url}`,
-      `(Illustrative sim — not real pulls / gambling.)`,
-    ].join("\n");
-
+  const shareToInstagram = useCallback(async () => {
+    if (!session || imageShareBusy) return;
+    setImageShareBusy(true);
+    setShareNote("Building story image…");
+    setShowSaveFallback(false);
     try {
-      if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({
-          title: "Rip Portal pack sim",
-          text: summary,
-          url,
-        });
-        setShareNote("Shared");
-      } else if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(summary);
-        setShareNote("Copied summary");
+      const result = await shareOrDownloadOpenImage(session, "story");
+      if (result === "shared") {
+        setShareNote("Pick Instagram Stories in the share sheet");
+      } else if (result === "downloaded") {
+        setShowSaveFallback(true);
+        setShareNote("Saved image — open IG → add to Story");
+      } else if (result === "unsupported") {
+        setShowSaveFallback(true);
+        setShareNote("Share not available here — save the image instead");
       } else {
-        setShareNote(url);
+        // cancelled
+        setShowSaveFallback(true);
+        setShareNote(null);
       }
     } catch {
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(summary);
-          setShareNote("Copied summary");
-        }
-      } catch {
-        setShareNote("Couldn’t share — copy the URL bar");
-      }
+      setShowSaveFallback(true);
+      setShareNote("Couldn’t share — try Save image");
+    } finally {
+      setImageShareBusy(false);
+      window.setTimeout(() => setShareNote(null), 3200);
     }
-    window.setTimeout(() => setShareNote(null), 2200);
-  }, [session]);
+  }, [session, imageShareBusy]);
 
-  const shareImageOpen = useCallback(
-    async (mode: "share" | "download", format: "story" | "square" = "story") => {
-      if (!session || imageShareBusy) return;
-      setImageShareBusy(true);
-      setShareNote(format === "story" ? "Building story image…" : "Building square image…");
-      try {
-        if (mode === "download") {
-          await downloadOpenShareImage(session, format);
-          setShareNote("Saved PNG — add to IG Story/Feed");
-        } else {
-          const result = await shareOrDownloadOpenImage(session, format);
-          if (result === "shared") {
-            setShareNote("Shared image");
-          } else if (result === "downloaded") {
-            setShareNote("Saved PNG — add to IG Story/Feed");
-          } else {
-            setShareNote(null);
-          }
-        }
-      } catch {
-        setShareNote("Couldn’t build image — try again");
-      } finally {
-        setImageShareBusy(false);
-        window.setTimeout(() => setShareNote(null), 2800);
-      }
-    },
-    [session, imageShareBusy]
-  );
+  const saveStoryImage = useCallback(async () => {
+    if (!session || imageShareBusy) return;
+    setImageShareBusy(true);
+    setShareNote("Saving…");
+    try {
+      await downloadOpenShareImage(session, "story");
+      setShareNote("Saved — open IG and add to Story");
+    } catch {
+      setShareNote("Couldn’t save image — try again");
+    } finally {
+      setImageShareBusy(false);
+      window.setTimeout(() => setShareNote(null), 2800);
+    }
+  }, [session, imageShareBusy]);
 
   const shownPacks =
     session && phase === "reveal"
@@ -467,6 +425,14 @@ function OpenInner() {
     !!session &&
     phase === "reveal" &&
     (summaryReady || revealIdx >= session.packs.length - 1);
+
+  useEffect(() => {
+    setShareNote(null);
+    const shareOk =
+      typeof navigator !== "undefined" && typeof navigator.share === "function";
+    // Fresh result: hide Save unless Web Share is missing entirely.
+    setShowSaveFallback(allRevealed && !shareOk);
+  }, [allRevealed, session?.product.id, session?.quantity, session?.totalSimValue]);
 
   const countedSim = useCountUp(
     session?.totalSimValue ?? 0,
@@ -540,35 +506,15 @@ function OpenInner() {
       </header>
 
       <main className="flex-1 px-4 md:px-6 py-5 max-w-3xl mx-auto w-full space-y-4 pb-28">
-        <section className="panel rounded-2xl p-4 border border-cyan-500/30 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-green-500/5 pointer-events-none" />
-          <div className="relative">
-            <div className="text-[10px] uppercase tracking-widest text-cyan-400/90 font-semibold mb-1">
-              Open
-            </div>
-            <h1 className="text-xl font-bold text-white tracking-tight">
-              Educational pack simulation
-            </h1>
-            <p className="text-sm text-zinc-400 mt-1.5 leading-relaxed">
-              Pick a catalog product, preview the drop table, then simulate 1 /
-              5 / 10 opens. Free forever — no gems, no wallet, no cash-out.
-            </p>
-          </div>
-        </section>
-
-        <div
-          className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-3 py-2.5 text-[12px] text-amber-100/90 leading-relaxed"
+        <p
+          className="text-[12px] sm:text-[13px] text-zinc-400 leading-snug"
           role="note"
         >
-          {OPEN_SIM_DISCLAIMER}
-        </div>
-        <div
-          className="rounded-xl border border-cyan-500/15 bg-cyan-950/20 px-3 py-2 text-[11px] text-zinc-400 leading-relaxed"
-          role="note"
-        >
-          <span className="text-cyan-400/80 font-medium">Card-first sim · </span>
-          {OPEN_CARD_ART_DISCLAIMER}
-        </div>
+          <span className="font-semibold text-cyan-300/90">Open</span>
+          {" — "}
+          free educational pack sim. Math estimates only — not real packs, not
+          gambling.
+        </p>
 
         <section className="panel rounded-2xl p-4 portal-border space-y-3">
           <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
@@ -625,59 +571,9 @@ function OpenInner() {
 
         {product && (
           <>
-            <section className="panel rounded-2xl p-4 space-y-3">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                  2 · Drop table
-                </h2>
-                <div className="text-[11px] text-zinc-500">
-                  Unit EV {fmtMoney(unitEV)} · cost {fmtMoney(price)}
-                </div>
-              </div>
-              <div className="overflow-x-auto -mx-1">
-                <table className="w-full text-left text-[12px] min-w-[320px]">
-                  <thead>
-                    <tr className="text-[10px] uppercase tracking-wider text-zinc-600 border-b border-zinc-800">
-                      <th className="py-2 px-1 font-medium">Tier</th>
-                      <th className="py-2 px-1 font-medium">Odds</th>
-                      <th className="py-2 px-1 font-medium text-right">
-                        Avg $
-                      </th>
-                      <th className="py-2 px-1 font-medium text-right">EV $</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dropTable.map((row) => (
-                      <tr
-                        key={row.name}
-                        className="border-b border-zinc-900/80 text-zinc-300"
-                      >
-                        <td className="py-2 px-1 pr-2">{row.name}</td>
-                        <td className="py-2 px-1 font-mono text-cyan-300/90">
-                          {row.odds}
-                        </td>
-                        <td className="py-2 px-1 text-right font-mono">
-                          {fmtMoney(row.avgValue)}
-                        </td>
-                        <td className="py-2 px-1 text-right font-mono text-emerald-300/90">
-                          {fmtMoney(row.evContribution)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="text-[11px] text-zinc-600 leading-relaxed">
-                Simulated odds = catalog{" "}
-                <span className="font-mono text-zinc-500">oddsNum</span> per
-                slot (independent draws, same as calculator EV). Not official
-                published rates.
-              </p>
-            </section>
-
             <section className="panel rounded-2xl p-4 space-y-4">
               <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                3 · Simulate open
+                2 · Open
               </h2>
               <div className="flex flex-wrap gap-2">
                 {(["1", "5", "10", "custom"] as const).map((m) => (
@@ -775,7 +671,77 @@ function OpenInner() {
                   ? "Opening…"
                   : `Open ${quantity} simulated pack${quantity === 1 ? "" : "s"}`}
               </button>
+
+              <details className="group rounded-xl border border-zinc-800/80 bg-black/25 px-3 py-2">
+                <summary className="cursor-pointer list-none text-[11px] font-medium text-zinc-500 hover:text-zinc-300 [&::-webkit-details-marker]:hidden flex items-center justify-between gap-2">
+                  <span>Details — odds, art & disclaimers</span>
+                  <span className="text-zinc-600 group-open:rotate-180 transition-transform">
+                    ▾
+                  </span>
+                </summary>
+                <div className="mt-2 space-y-2 border-t border-zinc-800/80 pt-2">
+                  <p className="text-[11px] leading-relaxed text-zinc-400">
+                    {OPEN_SIM_DISCLAIMER}
+                  </p>
+                  <p className="text-[11px] leading-relaxed text-zinc-500">
+                    <span className="text-cyan-400/80 font-medium">
+                      Card art ·{" "}
+                    </span>
+                    {OPEN_CARD_ART_DISCLAIMER}
+                  </p>
+                </div>
+              </details>
             </section>
+            <section className="panel rounded-2xl p-4 space-y-3">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                  3 · Drop table
+                </h2>
+                <div className="text-[11px] text-zinc-500">
+                  Unit EV {fmtMoney(unitEV)} · cost {fmtMoney(price)}
+                </div>
+              </div>
+              <div className="overflow-x-auto -mx-1">
+                <table className="w-full text-left text-[12px] min-w-[320px]">
+                  <thead>
+                    <tr className="text-[10px] uppercase tracking-wider text-zinc-600 border-b border-zinc-800">
+                      <th className="py-2 px-1 font-medium">Tier</th>
+                      <th className="py-2 px-1 font-medium">Odds</th>
+                      <th className="py-2 px-1 font-medium text-right">
+                        Avg $
+                      </th>
+                      <th className="py-2 px-1 font-medium text-right">EV $</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dropTable.map((row) => (
+                      <tr
+                        key={row.name}
+                        className="border-b border-zinc-900/80 text-zinc-300"
+                      >
+                        <td className="py-2 px-1 pr-2">{row.name}</td>
+                        <td className="py-2 px-1 font-mono text-cyan-300/90">
+                          {row.odds}
+                        </td>
+                        <td className="py-2 px-1 text-right font-mono">
+                          {fmtMoney(row.avgValue)}
+                        </td>
+                        <td className="py-2 px-1 text-right font-mono text-emerald-300/90">
+                          {fmtMoney(row.evContribution)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-[11px] text-zinc-600 leading-relaxed">
+                Simulated odds = catalog{" "}
+                <span className="font-mono text-zinc-500">oddsNum</span> per
+                slot (independent draws, same as calculator EV). Not official
+                published rates.
+              </p>
+            </section>
+
           </>
         )}
 
@@ -1035,62 +1001,56 @@ function OpenInner() {
             </ul>
 
             {allRevealed && (
-              <div className="flex flex-wrap gap-2 pt-1 summary-punch">
-                <button
-                  type="button"
-                  onClick={runOpen}
-                  className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-100 hover:bg-cyan-500/25 open-cta-pulse"
-                >
-                  Open again
-                </button>
-                <button
-                  type="button"
-                  onClick={shareOpen}
-                  className="text-[12px] px-3 py-2 rounded-xl bg-violet-500/15 border border-violet-400/40 text-violet-100 hover:bg-violet-500/25"
-                >
-                  Share this open
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void shareImageOpen("share", "story")}
-                  disabled={imageShareBusy}
-                  className="text-[12px] px-3 py-2 rounded-xl bg-pink-500/15 border border-pink-400/40 text-pink-100 hover:bg-pink-500/25 disabled:opacity-50"
-                >
-                  {imageShareBusy ? "Building…" : "Instagram story image"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void shareImageOpen("download", "story")}
-                  disabled={imageShareBusy}
-                  className="text-[12px] px-3 py-2 rounded-xl bg-fuchsia-500/10 border border-fuchsia-400/30 text-fuchsia-100/95 hover:bg-fuchsia-500/20 disabled:opacity-50"
-                >
-                  Save story PNG
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void shareImageOpen("download", "square")}
-                  disabled={imageShareBusy}
-                  className="text-[12px] px-3 py-2 rounded-xl bg-zinc-500/10 border border-zinc-500/35 text-zinc-200 hover:bg-zinc-500/20 disabled:opacity-50"
-                >
-                  Save square PNG
-                </button>
+              <div className="flex flex-col gap-2 pt-1 summary-punch">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <button
+                    type="button"
+                    onClick={runOpen}
+                    className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-100 hover:bg-cyan-500/25 open-cta-pulse"
+                  >
+                    Open again
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void shareToInstagram()}
+                    disabled={imageShareBusy}
+                    className="text-[12px] px-3.5 py-2 rounded-xl bg-pink-500/20 border border-pink-400/50 text-pink-50 font-semibold hover:bg-pink-500/30 disabled:opacity-50"
+                  >
+                    {imageShareBusy ? "Building…" : "Share to Instagram"}
+                  </button>
+                  {showSaveFallback && (
+                    <button
+                      type="button"
+                      onClick={() => void saveStoryImage()}
+                      disabled={imageShareBusy}
+                      className="text-[11px] px-2.5 py-1.5 rounded-lg text-zinc-400 border border-zinc-700/80 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-50"
+                    >
+                      Save image
+                    </button>
+                  )}
+                  <Link
+                    href={`/log?pack=${session.product.id}&qty=${session.quantity}`}
+                    className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20"
+                  >
+                    Log this rip →
+                  </Link>
+                  <Link
+                    href={`/?pack=${session.product.id}`}
+                    className="text-[12px] px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/25"
+                  >
+                    Verdict / Calculator →
+                  </Link>
+                </div>
                 {shareNote && (
-                  <span className="text-[11px] text-violet-300/90 self-center share-toast">
+                  <p className="text-[11px] text-pink-200/80 share-toast">
                     {shareNote}
-                  </span>
+                  </p>
                 )}
-                <Link
-                  href={`/log?pack=${session.product.id}&qty=${session.quantity}`}
-                  className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20"
-                >
-                  Log this rip →
-                </Link>
-                <Link
-                  href={`/?pack=${session.product.id}`}
-                  className="text-[12px] px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/25"
-                >
-                  Verdict / Calculator →
-                </Link>
+                <p className="text-[10px] text-zinc-600 leading-snug">
+                  Opens your device share sheet with a Stories-sized image — pick
+                  Instagram if it appears. Web can&apos;t force the IG Stories
+                  camera.
+                </p>
               </div>
             )}
           </section>

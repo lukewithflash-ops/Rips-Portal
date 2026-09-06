@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 import {
   getDeferredInstallPrompt,
   isIosDevice,
@@ -19,14 +20,31 @@ function useDeferredPrompt() {
   );
 }
 
+/** Pages where the install toast would cover primary CTAs / bottom nav. */
+const HIDE_ON_PATHS = ["/open"];
+
 export default function InstallPrompt() {
+  const pathname = usePathname();
   const deferred = useDeferredPrompt();
   const [visible, setVisible] = useState(false);
   const [mode, setMode] = useState<"android" | "ios" | null>(null);
   const [showIosHowTo, setShowIosHowTo] = useState(false);
 
+  const hideForRoute =
+    !!pathname &&
+    HIDE_ON_PATHS.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`)
+    );
+
   useEffect(() => {
-    if (isStandaloneDisplay() || wasInstallDismissedRecently()) return;
+    if (hideForRoute) {
+      setVisible(false);
+      return;
+    }
+    if (isStandaloneDisplay() || wasInstallDismissedRecently()) {
+      setVisible(false);
+      return;
+    }
 
     if (isIosDevice()) {
       setMode("ios");
@@ -39,7 +57,7 @@ export default function InstallPrompt() {
       setMode("android");
       setVisible(true);
     }
-  }, [deferred]);
+  }, [deferred, hideForRoute]);
 
   const dismiss = useCallback(() => {
     markInstallDismissed();
@@ -49,45 +67,41 @@ export default function InstallPrompt() {
 
   const installAndroid = useCallback(async () => {
     await promptInstall();
+    markInstallDismissed();
     setVisible(false);
   }, []);
 
-  if (!visible || !mode) return null;
+  if (hideForRoute || !visible || !mode) return null;
 
   return (
     <div
-      className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-md sm:left-auto"
+      className="fixed inset-x-0 bottom-0 z-50 pointer-events-none px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:inset-x-auto sm:right-4 sm:bottom-4 sm:left-auto sm:px-0 sm:pb-0"
       role="dialog"
       aria-label="Install Rip Portal"
     >
-      <div className="rounded-xl border border-green-500/25 bg-[#0a0a12]/95 backdrop-blur-md shadow-[0_0_28px_rgba(57,255,20,0.12)] px-4 py-3">
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-green-500/30 bg-black/50 text-[11px] font-extrabold tracking-tight text-green-400 neon-text">
+      <div className="pointer-events-auto mx-auto max-w-lg sm:mx-0 rounded-xl border border-green-500/25 bg-[#0a0a12]/95 backdrop-blur-md shadow-[0_0_20px_rgba(57,255,20,0.1)]">
+        {/* Compact single-row bar on small screens */}
+        <div className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-green-500/30 bg-black/50 text-[9px] font-extrabold tracking-tight text-green-400 neon-text">
             RP
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-zinc-100">
+            <p className="truncate text-[12px] font-semibold leading-tight text-zinc-100 sm:text-[13px]">
               Install Rip Portal
+              <span className="hidden font-normal text-zinc-500 sm:inline">
+                {" "}
+                · home screen
+              </span>
             </p>
-            {mode === "android" && (
-              <p className="mt-0.5 text-[11px] leading-relaxed text-zinc-400">
-                Add to your home screen for a faster, app-like experience.
-              </p>
-            )}
-            {mode === "ios" && !showIosHowTo && (
-              <p className="mt-0.5 text-[11px] leading-relaxed text-zinc-400">
-                Add to Home Screen for quick access from your iPhone.
-              </p>
-            )}
             {mode === "ios" && showIosHowTo && (
-              <ol className="mt-1.5 list-inside list-decimal space-y-1 text-[11px] leading-relaxed text-zinc-300">
+              <ol className="mt-1 list-inside list-decimal space-y-0.5 text-[10px] leading-snug text-zinc-400 sm:text-[11px]">
                 <li>
-                  Tap the{" "}
-                  <span className="font-medium text-cyan-300">Share</span>{" "}
-                  button in Safari
+                  Tap{" "}
+                  <span className="font-medium text-cyan-300">Share</span> in
+                  Safari
                 </li>
                 <li>
-                  Scroll and tap{" "}
+                  Tap{" "}
                   <span className="font-medium text-green-300">
                     Add to Home Screen
                   </span>
@@ -97,33 +111,34 @@ export default function InstallPrompt() {
                 </li>
               </ol>
             )}
-            <div className="mt-2.5 flex flex-wrap items-center gap-2">
-              {mode === "android" && (
-                <button
-                  type="button"
-                  onClick={() => void installAndroid()}
-                  className="rounded-md border border-green-500/35 bg-green-500/15 px-3 py-1.5 text-[12px] font-semibold text-green-300 transition-colors hover:bg-green-500/25"
-                >
-                  Install app
-                </button>
-              )}
-              {mode === "ios" && !showIosHowTo && (
-                <button
-                  type="button"
-                  onClick={() => setShowIosHowTo(true)}
-                  className="rounded-md border border-green-500/35 bg-green-500/15 px-3 py-1.5 text-[12px] font-semibold text-green-300 transition-colors hover:bg-green-500/25"
-                >
-                  How to install
-                </button>
-              )}
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            {mode === "android" && (
               <button
                 type="button"
-                onClick={dismiss}
-                className="rounded-md px-3 py-1.5 text-[12px] text-zinc-500 transition-colors hover:text-zinc-300"
+                onClick={() => void installAndroid()}
+                className="rounded-md border border-green-500/35 bg-green-500/15 px-2 py-1 text-[11px] font-semibold text-green-300 transition-colors hover:bg-green-500/25 sm:px-2.5"
               >
-                Not now
+                Install
               </button>
-            </div>
+            )}
+            {mode === "ios" && !showIosHowTo && (
+              <button
+                type="button"
+                onClick={() => setShowIosHowTo(true)}
+                className="rounded-md border border-green-500/35 bg-green-500/15 px-2 py-1 text-[11px] font-semibold text-green-300 transition-colors hover:bg-green-500/25 sm:px-2.5"
+              >
+                How
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={dismiss}
+              className="rounded-md px-2 py-1 text-[11px] text-zinc-500 transition-colors hover:text-zinc-300 sm:px-2.5"
+              aria-label="Not now — dismiss install prompt"
+            >
+              Not now
+            </button>
           </div>
         </div>
       </div>

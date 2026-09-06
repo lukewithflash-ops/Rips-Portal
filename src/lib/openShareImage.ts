@@ -375,38 +375,39 @@ export function downloadBlob(blob: Blob, filename: string) {
 export async function shareOrDownloadOpenImage(
   session: SimSession,
   format: ShareImageFormat = "story"
-): Promise<"shared" | "downloaded" | "cancelled"> {
+): Promise<"shared" | "downloaded" | "cancelled" | "unsupported"> {
   const blob = await renderOpenShareImage(session, { format });
   const filename =
     format === "story"
       ? `rip-portal-${session.product.id}-story.png`
       : `rip-portal-${session.product.id}-square.png`;
   const file = new File([blob], filename, { type: "image/png" });
-  const openUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/open?pack=${encodeURIComponent(session.product.id)}`
-      : `https://ripsportal.com/open?pack=${encodeURIComponent(session.product.id)}`;
-  const caption = [
-    `Rip Portal free sim — ${session.quantity}× ${session.product.name}`,
-    `Sim ${fmtMoney(session.totalSimValue)} · EV ${fmtMoney(session.expectedEV)}`,
-    `Try the opener: ${openUrl}`,
-  ].join("\n");
 
   if (canShareFiles(file)) {
     try {
-      await navigator.share({
-        files: [file],
-        title: "Rip Portal pack sim",
-        text: caption,
-      });
+      // Files-only when possible so IG Stories / share sheet prioritizes the image
+      // (not a link-first caption). Web cannot force-open the IG Stories camera.
+      await navigator.share({ files: [file] });
       return "shared";
     } catch (err) {
-      // User dismissed the sheet
       if (err instanceof DOMException && err.name === "AbortError") {
         return "cancelled";
       }
-      // Fall through to download if files share rejected
+      // Some browsers reject files-only — retry with a tiny title, still no URL.
+      try {
+        await navigator.share({
+          files: [file],
+          title: "Rip Portal",
+        });
+        return "shared";
+      } catch (err2) {
+        if (err2 instanceof DOMException && err2.name === "AbortError") {
+          return "cancelled";
+        }
+      }
     }
+  } else if (typeof navigator === "undefined" || typeof navigator.share !== "function") {
+    return "unsupported";
   }
 
   downloadBlob(blob, filename);
