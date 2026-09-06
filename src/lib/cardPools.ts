@@ -23,13 +23,52 @@ export interface PoolCard {
 export type ProductPools = Record<number, PoolCard[]>;
 
 const S = (id: string) => `https://images.scrydex.com/pokemon/${id}/small`;
+/**
+ * Scrydex One Piece thumbs use set collector IDs (e.g. OP16-118).
+ * Always pair the pool display name with an ID whose Scrydex art depicts that
+ * character — OP16-118 is Portgas.D.Ace SEC, not Luffy; OP09-119 is Luffy SEC.
+ * Preview scans often carry a SAMPLE watermark from the CDN source.
+ */
 const OPIMG = (id: string) => `https://images.scrydex.com/onepiece/${id}/small`;
-const SPORTS = "/cards/placeholder-sports.svg";
-const SPORTS_REF = "/cards/placeholder-sports-refractor.svg";
-const SPORTS_AUTO = "/cards/placeholder-sports-auto.svg";
-const BBALL = "/cards/placeholder-bball.svg";
-const BBALL_REF = "/cards/placeholder-bball-refractor.svg";
-const BBALL_AUTO = "/cards/placeholder-bball-auto.svg";
+/** Keep name + Scrydex id adjacent so crossed art is harder to introduce. */
+const opc = (
+  name: string,
+  id: string,
+  estValue: number,
+  weight?: number
+): PoolCard => ({
+  name,
+  imageUrl: OPIMG(id),
+  estValue,
+  ...(weight !== undefined ? { weight } : {}),
+});
+/**
+ * Self-hosted Chrome-style thumbs (MLB/NBA headshots composited into card frames).
+ * Slug must match the named player — same name↔art rule as OP `opc`.
+ * Variants: base | refractor | auto.
+ */
+type SportVariant = "base" | "refractor" | "auto";
+const sportImg = (slug: string, variant: SportVariant = "base") =>
+  `/cards/sports/${slug}-${variant}.webp`;
+const sbc = (
+  name: string,
+  slug: string,
+  estValue: number,
+  weight?: number,
+  variant: SportVariant = "base"
+): PoolCard => ({
+  name,
+  imageUrl: sportImg(slug, variant),
+  estValue,
+  ...(weight !== undefined ? { weight } : {}),
+});
+/** @deprecated Keep fallbacks for synthesizeDisplayCard / legacy refs */
+const SPORTS = sportImg("paul-skenes", "base");
+const SPORTS_REF = sportImg("paul-skenes", "refractor");
+const SPORTS_AUTO = sportImg("paul-skenes", "auto");
+const BBALL = sportImg("cooper-flagg", "base");
+const BBALL_REF = sportImg("cooper-flagg", "refractor");
+const BBALL_AUTO = sportImg("cooper-flagg", "auto");
 const OP_FALLBACK = "/cards/placeholder-op.svg";
 const POKE = "/cards/placeholder-poke.svg";
 
@@ -482,281 +521,293 @@ function thirtiethPools(promoName: string, promoImg: string): ProductPools {
 
 const baseChromeHobby: ProductPools = {
   0: [
-    { name: "Paul Skenes Chrome Rookie — Base", imageUrl: SPORTS, estValue: 35, weight: 3 },
-    { name: "Elly De La Cruz Chrome — Base", imageUrl: SPORTS, estValue: 22, weight: 4 },
-    { name: "Jackson Holliday Chrome — Base", imageUrl: SPORTS, estValue: 18, weight: 4 },
-    { name: "Junior Caminero Chrome — Base", imageUrl: SPORTS, estValue: 14, weight: 3 },
-    { name: "Base Refractor — Mid rookies stack", imageUrl: SPORTS_REF, estValue: 40, weight: 2 },
-    { name: "Wyatt Langford Chrome — Base", imageUrl: SPORTS, estValue: 16, weight: 3 }
+    sbc("Paul Skenes Chrome Rookie — Base", "paul-skenes", 35, 3),
+    sbc("Elly De La Cruz Chrome — Base", "elly-de-la-cruz", 22, 4),
+    sbc("Jackson Holliday Chrome — Base", "jackson-holliday", 18, 4),
+    sbc("Junior Caminero Chrome — Base", "junior-caminero", 14, 3),
+    sbc("Wyatt Langford — Base Refractor", "wyatt-langford", 40, 2, "refractor"),
+    sbc("Wyatt Langford Chrome — Base", "wyatt-langford", 16, 3),
   ],
   1: [
-    { name: "Paul Skenes Chrome — Refractor", imageUrl: SPORTS_REF, estValue: 85, weight: 3 },
-    { name: "Paul Skenes Chrome — Gold /50", imageUrl: SPORTS_REF, estValue: 220, weight: 1 },
-    { name: "Elly De La Cruz — Refractor /99", imageUrl: SPORTS_REF, estValue: 55, weight: 3 },
-    { name: "Jackson Holliday — Prism Refractor", imageUrl: SPORTS_REF, estValue: 45, weight: 3 },
-    { name: "Numbered parallel — Mid prospect", imageUrl: SPORTS_REF, estValue: 35, weight: 4 },
-    { name: "Junior Caminero — Refractor", imageUrl: SPORTS_REF, estValue: 40, weight: 2 }
+    sbc("Paul Skenes Chrome — Refractor", "paul-skenes", 85, 3, "refractor"),
+    sbc("Paul Skenes Chrome — Gold /50", "paul-skenes", 220, 1, "refractor"),
+    sbc("Elly De La Cruz — Refractor /99", "elly-de-la-cruz", 55, 3, "refractor"),
+    sbc("Jackson Holliday — Prism Refractor", "jackson-holliday", 45, 3, "refractor"),
+    sbc("Junior Caminero — Numbered parallel", "junior-caminero", 35, 4, "refractor"),
+    sbc("Junior Caminero — Refractor", "junior-caminero", 40, 2, "refractor"),
   ],
   2: [
-    { name: "Paul Skenes Rookie Autograph", imageUrl: SPORTS_AUTO, estValue: 280, weight: 1 },
-    { name: "Top prospect Rookie Auto", imageUrl: SPORTS_AUTO, estValue: 140, weight: 3 },
-    { name: "Mid-tier Rookie Autograph", imageUrl: SPORTS_AUTO, estValue: 70, weight: 4 },
-    { name: "Veteran Auto / lower demand", imageUrl: SPORTS_AUTO, estValue: 40, weight: 3 },
-    { name: "Elly De La Cruz — Auto parallel", imageUrl: SPORTS_AUTO, estValue: 160, weight: 2 }
+    sbc("Paul Skenes Rookie Autograph", "paul-skenes", 280, 1, "auto"),
+    sbc("Jackson Holliday Rookie Autograph", "jackson-holliday", 140, 3, "auto"),
+    sbc("Junior Caminero Rookie Autograph", "junior-caminero", 70, 4, "auto"),
+    sbc("Wyatt Langford Rookie Autograph", "wyatt-langford", 40, 3, "auto"),
+    sbc("Elly De La Cruz — Auto parallel", "elly-de-la-cruz", 160, 2, "auto"),
   ],
   3: [
-    { name: "Helix / Insert SSP — Skenes", imageUrl: SPORTS_REF, estValue: 90, weight: 2 },
-    { name: "Chrome Insert — Hot rookie", imageUrl: SPORTS_REF, estValue: 45, weight: 3 },
-    { name: "SP / short print base", imageUrl: SPORTS, estValue: 25, weight: 4 },
-    { name: "Insert — Future Stars", imageUrl: SPORTS_REF, estValue: 35, weight: 3 }
+    sbc("Helix / Insert SSP — Skenes", "paul-skenes", 90, 2, "refractor"),
+    sbc("Chrome Insert — Elly De La Cruz", "elly-de-la-cruz", 45, 3, "refractor"),
+    sbc("SP / short print — Holliday", "jackson-holliday", 25, 4),
+    sbc("Insert — Future Stars Caminero", "junior-caminero", 35, 3, "refractor"),
   ],
   4: [
-    { name: "Superfractor /1 — Flagship rookie", imageUrl: SPORTS_REF, estValue: 2500, weight: 1 },
-    { name: "Red Refractor /5 — Skenes", imageUrl: SPORTS_REF, estValue: 900, weight: 2 },
-    { name: "High-end numbered — top RC", imageUrl: SPORTS_REF, estValue: 350, weight: 4 },
-    { name: "Case hit adjacent", imageUrl: SPORTS_AUTO, estValue: 180, weight: 4 },
-    { name: "Gold Wave Refractor /50", imageUrl: SPORTS_REF, estValue: 280, weight: 3 }
+    sbc("Superfractor /1 — Paul Skenes", "paul-skenes", 2500, 1, "refractor"),
+    sbc("Red Refractor /5 — Skenes", "paul-skenes", 900, 2, "refractor"),
+    sbc("High-end numbered — Elly De La Cruz", "elly-de-la-cruz", 350, 4, "refractor"),
+    sbc("Case hit — Skenes Auto", "paul-skenes", 180, 4, "auto"),
+    sbc("Gold Wave Refractor /50 — Holliday", "jackson-holliday", 280, 3, "refractor"),
   ],
 };
 
 const baseChromeMega: ProductPools = {
   0: [
-    { name: "Paul Skenes Chrome Rookie — Base", imageUrl: SPORTS, estValue: 35, weight: 2 },
-    { name: "Chrome Base + Refractors stack", imageUrl: SPORTS_REF, estValue: 18, weight: 4 },
-    { name: "Mid rookies Refractor mix", imageUrl: SPORTS_REF, estValue: 12, weight: 4 },
-    { name: "Elly De La Cruz — Base", imageUrl: SPORTS, estValue: 20, weight: 3 },
-    { name: "Jackson Holliday — Base", imageUrl: SPORTS, estValue: 15, weight: 3 }
+    sbc("Paul Skenes Chrome Rookie — Base", "paul-skenes", 35, 2),
+    sbc("Wyatt Langford Base + Refractors", "wyatt-langford", 18, 4, "refractor"),
+    sbc("Junior Caminero Refractor mix", "junior-caminero", 12, 4, "refractor"),
+    sbc("Elly De La Cruz — Base", "elly-de-la-cruz", 20, 3),
+    sbc("Jackson Holliday — Base", "jackson-holliday", 15, 3),
   ],
   1: [
-    { name: "Paul Skenes — Refractor", imageUrl: SPORTS_REF, estValue: 85, weight: 2 },
-    { name: "Numbered parallel /99", imageUrl: SPORTS_REF, estValue: 40, weight: 3 },
-    { name: "Insert / parallel haul", imageUrl: SPORTS_REF, estValue: 18, weight: 4 },
-    { name: "Prism / X-Fractor mid", imageUrl: SPORTS_REF, estValue: 28, weight: 2 }
+    sbc("Paul Skenes — Refractor", "paul-skenes", 85, 2, "refractor"),
+    sbc("Elly De La Cruz — Numbered /99", "elly-de-la-cruz", 40, 3, "refractor"),
+    sbc("Jackson Holliday — Parallel haul", "jackson-holliday", 18, 4, "refractor"),
+    sbc("Junior Caminero — Prism / X-Fractor", "junior-caminero", 28, 2, "refractor"),
   ],
   2: [
-    { name: "Paul Skenes Rookie Auto chance", imageUrl: SPORTS_AUTO, estValue: 280, weight: 1 },
-    { name: "Prospect Rookie Autograph", imageUrl: SPORTS_AUTO, estValue: 120, weight: 2 },
-    { name: "Lower-tier Auto", imageUrl: SPORTS_AUTO, estValue: 55, weight: 3 },
-    { name: "Numbered auto parallel", imageUrl: SPORTS_AUTO, estValue: 90, weight: 2 }
+    sbc("Paul Skenes Rookie Auto chance", "paul-skenes", 280, 1, "auto"),
+    sbc("Jackson Holliday Rookie Autograph", "jackson-holliday", 120, 2, "auto"),
+    sbc("Wyatt Langford Rookie Autograph", "wyatt-langford", 55, 3, "auto"),
+    sbc("Elly De La Cruz — Auto parallel", "elly-de-la-cruz", 90, 2, "auto"),
   ],
 };
 
 const baseUpdateHobby: ProductPools = {
   0: [
-    { name: "Update base + inserts stack", imageUrl: SPORTS, estValue: 35, weight: 3 },
-    { name: "Nick Kurtz Update RC — Base", imageUrl: SPORTS, estValue: 55, weight: 2 },
-    { name: "James Wood Update RC — Base", imageUrl: SPORTS, estValue: 40, weight: 3 },
-    { name: "Roman Anthony Update RC — Base", imageUrl: SPORTS, estValue: 32, weight: 3 },
-    { name: "Update rookies mix", imageUrl: SPORTS, estValue: 28, weight: 3 }
+    sbc("James Wood Update base stack", "james-wood", 35, 3),
+    sbc("Nick Kurtz Update RC — Base", "nick-kurtz", 55, 2),
+    sbc("James Wood Update RC — Base", "james-wood", 40, 3),
+    sbc("Roman Anthony Update RC — Base", "roman-anthony", 32, 3),
+    sbc("Nick Kurtz / Wood rookies mix", "nick-kurtz", 28, 3),
   ],
   1: [
-    { name: "Nick Kurtz RC — Refractor", imageUrl: SPORTS_REF, estValue: 120, weight: 2 },
-    { name: "James Wood RC — SP", imageUrl: SPORTS_REF, estValue: 70, weight: 3 },
-    { name: "Update rookies / SP mix", imageUrl: SPORTS_REF, estValue: 35, weight: 4 },
-    { name: "Roman Anthony — Refractor", imageUrl: SPORTS_REF, estValue: 55, weight: 2 }
+    sbc("Nick Kurtz RC — Refractor", "nick-kurtz", 120, 2, "refractor"),
+    sbc("James Wood RC — SP", "james-wood", 70, 3, "refractor"),
+    sbc("Roman Anthony — Update SP mix", "roman-anthony", 35, 4, "refractor"),
+    sbc("Roman Anthony — Refractor", "roman-anthony", 55, 2, "refractor"),
   ],
   2: [
-    { name: "Update Rookie Autograph — Top", imageUrl: SPORTS_AUTO, estValue: 220, weight: 1 },
-    { name: "Update Rookie Autograph — Mid", imageUrl: SPORTS_AUTO, estValue: 100, weight: 3 },
-    { name: "Veteran / lower Auto", imageUrl: SPORTS_AUTO, estValue: 55, weight: 3 },
-    { name: "Nick Kurtz — Auto chance", imageUrl: SPORTS_AUTO, estValue: 160, weight: 2 }
+    sbc("Nick Kurtz Update Rookie Autograph", "nick-kurtz", 220, 1, "auto"),
+    sbc("James Wood Update Rookie Autograph", "james-wood", 100, 3, "auto"),
+    sbc("Roman Anthony Update Autograph", "roman-anthony", 55, 3, "auto"),
+    sbc("Nick Kurtz — Auto chance", "nick-kurtz", 160, 2, "auto"),
   ],
   3: [
-    { name: "Nick Kurtz Red Refractor /5", imageUrl: SPORTS_REF, estValue: 1900, weight: 1 },
-    { name: "Big hit — low-numbered RC", imageUrl: SPORTS_REF, estValue: 400, weight: 3 },
-    { name: "Case-hit adjacent Update", imageUrl: SPORTS_AUTO, estValue: 180, weight: 4 },
-    { name: "Superfractor adjacent", imageUrl: SPORTS_REF, estValue: 800, weight: 1 }
+    sbc("Nick Kurtz Red Refractor /5", "nick-kurtz", 1900, 1, "refractor"),
+    sbc("James Wood — low-numbered RC", "james-wood", 400, 3, "refractor"),
+    sbc("Roman Anthony — Case-hit Auto", "roman-anthony", 180, 4, "auto"),
+    sbc("Nick Kurtz Superfractor adjacent", "nick-kurtz", 800, 1, "refractor"),
   ],
 };
 
 const bballChromeHobby: ProductPools = {
   0: [
-    { name: "Chrome Update Base + Refractors", imageUrl: BBALL, estValue: 45, weight: 3 },
-    { name: "Cooper Flagg Chrome — Base", imageUrl: BBALL, estValue: 70, weight: 2 },
-    { name: "Ace Bailey Chrome — Base", imageUrl: BBALL, estValue: 40, weight: 3 },
-    { name: "Dylan Harper Chrome — Base", imageUrl: BBALL, estValue: 35, weight: 3 },
-    { name: "Mid rookies Refractor stack", imageUrl: BBALL_REF, estValue: 35, weight: 4 }
+    sbc("Dylan Harper Chrome Base + Refractors", "dylan-harper", 45, 3, "refractor"),
+    sbc("Cooper Flagg Chrome — Base", "cooper-flagg", 70, 2),
+    sbc("Ace Bailey Chrome — Base", "ace-bailey", 40, 3),
+    sbc("Dylan Harper Chrome — Base", "dylan-harper", 35, 3),
+    sbc("Ace Bailey Refractor stack", "ace-bailey", 35, 4, "refractor"),
   ],
   1: [
-    { name: "Cooper Flagg — Refractor /99", imageUrl: BBALL_REF, estValue: 150, weight: 2 },
-    { name: "Numbered parallel /149", imageUrl: BBALL_REF, estValue: 80, weight: 3 },
-    { name: "Ace Bailey — Prism Refractor", imageUrl: BBALL_REF, estValue: 60, weight: 3 },
-    { name: "Mid numbered parallels", imageUrl: BBALL_REF, estValue: 45, weight: 4 }
+    sbc("Cooper Flagg — Refractor /99", "cooper-flagg", 150, 2, "refractor"),
+    sbc("Dylan Harper — Numbered /149", "dylan-harper", 80, 3, "refractor"),
+    sbc("Ace Bailey — Prism Refractor", "ace-bailey", 60, 3, "refractor"),
+    sbc("Ace Bailey — Mid numbered parallel", "ace-bailey", 45, 4, "refractor"),
   ],
   2: [
-    { name: "Insert SSP — Hot rookie", imageUrl: BBALL_REF, estValue: 120, weight: 2 },
-    { name: "Chrome Inserts stack", imageUrl: BBALL_REF, estValue: 40, weight: 4 },
-    { name: "X-Fractor / parallel insert", imageUrl: BBALL_REF, estValue: 55, weight: 3 },
-    { name: "Future Stars insert", imageUrl: BBALL, estValue: 35, weight: 3 }
+    sbc("Insert SSP — Cooper Flagg", "cooper-flagg", 120, 2, "refractor"),
+    sbc("Chrome Inserts — Ace Bailey", "ace-bailey", 40, 4, "refractor"),
+    sbc("X-Fractor — Dylan Harper", "dylan-harper", 55, 3, "refractor"),
+    sbc("Future Stars — Cooper Flagg", "cooper-flagg", 35, 3),
   ],
   3: [
-    { name: "Guaranteed Autograph — Top RC", imageUrl: BBALL_AUTO, estValue: 350, weight: 1 },
-    { name: "Rookie Autograph — Mid", imageUrl: BBALL_AUTO, estValue: 160, weight: 3 },
-    { name: "Lower-demand Auto", imageUrl: BBALL_AUTO, estValue: 80, weight: 3 },
-    { name: "Cooper Flagg — Auto parallel", imageUrl: BBALL_AUTO, estValue: 280, weight: 2 }
+    sbc("Cooper Flagg Guaranteed Autograph", "cooper-flagg", 350, 1, "auto"),
+    sbc("Ace Bailey Rookie Autograph", "ace-bailey", 160, 3, "auto"),
+    sbc("Dylan Harper Rookie Autograph", "dylan-harper", 80, 3, "auto"),
+    sbc("Cooper Flagg — Auto parallel", "cooper-flagg", 280, 2, "auto"),
   ],
   4: [
-    { name: "Debut Patch / Superfractor potential", imageUrl: BBALL_REF, estValue: 3500, weight: 1 },
-    { name: "Low-numbered RC auto parallel", imageUrl: BBALL_AUTO, estValue: 900, weight: 2 },
-    { name: "High-end numbered hit", imageUrl: BBALL_REF, estValue: 400, weight: 4 },
-    { name: "Gold Refractor /50 RC", imageUrl: BBALL_REF, estValue: 550, weight: 2 }
+    sbc("Debut Patch / Superfractor — Flagg", "cooper-flagg", 3500, 1, "refractor"),
+    sbc("Low-numbered RC auto — Flagg", "cooper-flagg", 900, 2, "auto"),
+    sbc("High-end numbered — Ace Bailey", "ace-bailey", 400, 4, "refractor"),
+    sbc("Gold Refractor /50 — Dylan Harper", "dylan-harper", 550, 2, "refractor"),
   ],
 };
 
 const bballChromeValue: ProductPools = {
   0: [
-    { name: "Chrome Update Base + Refractors", imageUrl: BBALL, estValue: 12, weight: 4 },
-    { name: "Cooper Flagg — Base", imageUrl: BBALL, estValue: 22, weight: 2 },
-    { name: "Ace Bailey — Base", imageUrl: BBALL, estValue: 14, weight: 3 },
-    { name: "Mid rookies stack", imageUrl: BBALL, estValue: 10, weight: 4 }
+    sbc("Ace Bailey Chrome Base + Refractors", "ace-bailey", 12, 4, "refractor"),
+    sbc("Cooper Flagg — Base", "cooper-flagg", 22, 2),
+    sbc("Ace Bailey — Base", "ace-bailey", 14, 3),
+    sbc("Dylan Harper — Mid rookies", "dylan-harper", 10, 4),
   ],
   1: [
-    { name: "Parallels / Inserts haul", imageUrl: BBALL_REF, estValue: 15, weight: 4 },
-    { name: "Hot rookie Refractor", imageUrl: BBALL_REF, estValue: 35, weight: 2 },
-    { name: "X-Fractor / insert", imageUrl: BBALL_REF, estValue: 12, weight: 3 },
-    { name: "Prism parallel mid", imageUrl: BBALL_REF, estValue: 18, weight: 2 }
+    sbc("Dylan Harper Parallels / Inserts", "dylan-harper", 15, 4, "refractor"),
+    sbc("Cooper Flagg — Hot Refractor", "cooper-flagg", 35, 2, "refractor"),
+    sbc("Ace Bailey — X-Fractor", "ace-bailey", 12, 3, "refractor"),
+    sbc("Dylan Harper — Prism parallel", "dylan-harper", 18, 2, "refractor"),
   ],
   2: [
-    { name: "Numbered / Auto chance — Top RC", imageUrl: BBALL_AUTO, estValue: 200, weight: 1 },
-    { name: "Numbered parallel hit", imageUrl: BBALL_REF, estValue: 80, weight: 2 },
-    { name: "Lower auto / numbered", imageUrl: BBALL_AUTO, estValue: 45, weight: 3 },
-    { name: "Cooper Flagg numbered chance", imageUrl: BBALL_REF, estValue: 120, weight: 1 }
+    sbc("Cooper Flagg — Auto chance", "cooper-flagg", 200, 1, "auto"),
+    sbc("Ace Bailey — Numbered parallel", "ace-bailey", 80, 2, "refractor"),
+    sbc("Dylan Harper — Lower Auto", "dylan-harper", 45, 3, "auto"),
+    sbc("Cooper Flagg numbered chance", "cooper-flagg", 120, 1, "refractor"),
   ],
 };
 
 const op16Pack: ProductPools = {
   0: [
-    { name: "Nami — Common", imageUrl: OPIMG("OP16-025"), estValue: 0.12, weight: 4 },
-    { name: "Usopp — Common", imageUrl: OPIMG("OP16-050"), estValue: 0.15, weight: 4 },
-    { name: "OP-16 Uncommon — Event card", imageUrl: OPIMG("OP16-075"), estValue: 0.3, weight: 4 },
-    { name: "DON!! / filler uncommon", imageUrl: OPIMG("OP16-001"), estValue: 0.35, weight: 3 },
-    { name: "Crew support common", imageUrl: OPIMG("OP16-100"), estValue: 0.2, weight: 3 }
+    opc("Nami", "OP16-091", 0.12, 4),
+    opc("Usopp", "OP16-043", 0.15, 4),
+    opc("Monkey.D.Garp", "OP16-075", 0.3, 4),
+    opc("Portgas.D.Ace — Common", "OP16-049", 0.35, 3),
+    opc("Tony Tony.Chopper", "OP16-090", 0.2, 3),
   ],
   1: [
-    { name: "OP-16 Rare — Mid", imageUrl: OPIMG("OP16-075"), estValue: 1.1, weight: 4 },
-    { name: "Zoro — Rare", imageUrl: OPIMG("OP16-050"), estValue: 2, weight: 3 },
-    { name: "Sanji — Rare splash", imageUrl: OPIMG("OP16-100"), estValue: 2.8, weight: 2 },
-    { name: "Popular character Rare", imageUrl: OPIMG("OP16-025"), estValue: 1.6, weight: 3 }
+    opc("Marco — Rare", "OP16-014", 1.1, 4),
+    opc("Roronoa Zoro", "OP16-035", 2, 3),
+    opc("Sanji", "OP16-086", 2.8, 2),
+    opc("Nami — Rare", "OP16-091", 1.6, 3),
   ],
   2: [
-    { name: "Super Rare — Mid leader support", imageUrl: OPIMG("OP16-100"), estValue: 6, weight: 4 },
-    { name: "Leader / Super Rare — Hot", imageUrl: OPIMG("OP16-118"), estValue: 12, weight: 3 },
-    { name: "Super Rare — Chase-adjacent", imageUrl: OPIMG("OP16-119"), estValue: 18, weight: 1 },
-    { name: "SR — Crew spotlight", imageUrl: OPIMG("OP16-075"), estValue: 8, weight: 2 }
+    opc("Edward.Newgate (SR)", "OP16-003", 6, 4),
+    opc("Monkey.D.Luffy (SR)", "OP16-015", 12, 3),
+    opc("Boa Hancock (SR)", "OP16-032", 18, 1),
+    opc("Emporio.Ivankov (SR)", "OP16-026", 8, 2),
   ],
   3: [
-    { name: "Monkey.D.Luffy (SEC)", imageUrl: OPIMG("OP16-118"), estValue: 65, weight: 2 },
-    { name: "Secret Rare / Alt Art — Mid", imageUrl: OPIMG("OP16-119"), estValue: 35, weight: 4 },
-    { name: "Alt Art — Budget SEC", imageUrl: OPIMG("OP16-100"), estValue: 22, weight: 3 },
-    { name: "SEC — Character alt", imageUrl: OPIMG("OP16-050"), estValue: 28, weight: 2 }
+    // OP16 SECs are Ace + Teach — not Luffy (Luffy SEC is OP09-119).
+    opc("Portgas.D.Ace (SEC)", "OP16-118", 65, 2),
+    opc("Marshall.D.Teach (SEC)", "OP16-119", 35, 4),
+    opc("Monkey.D.Luffy (SR)", "OP16-015", 22, 3),
+    opc("Yamato (SR)", "OP16-098", 28, 2),
   ],
   4: [
-    { name: "Manga Rare — Flagship chase", imageUrl: OPIMG("OP16-119"), estValue: 350, weight: 1 },
-    { name: "Manga Rare / SP — Mid", imageUrl: OPIMG("OP16-118"), estValue: 160, weight: 3 },
-    { name: "Chase SP — Budget", imageUrl: OPIMG("OP16-100"), estValue: 90, weight: 3 },
-    { name: "SP — Set favorite", imageUrl: OPIMG("OP16-075"), estValue: 110, weight: 2 }
+    opc("Sakazuki — Admiral chase", "OP16-065", 350, 1),
+    opc("Kuzan — Admiral chase", "OP16-063", 160, 3),
+    opc("Borsalino — Admiral chase", "OP16-073", 90, 3),
+    opc("Portgas.D.Ace (SEC)", "OP16-118", 110, 2),
   ],
 };
 
 const op16Box: ProductPools = {
   0: [
-    { name: "Bulk + Rares across box", imageUrl: OPIMG("OP16-001"), estValue: 18, weight: 3 },
-    { name: "Rares stack — popular names", imageUrl: OPIMG("OP16-050"), estValue: 24, weight: 3 },
-    { name: "Better bulk + rares", imageUrl: OPIMG("OP16-075"), estValue: 28, weight: 2 },
-    { name: "Nami / Usopp rare haul", imageUrl: OPIMG("OP16-025"), estValue: 22, weight: 2 }
+    opc("Portgas.D.Ace — Leader art", "OP16-001", 18, 3),
+    opc("Roronoa Zoro / Sanji haul", "OP16-035", 24, 3),
+    opc("Monkey.D.Garp + bulk", "OP16-075", 28, 2),
+    opc("Nami / Usopp rare haul", "OP16-091", 22, 2),
   ],
   1: [
-    { name: "SR / Leader expected haul", imageUrl: OPIMG("OP16-100"), estValue: 35, weight: 3 },
-    { name: "Multiple Super Rares", imageUrl: OPIMG("OP16-118"), estValue: 45, weight: 3 },
-    { name: "Hot Leader + SRs", imageUrl: OPIMG("OP16-119"), estValue: 55, weight: 2 }
+    opc("Edward.Newgate + SRs", "OP16-003", 35, 3),
+    opc("Monkey.D.Luffy (SR) haul", "OP16-015", 45, 3),
+    opc("Boa Hancock + SRs", "OP16-032", 55, 2),
   ],
   2: [
-    { name: "Monkey.D.Luffy (SEC)", imageUrl: OPIMG("OP16-118"), estValue: 65, weight: 2 },
-    { name: "Secret / Alt Art", imageUrl: OPIMG("OP16-119"), estValue: 35, weight: 4 },
-    { name: "Budget SEC", imageUrl: OPIMG("OP16-100"), estValue: 22, weight: 3 }
+    opc("Portgas.D.Ace (SEC)", "OP16-118", 65, 2),
+    opc("Marshall.D.Teach (SEC)", "OP16-119", 35, 4),
+    opc("Monkey.D.Luffy (SR)", "OP16-015", 22, 3),
   ],
   3: [
-    { name: "Manga Rare — Flagship", imageUrl: OPIMG("OP16-119"), estValue: 350, weight: 1 },
-    { name: "Manga Rare — Mid", imageUrl: OPIMG("OP16-118"), estValue: 160, weight: 3 },
-    { name: "SP chase — Budget", imageUrl: OPIMG("OP16-100"), estValue: 90, weight: 3 }
+    opc("Sakazuki — Admiral chase", "OP16-065", 350, 1),
+    opc("Kuzan — Admiral chase", "OP16-063", 160, 3),
+    opc("Portgas.D.Ace (SEC)", "OP16-118", 90, 3),
   ],
 };
 
 const op09Pack: ProductPools = {
   0: [
-    { name: "OP-09 Common — Emperor theme", imageUrl: OPIMG("OP09-001"), estValue: 0.12, weight: 5 },
-    { name: "OP-09 Uncommon", imageUrl: OPIMG("OP09-050"), estValue: 0.28, weight: 4 },
-    { name: "DON!! / filler", imageUrl: OPIMG("OP09-100"), estValue: 0.4, weight: 3 },
-    { name: "Crew / empire common", imageUrl: OPIMG("OP09-001"), estValue: 0.18, weight: 4 }
+    opc("Usopp — Common", "OP09-024", 0.12, 5),
+    opc("Sanji — Common", "OP09-028", 0.28, 4),
+    opc("Karasu", "OP09-100", 0.4, 3),
+    opc("Monkey.D.Luffy — Common", "OP09-036", 0.18, 4),
   ],
   1: [
-    { name: "OP-09 Rare — Mid", imageUrl: OPIMG("OP09-050"), estValue: 1.1, weight: 4 },
-    { name: "OP-09 Rare — Emperor theme", imageUrl: OPIMG("OP09-100"), estValue: 2.1, weight: 3 },
-    { name: "OP-09 Rare — Splash", imageUrl: OPIMG("OP09-118"), estValue: 2.9, weight: 2 },
-    { name: "Popular character Rare", imageUrl: OPIMG("OP09-001"), estValue: 1.5, weight: 3 }
+    opc("Nami — Rare", "OP09-050", 1.1, 4),
+    opc("Roronoa Zoro — Rare", "OP09-076", 2.1, 3),
+    opc("Trafalgar Law — Rare", "OP09-069", 2.9, 2),
+    opc("Silvers Rayleigh — Rare", "OP09-005", 1.5, 3),
   ],
   2: [
-    { name: "Super Rare / Leader — Mid", imageUrl: OPIMG("OP09-100"), estValue: 7, weight: 4 },
-    { name: "Leader / SR — Hot Emperor", imageUrl: OPIMG("OP09-118"), estValue: 14, weight: 3 },
-    { name: "SR chase-adjacent", imageUrl: OPIMG("OP09-119"), estValue: 20, weight: 1 },
-    { name: "SR — Empire spotlight", imageUrl: OPIMG("OP09-050"), estValue: 9, weight: 2 }
+    opc("Sanji (SR)", "OP09-065", 7, 4),
+    opc("Shanks (SR)", "OP09-004", 14, 3),
+    opc("Benn.Beckman (SR)", "OP09-009", 20, 1),
+    opc("Franky (SR)", "OP09-072", 9, 2),
   ],
   3: [
-    { name: "Secret / Alt — Top", imageUrl: OPIMG("OP09-119"), estValue: 80, weight: 2 },
-    { name: "Secret / Alt — Mid", imageUrl: OPIMG("OP09-118"), estValue: 40, weight: 4 },
-    { name: "Budget SEC", imageUrl: OPIMG("OP09-100"), estValue: 25, weight: 3 },
-    { name: "SEC — Character alt", imageUrl: OPIMG("OP09-050"), estValue: 32, weight: 2 }
+    opc("Monkey.D.Luffy (SEC)", "OP09-119", 80, 2),
+    opc("Gol.D.Roger (SEC)", "OP09-118", 40, 4),
+    opc("Shanks (SR)", "OP09-004", 25, 3),
+    opc("Nami — Rare splash", "OP09-050", 32, 2),
   ],
   4: [
-    { name: "Manga / SP chase — Flagship", imageUrl: OPIMG("OP09-119"), estValue: 400, weight: 1 },
-    { name: "Manga / SP — Mid", imageUrl: OPIMG("OP09-118"), estValue: 180, weight: 3 },
-    { name: "SP chase — Budget", imageUrl: OPIMG("OP09-100"), estValue: 100, weight: 3 },
-    { name: "SP — Emperor favorite", imageUrl: OPIMG("OP09-050"), estValue: 130, weight: 2 }
+    // Manga/SP chases: Scrydex base IDs still show the character (SAMPLE watermark from CDN).
+    opc("Monkey.D.Luffy (SEC) — Manga chase", "OP09-119", 400, 1),
+    opc("Gol.D.Roger (SEC) — Manga chase", "OP09-118", 180, 3),
+    opc("Shanks (SR) — Manga chase", "OP09-004", 100, 3),
+    opc("Marshall.D.Teach (SR)", "OP09-093", 130, 2),
   ],
 };
 
 
-const blasterSports = (names: [string, string, string, string?]): ProductPools => ({
-  0: [
-    { name: `${names[0]} — Base`, imageUrl: SPORTS, estValue: 8, weight: 3 },
-    { name: `${names[1]} — Base / inserts`, imageUrl: SPORTS, estValue: 6, weight: 4 },
-    { name: `${names[2]} — Base`, imageUrl: SPORTS, estValue: 5.5, weight: 3 },
-    { name: "Base + inserts stack", imageUrl: SPORTS, estValue: 5, weight: 4 },
-  ],
-  1: [
-    { name: `${names[0]} — Parallel / Refractor`, imageUrl: SPORTS_REF, estValue: 25, weight: 2 },
-    { name: `${names[2]} — Rookie parallel`, imageUrl: SPORTS_REF, estValue: 14, weight: 3 },
-    { name: `${names[1]} — Color parallel`, imageUrl: SPORTS_REF, estValue: 12, weight: 3 },
-    { name: "Parallels / rookies mix", imageUrl: SPORTS_REF, estValue: 8, weight: 4 },
-  ],
-  2: [
-    { name: `${names[0]} — Numbered / Auto chance`, imageUrl: SPORTS_AUTO, estValue: 90, weight: 1 },
-    { name: "Numbered parallel hit", imageUrl: SPORTS_REF, estValue: 40, weight: 2 },
-    { name: "Lower auto / relic", imageUrl: SPORTS_AUTO, estValue: 25, weight: 3 },
-    { name: `${names[3] ?? names[1]} — Auto adjacent`, imageUrl: SPORTS_AUTO, estValue: 55, weight: 2 },
-  ],
-});
+/** Blaster pools: [displayName, slug] tuples keep name↔art locked. */
+type BlasterPlayer = [string, string];
+const blasterSports = (players: [BlasterPlayer, BlasterPlayer, BlasterPlayer, BlasterPlayer?]): ProductPools => {
+  const [a, b, c, d] = players;
+  const fourth = d ?? b;
+  return {
+    0: [
+      sbc(`${a[0]} — Base`, a[1], 8, 3),
+      sbc(`${b[0]} — Base / inserts`, b[1], 6, 4),
+      sbc(`${c[0]} — Base`, c[1], 5.5, 3),
+      sbc(`${b[0]} — Base + inserts stack`, b[1], 5, 4),
+    ],
+    1: [
+      sbc(`${a[0]} — Parallel / Refractor`, a[1], 25, 2, "refractor"),
+      sbc(`${c[0]} — Rookie parallel`, c[1], 14, 3, "refractor"),
+      sbc(`${b[0]} — Color parallel`, b[1], 12, 3, "refractor"),
+      sbc(`${c[0]} — Parallels / rookies mix`, c[1], 8, 4, "refractor"),
+    ],
+    2: [
+      sbc(`${a[0]} — Numbered / Auto chance`, a[1], 90, 1, "auto"),
+      sbc(`${b[0]} — Numbered parallel hit`, b[1], 40, 2, "refractor"),
+      sbc(`${c[0]} — Lower auto / relic`, c[1], 25, 3, "auto"),
+      sbc(`${fourth[0]} — Auto adjacent`, fourth[1], 55, 2, "auto"),
+    ],
+  };
+};
 
-const blasterBball = (names: [string, string, string, string?]): ProductPools => ({
-  0: [
-    { name: `${names[0]} — Base`, imageUrl: BBALL, estValue: 10, weight: 3 },
-    { name: `${names[1]} — Base / inserts`, imageUrl: BBALL, estValue: 7, weight: 4 },
-    { name: `${names[2]} — Base`, imageUrl: BBALL, estValue: 6.5, weight: 3 },
-    { name: "Base + inserts stack", imageUrl: BBALL, estValue: 6, weight: 4 },
-  ],
-  1: [
-    { name: `${names[0]} — Parallel`, imageUrl: BBALL_REF, estValue: 28, weight: 2 },
-    { name: `${names[2]} — Rookie parallel`, imageUrl: BBALL_REF, estValue: 16, weight: 3 },
-    { name: `${names[1]} — Color parallel`, imageUrl: BBALL_REF, estValue: 14, weight: 3 },
-    { name: "Parallels / courtside mix", imageUrl: BBALL_REF, estValue: 10, weight: 4 },
-  ],
-  2: [
-    { name: `${names[0]} — Numbered / Auto chance`, imageUrl: BBALL_AUTO, estValue: 110, weight: 1 },
-    { name: "Numbered parallel hit", imageUrl: BBALL_REF, estValue: 50, weight: 2 },
-    { name: "Lower auto chance", imageUrl: BBALL_AUTO, estValue: 30, weight: 3 },
-    { name: `${names[3] ?? names[1]} — Auto adjacent`, imageUrl: BBALL_AUTO, estValue: 65, weight: 2 },
-  ],
-});
+const blasterBball = (players: [BlasterPlayer, BlasterPlayer, BlasterPlayer, BlasterPlayer?]): ProductPools => {
+  const [a, b, c, d] = players;
+  const fourth = d ?? b;
+  return {
+    0: [
+      sbc(`${a[0]} — Base`, a[1], 10, 3),
+      sbc(`${b[0]} — Base / inserts`, b[1], 7, 4),
+      sbc(`${c[0]} — Base`, c[1], 6.5, 3),
+      sbc(`${b[0]} — Base + inserts stack`, b[1], 6, 4),
+    ],
+    1: [
+      sbc(`${a[0]} — Parallel`, a[1], 28, 2, "refractor"),
+      sbc(`${c[0]} — Rookie parallel`, c[1], 16, 3, "refractor"),
+      sbc(`${b[0]} — Color parallel`, b[1], 14, 3, "refractor"),
+      sbc(`${c[0]} — Parallels / courtside mix`, c[1], 10, 4, "refractor"),
+    ],
+    2: [
+      sbc(`${a[0]} — Numbered / Auto chance`, a[1], 110, 1, "auto"),
+      sbc(`${b[0]} — Numbered parallel hit`, b[1], 50, 2, "refractor"),
+      sbc(`${c[0]} — Lower auto chance`, c[1], 30, 3, "auto"),
+      sbc(`${fourth[0]} — Auto adjacent`, fourth[1], 65, 2, "auto"),
+    ],
+  };
+};
 
 export const cardPoolsByProduct: Record<string, ProductPools> = {
   "poke-ascended-pack": ascendedPack,
@@ -831,41 +882,41 @@ export const cardPoolsByProduct: Record<string, ProductPools> = {
   "base-chrome-mega": baseChromeMega,
   "base-update-hobby": baseUpdateHobby,
   "base-series1-blaster": blasterSports([
-    "Elly De La Cruz",
-    "Paul Skenes",
-    "Jackson Holliday",
-    "Junior Caminero",
+    ["Elly De La Cruz", "elly-de-la-cruz"],
+    ["Paul Skenes", "paul-skenes"],
+    ["Jackson Holliday", "jackson-holliday"],
+    ["Junior Caminero", "junior-caminero"],
   ]),
   "base-heritage-blaster": blasterSports([
-    "Paul Skenes Heritage",
-    "Elly De La Cruz Heritage",
-    "Top prospect Heritage",
-    "Wyatt Langford Heritage",
+    ["Paul Skenes Heritage", "paul-skenes"],
+    ["Elly De La Cruz Heritage", "elly-de-la-cruz"],
+    ["Jackson Holliday Heritage", "jackson-holliday"],
+    ["Wyatt Langford Heritage", "wyatt-langford"],
   ]),
   "bball-chrome-update-hobby": bballChromeHobby,
   "bball-chrome-update-value": bballChromeValue,
   "bball-chrome-update-mega": {
     0: bballChromeValue[0]!,
     1: [
-      { name: "Numbered parallels stack", imageUrl: BBALL_REF, estValue: 25, weight: 3 },
-      { name: "Cooper Flagg numbered", imageUrl: BBALL_REF, estValue: 55, weight: 2 },
-      { name: "Mid numbered haul", imageUrl: BBALL_REF, estValue: 18, weight: 3 },
-      { name: "Ace Bailey parallel", imageUrl: BBALL_REF, estValue: 30, weight: 2 },
+      sbc("Dylan Harper numbered parallels", "dylan-harper", 25, 3, "refractor"),
+      sbc("Cooper Flagg numbered", "cooper-flagg", 55, 2, "refractor"),
+      sbc("Ace Bailey mid numbered haul", "ace-bailey", 18, 3, "refractor"),
+      sbc("Ace Bailey parallel", "ace-bailey", 30, 2, "refractor"),
     ],
     2: bballChromeValue[1]!,
     3: bballChromeValue[2]!,
   },
   "bball-hoops-blaster": blasterBball([
-    "Cooper Flagg Hoops",
-    "Star vet Hoops",
-    "Ace Bailey Hoops",
-    "Dylan Harper Hoops",
+    ["Cooper Flagg Hoops", "cooper-flagg"],
+    ["Dylan Harper Hoops", "dylan-harper"],
+    ["Ace Bailey Hoops", "ace-bailey"],
+    ["Dylan Harper Hoops", "dylan-harper"],
   ]),
   "bball-select-blaster": blasterBball([
-    "Select Courtside RC",
-    "Select Concourse star",
-    "Select Premier Level RC",
-    "Cooper Flagg Select",
+    ["Select Courtside — Cooper Flagg", "cooper-flagg"],
+    ["Select Concourse — Ace Bailey", "ace-bailey"],
+    ["Select Premier — Dylan Harper", "dylan-harper"],
+    ["Cooper Flagg Select", "cooper-flagg"],
   ]),
   "op-16-pack": op16Pack,
   "op-16-box": op16Box,
