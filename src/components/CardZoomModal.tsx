@@ -5,11 +5,16 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
 } from "react";
 import Link from "next/link";
 import { fmtMoney, type SimPull } from "@/lib/simulate";
+import {
+  downloadSingleCardShareImage,
+  shareOrDownloadSingleCardImage,
+} from "@/lib/openShareImage";
 
 export type CardZoomTier = "common" | "uncommon" | "rare" | "chase";
 
@@ -44,6 +49,9 @@ export default function CardZoomModal({
   const panelRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
+  const [shareBusy, setShareBusy] = useState(false);
+  const [shareNote, setShareNote] = useState<string | null>(null);
+  const [showSaveFallback, setShowSaveFallback] = useState(false);
 
   const title = pull.cardName || pull.name || pull.slotName;
   const value = pull.estValue ?? pull.avgValue;
@@ -112,6 +120,51 @@ export default function CardZoomModal({
     },
     [onClose]
   );
+
+  const shareToInstagram = useCallback(async () => {
+    if (shareBusy) return;
+    const meta = { productId, productName, productEmoji };
+    setShareBusy(true);
+    setShareNote("Building story image…");
+    setShowSaveFallback(false);
+    try {
+      const result = await shareOrDownloadSingleCardImage(pull, meta, "story");
+      if (result === "shared") {
+        setShareNote("Pick Instagram Stories in the share sheet");
+      } else if (result === "downloaded") {
+        setShowSaveFallback(true);
+        setShareNote("Saved image — open IG → add to Story");
+      } else if (result === "unsupported") {
+        setShowSaveFallback(true);
+        setShareNote("Share not available here — save the image instead");
+      } else {
+        setShowSaveFallback(true);
+        setShareNote(null);
+      }
+    } catch {
+      setShowSaveFallback(true);
+      setShareNote("Couldn’t share — try Save image");
+    } finally {
+      setShareBusy(false);
+      window.setTimeout(() => setShareNote(null), 3200);
+    }
+  }, [pull, productId, productName, productEmoji, shareBusy]);
+
+  const saveStoryImage = useCallback(async () => {
+    if (shareBusy) return;
+    const meta = { productId, productName, productEmoji };
+    setShareBusy(true);
+    setShareNote("Saving…");
+    try {
+      await downloadSingleCardShareImage(pull, meta, "story");
+      setShareNote("Saved — open IG and add to Story");
+    } catch {
+      setShareNote("Couldn’t save image — try again");
+    } finally {
+      setShareBusy(false);
+      window.setTimeout(() => setShareNote(null), 2800);
+    }
+  }, [pull, productId, productName, productEmoji, shareBusy]);
 
   return (
     <div
@@ -229,21 +282,48 @@ export default function CardZoomModal({
               model values) — not a live market quote or official pull rate.
             </p>
 
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Link
-                href={`/?pack=${encodeURIComponent(productId)}`}
-                className="text-[12px] px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/25"
-                onClick={onClose}
-              >
-                View {productName} EV →
-              </Link>
-              <Link
-                href={`/pack/${encodeURIComponent(productId)}`}
-                className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20"
-                onClick={onClose}
-              >
-                Pack page →
-              </Link>
+            <div className="flex flex-col gap-1.5 pt-1">
+              <div className="flex flex-wrap gap-2 items-center">
+                <button
+                  type="button"
+                  onClick={() => void shareToInstagram()}
+                  disabled={shareBusy}
+                  className="text-[12px] px-3.5 py-2 rounded-xl bg-pink-500/20 border border-pink-400/50 text-pink-50 font-semibold hover:bg-pink-500/30 disabled:opacity-50"
+                >
+                  {shareBusy ? "Building…" : "Share to Instagram"}
+                </button>
+                {showSaveFallback && (
+                  <button
+                    type="button"
+                    onClick={() => void saveStoryImage()}
+                    disabled={shareBusy}
+                    className="text-[11px] px-2.5 py-1.5 rounded-lg text-zinc-400 border border-zinc-700/80 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-50"
+                  >
+                    Save image
+                  </button>
+                )}
+              </div>
+              {shareNote && (
+                <p className="text-[11px] text-pink-200/80 share-toast" role="status">
+                  {shareNote}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={`/?pack=${encodeURIComponent(productId)}`}
+                  className="text-[12px] px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/25"
+                  onClick={onClose}
+                >
+                  View {productName} EV →
+                </Link>
+                <Link
+                  href={`/pack/${encodeURIComponent(productId)}`}
+                  className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20"
+                  onClick={onClose}
+                >
+                  Pack page →
+                </Link>
+              </div>
             </div>
           </div>
         </div>
