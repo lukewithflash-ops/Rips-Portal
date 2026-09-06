@@ -1,7 +1,13 @@
 import { calculateEV, type Product, type RaritySlot } from "@/lib/products";
+import {
+  CARD_POOL_DISCLAIMER,
+  resolveSlotCard,
+} from "@/lib/cardPools";
 
 export const OPEN_SIM_DISCLAIMER =
   "Free educational pack-opening simulation only — no gems, no paid opens, no inventory cash-out, no real-money mystery boxes, and no gambling/wagering. Odds and values come from Rip Portal’s EV model (catalog slot rates × avg values). Entertainment / math estimates only — not official TCG pull rates, not live market quotes, and not financial, investment, or collecting advice.";
+
+export const OPEN_CARD_ART_DISCLAIMER = CARD_POOL_DISCLAIMER;
 
 export interface DropTableRow {
   name: string;
@@ -14,7 +20,16 @@ export interface DropTableRow {
 
 export interface SimPull {
   slotIndex: number;
+  /** Catalog slot / rarity tier label (secondary in UI). */
+  slotName: string;
+  /** @deprecated Prefer cardName; kept as alias of display name for older UI. */
   name: string;
+  /** Illustrative card title shown as the hero label. */
+  cardName: string;
+  imageUrl?: string;
+  /** Card estimate used for pack totaling (pool-weighted ≈ slot avg). */
+  estValue: number;
+  /** Slot catalog average (EV model anchor). */
   avgValue: number;
   odds: string;
   oddsNum: number;
@@ -72,6 +87,27 @@ export function simulateSlotHits(
   return hits;
 }
 
+function pullFromSlot(
+  product: Product,
+  slot: RaritySlot,
+  slotIndex: number,
+  rng: () => number
+): SimPull {
+  const card = resolveSlotCard(product, slotIndex, slot, rng);
+  const cardName = card.name;
+  return {
+    slotIndex,
+    slotName: slot.name,
+    name: cardName,
+    cardName,
+    imageUrl: card.imageUrl,
+    estValue: card.estValue,
+    avgValue: slot.avgValue,
+    odds: slot.odds,
+    oddsNum: slot.oddsNum,
+  };
+}
+
 export function simulateOnePack(
   product: Product,
   packIndex: number,
@@ -81,21 +117,16 @@ export function simulateOnePack(
   product.slots.forEach((slot, slotIndex) => {
     const hits = simulateSlotHits(slot, rng);
     for (let i = 0; i < hits; i++) {
-      pulls.push({
-        slotIndex,
-        name: slot.name,
-        avgValue: slot.avgValue,
-        odds: slot.odds,
-        oddsNum: slot.oddsNum,
-      });
+      pulls.push(pullFromSlot(product, slot, slotIndex, rng));
     }
   });
-  const packValue = pulls.reduce((s, p) => s + p.avgValue, 0);
+  // Pack value uses card estValues (pools weighted ≈ slot avg → EV stays honest).
+  const packValue = pulls.reduce((s, p) => s + p.estValue, 0);
   const highlight =
     pulls.length === 0
       ? null
       : pulls.reduce(
-          (best, p) => (p.avgValue > best.avgValue ? p : best),
+          (best, p) => (p.estValue > best.estValue ? p : best),
           pulls[0]!
         );
   return { packIndex, pulls, packValue, highlight };

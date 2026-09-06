@@ -20,6 +20,7 @@ import {
 import { findProduct } from "@/lib/riplog";
 import {
   OPEN_SIM_DISCLAIMER,
+  OPEN_CARD_ART_DISCLAIMER,
   buildDropTable,
   simulateOpen,
   fmtMoney,
@@ -47,15 +48,19 @@ function usePrefersReducedMotion(): boolean {
 }
 
 /** Rarity-weighted intensity from EV model inputs (does not change odds math). */
+function pullValue(pull: SimPull): number {
+  return pull.estValue ?? pull.avgValue;
+}
+
 function rarityTier(pull: SimPull, unitPrice: number): RarityTier {
-  const valueScore =
-    unitPrice > 0 ? pull.avgValue / unitPrice : pull.avgValue / 50;
+  const value = pullValue(pull);
+  const valueScore = unitPrice > 0 ? value / unitPrice : value / 50;
   const rarityScore =
     pull.oddsNum > 0 ? Math.min(4, 0.08 / pull.oddsNum) : 0;
   const score = valueScore * 0.65 + rarityScore * 0.35;
-  if (score >= 1.15 || pull.avgValue >= unitPrice * 1.5) return "chase";
-  if (score >= 0.55 || pull.avgValue >= unitPrice * 0.6) return "rare";
-  if (score >= 0.22 || pull.avgValue >= 15) return "uncommon";
+  if (score >= 1.15 || value >= unitPrice * 1.5) return "chase";
+  if (score >= 0.55 || value >= unitPrice * 0.6) return "rare";
+  if (score >= 0.22 || value >= 15) return "uncommon";
   return "common";
 }
 
@@ -267,7 +272,7 @@ function OpenInner() {
     setShowConfetti(false);
 
     const labels = product.slots.map((s) => s.name);
-    const hi = next.packs[0]?.highlight?.name ?? labels[0] ?? "Pull";
+    const hi = next.packs[0]?.highlight?.cardName ?? next.packs[0]?.highlight?.name ?? labels[0] ?? "Pull";
 
     if (reducedMotion) {
       setReelLabel(hi);
@@ -453,6 +458,12 @@ function OpenInner() {
           role="note"
         >
           {OPEN_SIM_DISCLAIMER}
+        </div>
+        <div
+          className="rounded-xl border border-zinc-700/50 bg-zinc-900/50 px-3 py-2 text-[11px] text-zinc-400 leading-relaxed"
+          role="note"
+        >
+          {OPEN_CARD_ART_DISCLAIMER}
         </div>
 
         <section className="panel rounded-2xl p-4 portal-border space-y-3">
@@ -773,13 +784,18 @@ function OpenInner() {
                         No hits rolled
                       </div>
                     ) : (
-                      <div className="flex flex-wrap gap-1.5">
+                      <ul className="space-y-1.5">
                         {pack.pulls.map((pull, i) => {
                           const pt = rarityTier(pull, session.pricePerUnit);
+                          const value = pullValue(pull);
+                          const title =
+                            pull.cardName || pull.name || pull.slotName;
                           return (
-                            <span
+                            <li
                               key={`${pack.packIndex}-${i}`}
-                              className={`pull-chip text-[11px] rounded-lg px-2 py-1 border pull-chip-${pt}`}
+                              className={`pull-chip pull-card-row rounded-xl border px-2 py-1.5 pull-chip-${pt} ${
+                                pt === "chase" ? "pull-card-chase-frame" : ""
+                              }`}
                               style={
                                 reducedMotion
                                   ? undefined
@@ -788,11 +804,63 @@ function OpenInner() {
                                     }
                               }
                             >
-                              {pull.name} · {fmtMoney(pull.avgValue)}
-                            </span>
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div
+                                  className={`pull-card-thumb shrink-0 overflow-hidden rounded-md bg-black/50 ${
+                                    pt === "chase"
+                                      ? "pull-card-thumb-chase"
+                                      : ""
+                                  }`}
+                                >
+                                  {pull.imageUrl ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                      src={pull.imageUrl}
+                                      alt=""
+                                      width={40}
+                                      height={56}
+                                      loading="lazy"
+                                      decoding="async"
+                                      className="h-14 w-10 object-cover"
+                                      onError={(e) => {
+                                        const el = e.currentTarget;
+                                        el.style.display = "none";
+                                        const fallback =
+                                          el.nextElementSibling as HTMLElement | null;
+                                        if (fallback)
+                                          fallback.style.display = "flex";
+                                      }}
+                                    />
+                                  ) : null}
+                                  <span
+                                    className="h-14 w-10 items-center justify-center text-base"
+                                    style={{
+                                      display: pull.imageUrl ? "none" : "flex",
+                                    }}
+                                    aria-hidden
+                                  >
+                                    {session.product.emoji ?? "🃏"}
+                                  </span>
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="text-[12px] sm:text-[13px] font-semibold text-white leading-snug truncate">
+                                    {title}
+                                  </div>
+                                  <div className="text-[10px] text-zinc-500 truncate mt-0.5">
+                                    {pull.slotName}
+                                    {pull.odds ? ` · ${pull.odds}` : ""}
+                                  </div>
+                                </div>
+                                <div className="shrink-0 text-right">
+                                  <div className="text-[12px] font-mono font-semibold text-emerald-300">
+                                    {fmtMoney(value)}
+                                  </div>
+                                </div>
+                              </div>
+                            </li>
                           );
                         })}
-                      </div>
+                      </ul>
                     )}
                   </li>
                 );
