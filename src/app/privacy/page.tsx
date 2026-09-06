@@ -85,6 +85,18 @@ export default function PrivacyPage() {
 
           <section className="panel rounded-xl p-4 space-y-2">
             <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
+              Affiliate / buy links
+            </h2>
+            <p>
+              Outbound &ldquo;Buy&rdquo; links to TCGPlayer, eBay, or Amazon may
+              include affiliate tracking parameters. Clicks can earn Rip Portal a
+              commission on qualifying purchases at no extra cost to you. We do
+              not sell your personal data through these links.
+            </p>
+          </section>
+
+          <section className="panel rounded-xl p-4 space-y-2">
+            <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
               Contact
             </h2>
             <p>

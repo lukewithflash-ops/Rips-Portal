@@ -16,6 +16,7 @@ import { computeVerdict, VERDICT_DISCLAIMER } from "@/lib/verdict";
 import { computeKeeperEV } from "@/lib/keeper";
 import KeeperEvPanel from "@/components/KeeperEvPanel";
 import DealAlertsBanner from "@/components/DealAlertsBanner";
+import BuyLinks, { AffiliateDisclosure } from "@/components/BuyLinks";
 
 function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
@@ -891,6 +892,13 @@ function HomeInner() {
                             Log this rip
                           </Link>
                         </div>
+                        <div className="mt-3">
+                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
+                            Buy
+                          </div>
+                          <BuyLinks query={effectiveProduct.name} />
+                          <AffiliateDisclosure className="mt-1" />
+                        </div>
                         <div className="flex flex-wrap items-end gap-3 mt-3">
                           <div>
                             <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
@@ -1149,6 +1157,12 @@ function HomeInner() {
                         >
                           📝 Log this rip — compare pulls to EV
                         </Link>
+                        <div className="mt-3 pt-3 border-t border-zinc-800/60">
+                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
+                            Buy near this pick
+                          </div>
+                          <BuyLinks query={effectiveProduct.name} />
+                        </div>
                       </div>
                     )}
 

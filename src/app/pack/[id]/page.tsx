@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { products, calculateEV, categories } from "@/lib/products";
 import PackRedirect from "./PackRedirect";
+import BuyLinks, { AffiliateDisclosure } from "@/components/BuyLinks";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -101,6 +102,13 @@ export default async function PackSharePage({ params }: Props) {
                 {roi.toFixed(1)}%
               </div>
             </div>
+          </div>
+          <div>
+            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
+              Buy
+            </div>
+            <BuyLinks query={product.name} />
+            <AffiliateDisclosure className="mt-1" />
           </div>
           <Link
             href={dest}

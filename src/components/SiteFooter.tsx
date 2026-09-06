@@ -1,5 +1,6 @@
 import Link from "next/link";
 import InstallAppButton from "@/components/InstallAppButton";
+import { AffiliateDisclosure } from "@/components/BuyLinks";
 
 export default function SiteFooter() {
   return (
@@ -12,6 +13,7 @@ export default function SiteFooter() {
           <p className="text-[11px] text-zinc-500 mt-0.5 leading-relaxed">
             Tools for card rippers — Know before you rip
           </p>
+          <AffiliateDisclosure className="mt-2 max-w-md" />
         </div>
         <nav
           className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-zinc-400"
