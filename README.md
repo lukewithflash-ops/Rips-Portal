@@ -71,3 +71,22 @@ Background notifications for installed PWAs (no OneSignal).
 
 Never commit `VAPID_PRIVATE_KEY`.
 
+## Affiliate buy links
+
+Optional marketplace affiliate IDs power TCGPlayer / eBay (and optional Amazon) buy buttons. Without them, buttons still open plain search URLs.
+
+Set in Vercel / `.env.local` (see `.env.example`):
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_TCGPLAYER_AFFILIATE_ID` | TCGPlayer Impact partner path (`c/…/…/…`) or legacy `partner=` id |
+| `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` | eBay Partner Network campaign id (`campid`) |
+| `NEXT_PUBLIC_AMAZON_ASSOCIATE_TAG` | Optional Amazon Associates tag |
+
+Signup:
+
+- TCGPlayer affiliates: [https://affiliate.tcgplayer.com/](https://affiliate.tcgplayer.com/)
+- eBay Partner Network: [https://partnernetwork.ebay.com/](https://partnernetwork.ebay.com/)
+
+FTC disclosure appears in the footer and near Buy buttons.
+

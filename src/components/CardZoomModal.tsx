@@ -10,6 +10,7 @@ import {
   type MouseEvent as ReactMouseEvent,
 } from "react";
 import Link from "next/link";
+import BuyLinks from "@/components/BuyLinks";
 import { fmtMoney, type SimPull } from "@/lib/simulate";
 import {
   downloadSingleCardShareImage,
@@ -307,6 +308,14 @@ export default function CardZoomModal({
                 <p className="text-[11px] text-pink-200/80 share-toast" role="status">
                   {shareNote}
                 </p>
+              )}
+              {!isFiller && title && (
+                <div className="pt-1">
+                  <div className="text-[9px] uppercase tracking-wider text-zinc-600 mb-1">
+                    Search markets
+                  </div>
+                  <BuyLinks query={title} compact />
+                </div>
               )}
               <div className="flex flex-wrap gap-2">
                 <Link
