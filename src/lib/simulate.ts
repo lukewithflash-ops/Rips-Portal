@@ -1,6 +1,7 @@
 import { calculateEV, type Product, type RaritySlot } from "@/lib/products";
 import {
   CARD_POOL_DISCLAIMER,
+  emptyPackFillers,
   resolveSlotCard,
 } from "@/lib/cardPools";
 
@@ -120,6 +121,22 @@ export function simulateOnePack(
       pulls.push(pullFromSlot(product, slot, slotIndex, rng));
     }
   });
+  // Empty / miss packs still feel like a pack open: named bulk at $0 (EV-honest).
+  if (pulls.length === 0) {
+    for (const filler of emptyPackFillers(product, rng)) {
+      pulls.push({
+        slotIndex: 0,
+        slotName: product.slots[0]?.name ?? "Bulk",
+        name: filler.name,
+        cardName: filler.name,
+        imageUrl: filler.imageUrl,
+        estValue: 0,
+        avgValue: 0,
+        odds: "filler",
+        oddsNum: 0,
+      });
+    }
+  }
   // Pack value uses card estValues (pools weighted ≈ slot avg → EV stays honest).
   const packValue = pulls.reduce((s, p) => s + p.estValue, 0);
   const highlight =

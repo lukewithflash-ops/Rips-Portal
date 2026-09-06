@@ -165,6 +165,7 @@ function OpenInner() {
   const [revealIdx, setRevealIdx] = useState(0);
   const [reelLabel, setReelLabel] = useState("?");
   const [showConfetti, setShowConfetti] = useState(false);
+  const [shareNote, setShareNote] = useState<string | null>(null);
   const [summaryReady, setSummaryReady] = useState(false);
   const timersRef = useRef<Array<{ id: number; kind: "t" | "i" }>>([]);
 
@@ -355,6 +356,64 @@ function OpenInner() {
     trackInterval,
   ]);
 
+  const shareOpen = useCallback(async () => {
+    if (!session) return;
+    const hits = session.packs
+      .flatMap((pk) => pk.pulls)
+      .filter((p) => (p.estValue ?? 0) > 0)
+      .sort((a, b) => (b.estValue ?? 0) - (a.estValue ?? 0))
+      .slice(0, 5);
+    const top =
+      hits.length === 0
+        ? "No big hits this open — still a free sim."
+        : hits
+            .map(
+              (h) =>
+                `• ${h.cardName || h.name} (${fmtMoney(h.estValue ?? 0)})`
+            )
+            .join("\n");
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/open?pack=${encodeURIComponent(session.product.id)}`
+        : `/open?pack=${session.product.id}`;
+    const summary = [
+      `Rip Portal · Free Pack Sim`,
+      `${session.quantity}× ${session.product.name} (${session.product.format})`,
+      `Sim ${fmtMoney(session.totalSimValue)} · EV ${fmtMoney(session.expectedEV)} · Cost ${fmtMoney(session.costPaid)}`,
+      `Top hits:`,
+      top,
+      ``,
+      `Try it: ${url}`,
+      `(Illustrative sim — not real pulls / gambling.)`,
+    ].join("\n");
+
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({
+          title: "Rip Portal pack sim",
+          text: summary,
+          url,
+        });
+        setShareNote("Shared");
+      } else if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(summary);
+        setShareNote("Copied summary");
+      } else {
+        setShareNote(url);
+      }
+    } catch {
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(summary);
+          setShareNote("Copied summary");
+        }
+      } catch {
+        setShareNote("Couldn’t share — copy the URL bar");
+      }
+    }
+    window.setTimeout(() => setShareNote(null), 2200);
+  }, [session]);
+
   const shownPacks =
     session && phase === "reveal"
       ? session.packs.slice(0, Math.max(1, revealIdx + 1))
@@ -460,9 +519,10 @@ function OpenInner() {
           {OPEN_SIM_DISCLAIMER}
         </div>
         <div
-          className="rounded-xl border border-zinc-700/50 bg-zinc-900/50 px-3 py-2 text-[11px] text-zinc-400 leading-relaxed"
+          className="rounded-xl border border-cyan-500/15 bg-cyan-950/20 px-3 py-2 text-[11px] text-zinc-400 leading-relaxed"
           role="note"
         >
+          <span className="text-cyan-400/80 font-medium">Card-first sim · </span>
           {OPEN_CARD_ART_DISCLAIMER}
         </div>
 
@@ -779,9 +839,51 @@ function OpenInner() {
                         {fmtMoney(pack.packValue)}
                       </span>
                     </div>
+                    {pack.pulls.length > 0 && (
+                      <div className="pack-strip" aria-label={`Pack ${pack.packIndex} cards`}>
+                        {pack.pulls.map((pull, i) => {
+                          const pt = rarityTier(pull, session.pricePerUnit);
+                          return (
+                            <div
+                              key={`strip-${pack.packIndex}-${i}`}
+                              className={`pack-strip-card ${
+                                pt === "chase" ? "pack-strip-card-chase" : ""
+                              }`}
+                              title={pull.cardName || pull.name}
+                            >
+                              {pull.imageUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={pull.imageUrl}
+                                  alt=""
+                                  loading="lazy"
+                                  decoding="async"
+                                  onError={(e) => {
+                                    const el = e.currentTarget;
+                                    el.style.display = "none";
+                                    const fb =
+                                      el.nextElementSibling as HTMLElement | null;
+                                    if (fb) fb.style.display = "flex";
+                                  }}
+                                />
+                              ) : null}
+                              <span
+                                className="pack-strip-fallback"
+                                style={{
+                                  display: pull.imageUrl ? "none" : "flex",
+                                }}
+                                aria-hidden
+                              >
+                                {session.product.emoji ?? "🃏"}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                     {pack.pulls.length === 0 ? (
                       <div className="text-[12px] text-zinc-500">
-                        No hits rolled
+                        Quiet pack — still shuffled for the feel
                       </div>
                     ) : (
                       <ul className="space-y-1.5">
@@ -790,6 +892,8 @@ function OpenInner() {
                           const value = pullValue(pull);
                           const title =
                             pull.cardName || pull.name || pull.slotName;
+                          const isFiller =
+                            pull.odds === "filler" || value <= 0;
                           return (
                             <li
                               key={`${pack.packIndex}-${i}`}
@@ -847,13 +951,16 @@ function OpenInner() {
                                     {title}
                                   </div>
                                   <div className="text-[10px] text-zinc-500 truncate mt-0.5">
-                                    {pull.slotName}
-                                    {pull.odds ? ` · ${pull.odds}` : ""}
+                                    {isFiller
+                                      ? "Pack filler · illustrative"
+                                      : `${pull.slotName}${
+                                          pull.odds ? ` · ${pull.odds}` : ""
+                                        }`}
                                   </div>
                                 </div>
                                 <div className="shrink-0 text-right">
                                   <div className="text-[12px] font-mono font-semibold text-emerald-300">
-                                    {fmtMoney(value)}
+                                    {isFiller ? "—" : fmtMoney(value)}
                                   </div>
                                 </div>
                               </div>
@@ -876,6 +983,18 @@ function OpenInner() {
                 >
                   Open again
                 </button>
+                <button
+                  type="button"
+                  onClick={shareOpen}
+                  className="text-[12px] px-3 py-2 rounded-xl bg-violet-500/15 border border-violet-400/40 text-violet-100 hover:bg-violet-500/25"
+                >
+                  Share this open
+                </button>
+                {shareNote && (
+                  <span className="text-[11px] text-violet-300/90 self-center share-toast">
+                    {shareNote}
+                  </span>
+                )}
                 <Link
                   href={`/log?pack=${session.product.id}&qty=${session.quantity}`}
                   className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20"
