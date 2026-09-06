@@ -371,6 +371,26 @@ body {
   perspective: 900px;
 }
 
+
+/* Card-first pull rows (name + thumb + $) */
+.pull-card-row {
+  display: block;
+  width: 100%;
+}
+.pull-card-thumb {
+  border: 1px solid rgba(113, 113, 122, 0.55);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+.pull-card-thumb-chase {
+  border-color: rgba(250, 204, 21, 0.75);
+  box-shadow:
+    0 0 10px rgba(250, 204, 21, 0.45),
+    0 0 22px rgba(191, 0, 255, 0.28);
+}
+.pull-card-chase-frame {
+  border-width: 1.5px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pack-idle,
   .open-cta-pulse,
@@ -383,6 +403,7 @@ body {
   .rarity-chase,
   .pull-chip,
   .pull-chip-chase,
+  .pull-card-row,
   .confetti-burst span,
   .summary-punch,
   .count-up-glow,
