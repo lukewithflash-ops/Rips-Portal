@@ -6,13 +6,18 @@ export type BeforeInstallPromptEvent = Event & {
 };
 
 const STORAGE_KEY = "rip-portal-install-dismissed";
-export const DISMISS_DAYS = 30;
+const COOKIE_KEY = "rp_install_dismissed";
+/** Keep dismissed for ~45 days (longer than the prior 30-day window). */
+export const DISMISS_DAYS = 45;
+const DISMISS_MS = DISMISS_DAYS * 24 * 60 * 60 * 1000;
 
 type Listener = () => void;
 
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 const listeners = new Set<Listener>();
 let listening = false;
+/** Session-level dismiss so "Not now" sticks even if storage is blocked. */
+let sessionDismissed = false;
 
 function notify() {
   listeners.forEach((l) => l());
@@ -71,21 +76,52 @@ export function isStandaloneDisplay(): boolean {
   return mq || iosStandalone;
 }
 
-export function wasInstallDismissedRecently(): boolean {
+function readDismissTimestamp(): number | null {
+  if (typeof window === "undefined") return null;
+
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    const ts = Number(raw);
-    if (!Number.isFinite(ts)) return false;
-    return Date.now() - ts < DISMISS_DAYS * 24 * 60 * 60 * 1000;
+    if (raw) {
+      const ts = Number(raw);
+      if (Number.isFinite(ts) && ts > 0) return ts;
+    }
   } catch {
-    return false;
+    /* private mode / blocked */
   }
+
+  try {
+    const match = document.cookie.match(
+      new RegExp(`(?:^|; )${COOKIE_KEY}=([^;]*)`)
+    );
+    if (match?.[1]) {
+      const ts = Number(decodeURIComponent(match[1]));
+      if (Number.isFinite(ts) && ts > 0) return ts;
+    }
+  } catch {
+    /* ignore */
+  }
+
+  return null;
+}
+
+export function wasInstallDismissedRecently(): boolean {
+  if (sessionDismissed) return true;
+  const ts = readDismissTimestamp();
+  if (ts == null) return false;
+  return Date.now() - ts < DISMISS_MS;
 }
 
 export function markInstallDismissed() {
+  sessionDismissed = true;
+  const now = String(Date.now());
   try {
-    localStorage.setItem(STORAGE_KEY, String(Date.now()));
+    localStorage.setItem(STORAGE_KEY, now);
+  } catch {
+    /* ignore */
+  }
+  try {
+    const maxAge = DISMISS_DAYS * 24 * 60 * 60;
+    document.cookie = `${COOKIE_KEY}=${encodeURIComponent(now)}; Max-Age=${maxAge}; Path=/; SameSite=Lax`;
   } catch {
     /* ignore */
   }
