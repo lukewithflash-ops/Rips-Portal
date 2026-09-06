@@ -29,6 +29,9 @@ import {
   type SimPull,
   type PackResult,
 } from "@/lib/simulate";
+import CardZoomModal, {
+  type CardZoomTier,
+} from "@/components/CardZoomModal";
 
 type Phase = "idle" | "tearing" | "reveal";
 
@@ -167,6 +170,10 @@ function OpenInner() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [shareNote, setShareNote] = useState<string | null>(null);
   const [summaryReady, setSummaryReady] = useState(false);
+  const [zoomCard, setZoomCard] = useState<{
+    pull: SimPull;
+    tier: CardZoomTier;
+  } | null>(null);
   const timersRef = useRef<Array<{ id: number; kind: "t" | "i" }>>([]);
 
   const clearTimers = useCallback(() => {
@@ -225,6 +232,7 @@ function OpenInner() {
       setPhase("idle");
       setSummaryReady(false);
       setShowConfetti(false);
+      setZoomCard(null);
     }
   }, [packFromUrl]);
 
@@ -237,6 +245,7 @@ function OpenInner() {
       setPhase("idle");
       setSummaryReady(false);
       setShowConfetti(false);
+      setZoomCard(null);
       const params = new URLSearchParams();
       params.set("pack", p.id);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -271,6 +280,7 @@ function OpenInner() {
     setRevealIdx(0);
     setSummaryReady(false);
     setShowConfetti(false);
+    setZoomCard(null);
 
     const labels = product.slots.map((s) => s.name);
     const hi = next.packs[0]?.highlight?.cardName ?? next.packs[0]?.highlight?.name ?? labels[0] ?? "Pull";
@@ -843,13 +853,20 @@ function OpenInner() {
                       <div className="pack-strip" aria-label={`Pack ${pack.packIndex} cards`}>
                         {pack.pulls.map((pull, i) => {
                           const pt = rarityTier(pull, session.pricePerUnit);
+                          const stripTitle =
+                            pull.cardName || pull.name || pull.slotName;
                           return (
-                            <div
+                            <button
+                              type="button"
                               key={`strip-${pack.packIndex}-${i}`}
                               className={`pack-strip-card ${
                                 pt === "chase" ? "pack-strip-card-chase" : ""
                               }`}
-                              title={pull.cardName || pull.name}
+                              title={stripTitle}
+                              aria-label={`View details for ${stripTitle}`}
+                              onClick={() =>
+                                setZoomCard({ pull, tier: pt })
+                              }
                             >
                               {pull.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
@@ -876,7 +893,7 @@ function OpenInner() {
                               >
                                 {session.product.emoji ?? "🃏"}
                               </span>
-                            </div>
+                            </button>
                           );
                         })}
                       </div>
@@ -897,7 +914,7 @@ function OpenInner() {
                           return (
                             <li
                               key={`${pack.packIndex}-${i}`}
-                              className={`pull-chip pull-card-row rounded-xl border px-2 py-1.5 pull-chip-${pt} ${
+                              className={`pull-chip pull-card-row rounded-xl border pull-chip-${pt} ${
                                 pt === "chase" ? "pull-card-chase-frame" : ""
                               }`}
                               style={
@@ -908,6 +925,14 @@ function OpenInner() {
                                     }
                               }
                             >
+                              <button
+                                type="button"
+                                className="pull-card-row-btn px-2 py-1.5"
+                                aria-label={`View details for ${title}`}
+                                onClick={() =>
+                                  setZoomCard({ pull, tier: pt })
+                                }
+                              >
                               <div className="flex items-center gap-2.5 min-w-0">
                                 <div
                                   className={`pull-card-thumb shrink-0 overflow-hidden rounded-md bg-black/50 ${
@@ -964,6 +989,7 @@ function OpenInner() {
                                   </div>
                                 </div>
                               </div>
+                              </button>
                             </li>
                           );
                         })}
@@ -1012,6 +1038,17 @@ function OpenInner() {
           </section>
         )}
       </main>
+
+      {zoomCard && session && (
+        <CardZoomModal
+          pull={zoomCard.pull}
+          tier={zoomCard.tier}
+          productId={session.product.id}
+          productName={session.product.name}
+          productEmoji={session.product.emoji}
+          onClose={() => setZoomCard(null)}
+        />
+      )}
 
       <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-green-500/15 bg-black/80 backdrop-blur-md lg:hidden">
         <div className="flex max-w-3xl mx-auto px-2 py-2 gap-1">
