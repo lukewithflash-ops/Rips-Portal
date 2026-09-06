@@ -32,6 +32,10 @@ import {
 import CardZoomModal, {
   type CardZoomTier,
 } from "@/components/CardZoomModal";
+import {
+  downloadOpenShareImage,
+  shareOrDownloadOpenImage,
+} from "@/lib/openShareImage";
 
 type Phase = "idle" | "tearing" | "reveal";
 
@@ -169,6 +173,7 @@ function OpenInner() {
   const [reelLabel, setReelLabel] = useState("?");
   const [showConfetti, setShowConfetti] = useState(false);
   const [shareNote, setShareNote] = useState<string | null>(null);
+  const [imageShareBusy, setImageShareBusy] = useState(false);
   const [summaryReady, setSummaryReady] = useState(false);
   const [zoomCard, setZoomCard] = useState<{
     pull: SimPull;
@@ -423,6 +428,35 @@ function OpenInner() {
     }
     window.setTimeout(() => setShareNote(null), 2200);
   }, [session]);
+
+  const shareImageOpen = useCallback(
+    async (mode: "share" | "download", format: "story" | "square" = "story") => {
+      if (!session || imageShareBusy) return;
+      setImageShareBusy(true);
+      setShareNote(format === "story" ? "Building story image…" : "Building square image…");
+      try {
+        if (mode === "download") {
+          await downloadOpenShareImage(session, format);
+          setShareNote("Saved PNG — add to IG Story/Feed");
+        } else {
+          const result = await shareOrDownloadOpenImage(session, format);
+          if (result === "shared") {
+            setShareNote("Shared image");
+          } else if (result === "downloaded") {
+            setShareNote("Saved PNG — add to IG Story/Feed");
+          } else {
+            setShareNote(null);
+          }
+        }
+      } catch {
+        setShareNote("Couldn’t build image — try again");
+      } finally {
+        setImageShareBusy(false);
+        window.setTimeout(() => setShareNote(null), 2800);
+      }
+    },
+    [session, imageShareBusy]
+  );
 
   const shownPacks =
     session && phase === "reveal"
@@ -1015,6 +1049,30 @@ function OpenInner() {
                   className="text-[12px] px-3 py-2 rounded-xl bg-violet-500/15 border border-violet-400/40 text-violet-100 hover:bg-violet-500/25"
                 >
                   Share this open
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void shareImageOpen("share", "story")}
+                  disabled={imageShareBusy}
+                  className="text-[12px] px-3 py-2 rounded-xl bg-pink-500/15 border border-pink-400/40 text-pink-100 hover:bg-pink-500/25 disabled:opacity-50"
+                >
+                  {imageShareBusy ? "Building…" : "Instagram story image"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void shareImageOpen("download", "story")}
+                  disabled={imageShareBusy}
+                  className="text-[12px] px-3 py-2 rounded-xl bg-fuchsia-500/10 border border-fuchsia-400/30 text-fuchsia-100/95 hover:bg-fuchsia-500/20 disabled:opacity-50"
+                >
+                  Save story PNG
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void shareImageOpen("download", "square")}
+                  disabled={imageShareBusy}
+                  className="text-[12px] px-3 py-2 rounded-xl bg-zinc-500/10 border border-zinc-500/35 text-zinc-200 hover:bg-zinc-500/20 disabled:opacity-50"
+                >
+                  Save square PNG
                 </button>
                 {shareNote && (
                   <span className="text-[11px] text-violet-300/90 self-center share-toast">
