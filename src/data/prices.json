@@ -1,8 +1,8 @@
 {
-  "updated": "2026-09-05",
-  "note": "Override defaultPrice by product id. Edit this file (or open a PR) to refresh market defaults without rewriting slot math.",
+  "updated": "2026-09-07",
+  "note": "Override defaultPrice by product id. Edit this file (or open a PR) to refresh market defaults without rewriting slot math. Verified 2026-09-07 vs TCGPlayer-proxy; Ascended key fixed to poke-ascended-pack.",
   "prices": {
-    "pokemon": 13.85,
+    "poke-ascended-pack": 13.85,
     "poke-ascended-etb": 168.0,
     "poke-ascended-bundle": 84.0,
     "poke-surging-pack": 7.85,
