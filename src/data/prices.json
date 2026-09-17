@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-05",
+  "updated": "2026-09-17",
   "note": "Override defaultPrice by product id. Edit this file (or open a PR) to refresh market defaults without rewriting slot math.",
   "prices": {
     "pokemon": 13.85,
@@ -17,9 +17,9 @@
     "poke-chaos-rising-pack": 5.36,
     "poke-perfect-order-pack": 5.45,
     "poke-pitch-black-pack": 5.67,
-    "poke-30th-etb": 165.97,
-    "poke-30th-pc-etb": 490.64,
-    "poke-30th-bundle": 92.76,
+    "poke-30th-etb": 157.86,
+    "poke-30th-pc-etb": 266.04,
+    "poke-30th-bundle": 121.64,
     "poke-30th-poster": 52.99,
     "poke-30th-tech-sticker-exeggutor": 44.32,
     "poke-30th-tech-sticker-lucario": 38.3,
