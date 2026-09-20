@@ -32,7 +32,7 @@ Open [http://localhost:3000](http://localhost:3000)
 4. Vercel auto-detects Next.js → Click **Deploy**
 5. Done. You get a free `*.vercel.app` URL
 
-Optional: Buy a domain (e.g. `ripportal.com`) and connect it in Vercel project settings.
+Optional: Custom domain is `ripsportal.com` (connect in Vercel project settings).
 
 ## Project Structure
 
@@ -73,20 +73,20 @@ Never commit `VAPID_PRIVATE_KEY`.
 
 ## Affiliate buy links
 
-Optional marketplace affiliate IDs power TCGPlayer / eBay (and optional Amazon) buy buttons. Without them, buttons still open plain search URLs.
+Optional marketplace affiliate IDs power TCGPlayer / eBay (and optional Amazon) buy buttons. Without them, buttons still open plain search URLs. Logic lives in `src/lib/affiliate.ts` + `BuyLinks`.
 
 Set in Vercel / `.env.local` (see `.env.example`):
 
-| Variable | Purpose |
-|---|---|
-| `NEXT_PUBLIC_TCGPLAYER_AFFILIATE_ID` | TCGPlayer Impact partner path (`c/…/…/…`) or legacy `partner=` id |
-| `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` | eBay Partner Network campaign id (`campid`) |
-| `NEXT_PUBLIC_AMAZON_ASSOCIATE_TAG` | Optional Amazon Associates tag |
+| Variable | Purpose | Status |
+|---|---|---|
+| `NEXT_PUBLIC_TCGPLAYER_AFFILIATE_ID` | Legacy numeric id → URLs get `partner=<id>` (production uses `7736131`), or Impact path `c/…/…/…` / full partner URL | Live — keep `7736131` unless migrating to Impact |
+| `NEXT_PUBLIC_EBAY_CAMPAIGN_ID` | eBay Partner Network campaign id (`campid` on rover links) | **Pending** — signup elsewhere; leave unset until campid is ready (plain eBay search still works) |
+| `NEXT_PUBLIC_AMAZON_ASSOCIATE_TAG` | Optional Amazon Associates tag | Optional |
 
 Signup:
 
 - TCGPlayer affiliates: [https://affiliate.tcgplayer.com/](https://affiliate.tcgplayer.com/)
 - eBay Partner Network: [https://partnernetwork.ebay.com/](https://partnernetwork.ebay.com/)
 
-FTC disclosure appears in the footer and near Buy buttons.
+Do not invent or hardcode an eBay `campid` in the repo. FTC disclosure appears in the footer and near Buy buttons.
 

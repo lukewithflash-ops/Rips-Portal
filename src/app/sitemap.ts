@@ -1,9 +1,11 @@
 import type { MetadataRoute } from "next";
+import { products } from "@/lib/products";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = "https://ripsportal.com";
   const now = new Date();
-  return [
+
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: base,
       lastModified: now,
@@ -53,4 +55,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.4,
     },
   ];
+
+  // Shareable pack pages for the full catalog (hot + chase + value)
+  const packRoutes: MetadataRoute.Sitemap = products.map((p) => ({
+    url: `${base}/pack/${p.id}`,
+    lastModified: now,
+    changeFrequency: "weekly" as const,
+    priority: p.tag === "hot" || p.tag === "chase" ? 0.9 : 0.75,
+  }));
+
+  return [...staticRoutes, ...packRoutes];
 }
