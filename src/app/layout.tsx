@@ -31,6 +31,8 @@ export const metadata: Metadata = {
     "pack EV",
     "Pokémon TCG EV",
     "booster pack expected value",
+    "Ascended Heroes EV",
+    "30th Celebration EV",
     "Topps Chrome EV",
     "One Piece card EV",
     "Rip Portal",
