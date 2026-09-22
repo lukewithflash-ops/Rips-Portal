@@ -10,7 +10,7 @@ type BrandLogoProps = {
 };
 
 /**
- * Wide "PORTAL RIPS" lockup (logo B) for site chrome.
+ * Wide "RIPS PORTAL" lockup (logo B) for site chrome.
  * PWA icons use logo A separately under /public/icons/.
  */
 export default function BrandLogo({
@@ -26,8 +26,8 @@ export default function BrandLogo({
   const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/brand/portal-rips-header.png"
-      alt="Portal Rips"
+      src="/brand/rips-portal-header.png"
+      alt="Rip Portal"
       width={w}
       height={h}
       className={`object-contain object-left select-none ${className}`}
@@ -44,7 +44,7 @@ export default function BrandLogo({
     <Link
       href={href}
       className="inline-flex items-center shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-400/70 rounded-sm"
-      aria-label="Portal Rips home"
+      aria-label="Rip Portal home"
     >
       {img}
     </Link>
