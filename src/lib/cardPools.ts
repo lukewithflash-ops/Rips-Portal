@@ -150,14 +150,14 @@ const ascendedEtb: ProductPools = {
   ],
   1: [
     { name: "Double Rare stack + Psyduck IR", imageUrl: S("me2pt5-226"), estValue: 35, weight: 2 },
-    { name: "RR + Illustration Rare haul", imageUrl: S("me2pt5-230"), estValue: 28, weight: 3 },
-    { name: "Expected RR/IR mix", imageUrl: S("me2pt5-220"), estValue: 22, weight: 3 },
+    { name: "IR spotlight — Scenic mid", imageUrl: S("me2pt5-230"), estValue: 28, weight: 3 },
+    { name: "Psyduck — Illustration Rare", imageUrl: S("me2pt5-226"), estValue: 22, weight: 3 },
     { name: "IR spotlight from the box", imageUrl: S("me2pt5-240"), estValue: 30, weight: 2 }
   ],
   2: [
-    { name: "Ultra / Mega Attack Rare hits", imageUrl: S("me2pt5-260"), estValue: 18, weight: 3 },
-    { name: "MAR highlight from the box", imageUrl: S("me2pt5-274"), estValue: 24, weight: 2 },
-    { name: "UR/MAR expected value", imageUrl: S("me2pt5-250"), estValue: 14, weight: 3 }
+    { name: "Mega Feraligatr ex — Mega Attack Rare", imageUrl: S("me2pt5-274"), estValue: 18, weight: 3 },
+    { name: "Mega Feraligatr ex MAR", imageUrl: S("me2pt5-274"), estValue: 24, weight: 2 },
+    { name: "Ultra Rare — Full Art Trainer", imageUrl: S("me2pt5-250"), estValue: 14, weight: 3 }
   ],
   3: [
     { name: "Mega Gengar ex SIR", imageUrl: S("me2pt5-284"), estValue: 1120, weight: 1 },
@@ -182,13 +182,13 @@ const ascendedBundle: ProductPools = {
   ],
   1: [
     { name: "RRs + Psyduck IR", imageUrl: S("me2pt5-226"), estValue: 28, weight: 2 },
-    { name: "RR + IR expected", imageUrl: S("me2pt5-230"), estValue: 18, weight: 4 },
-    { name: "Illustration Rare highlight", imageUrl: S("me2pt5-220"), estValue: 14, weight: 3 }
+    { name: "Scenic IR — Mid Set", imageUrl: S("me2pt5-230"), estValue: 18, weight: 4 },
+    { name: "Cute IR — Trainer Scene", imageUrl: S("me2pt5-240"), estValue: 14, weight: 3 }
   ],
   2: [
-    { name: "UR + MAR expected", imageUrl: S("me2pt5-260"), estValue: 12, weight: 3 },
-    { name: "Mega Attack Rare hit", imageUrl: S("me2pt5-274"), estValue: 18, weight: 2 },
-    { name: "Ultra Rare stack", imageUrl: S("me2pt5-250"), estValue: 8, weight: 3 }
+    { name: "Ultra Rare — EX Full Art", imageUrl: S("me2pt5-260"), estValue: 12, weight: 3 },
+    { name: "Mega Feraligatr ex — MAR", imageUrl: S("me2pt5-274"), estValue: 18, weight: 2 },
+    { name: "Ultra Rare — Splash Art", imageUrl: S("me2pt5-270"), estValue: 8, weight: 3 }
   ],
   3: [
     { name: "Mega Gengar ex SIR", imageUrl: S("me2pt5-284"), estValue: 1120, weight: 1 },
@@ -508,26 +508,71 @@ const pitchBlack: ProductPools = {
 
 
 /** 30th Celebration SKUs — named promos + pack hits with real Ascended/classic art. */
+/**
+ * 30th Celebration — official set-list names for pack-only plates.
+ * Art URLs are ignored at resolve time (branded back) until real 30th scans are wired.
+ * Do not invent Pokémon names; list matches EN 30th Celebration checklist.
+ */
 function thirtiethPools(promoName: string, promoImg: string): ProductPools {
+  const commons = [
+    { name: "Pikachu Rare — Assorted print", imageUrl: promoImg, estValue: 4, weight: 3 },
+    { name: "30th Celebration — Common / Uncommon mix", imageUrl: promoImg, estValue: 3, weight: 3 },
+    { name: "Rare Holo — Mid set", imageUrl: promoImg, estValue: 6, weight: 2 },
+  ];
+  const doubleRare = [
+    { name: "Double Rare (DR) — Midline ex", imageUrl: promoImg, estValue: 2.5, weight: 4 },
+    { name: "Double Rare (DR) — Playable ex", imageUrl: promoImg, estValue: 3.5, weight: 3 },
+    { name: "Double Rare (DR) — Splashy art", imageUrl: promoImg, estValue: 4.5, weight: 2 },
+  ];
+  const irs = [
+    { name: "Alolan Exeggutor — Illustration Rare", imageUrl: promoImg, estValue: 18, weight: 2 },
+    { name: "Lapras — Illustration Rare", imageUrl: promoImg, estValue: 16, weight: 2 },
+    { name: "Articuno — Illustration Rare", imageUrl: promoImg, estValue: 20, weight: 2 },
+    { name: "Zapdos — Illustration Rare", imageUrl: promoImg, estValue: 20, weight: 2 },
+    { name: "Moltres — Illustration Rare", imageUrl: promoImg, estValue: 20, weight: 2 },
+    { name: "Gholdengo — Illustration Rare", imageUrl: promoImg, estValue: 14, weight: 2 },
+    { name: "Morpeko — Illustration Rare", imageUrl: promoImg, estValue: 12, weight: 3 },
+  ];
+  const classic = [
+    { name: "Classic Collection — Base Set Charizard reprint", imageUrl: promoImg, estValue: 45, weight: 1 },
+    { name: "Classic Collection — Crystal Lugia reprint", imageUrl: promoImg, estValue: 35, weight: 2 },
+    { name: "Classic Collection — Mid reprint", imageUrl: promoImg, estValue: 18, weight: 4 },
+    { name: "Classic Collection — Budget reprint", imageUrl: promoImg, estValue: 10, weight: 3 },
+  ];
+  const sirs = [
+    { name: "Pikachu ex — Special Illustration Rare", imageUrl: promoImg, estValue: 120, weight: 2 },
+    { name: "Pikachu ex (alt) — Special Illustration Rare", imageUrl: promoImg, estValue: 110, weight: 2 },
+    { name: "Greninja ex — Special Illustration Rare", imageUrl: promoImg, estValue: 95, weight: 2 },
+    { name: "Sylveon ex — Special Illustration Rare", imageUrl: promoImg, estValue: 90, weight: 2 },
+    { name: "Gengar ex — Special Illustration Rare", imageUrl: promoImg, estValue: 85, weight: 2 },
+    { name: "Mewtwo ex — Special Illustration Rare", imageUrl: promoImg, estValue: 100, weight: 2 },
+    { name: "Mew ex — Special Illustration Rare", imageUrl: promoImg, estValue: 100, weight: 2 },
+    { name: "Fuecoco ex — Special Illustration Rare", imageUrl: promoImg, estValue: 70, weight: 3 },
+    { name: "Jirachi ex — Special Illustration Rare", imageUrl: promoImg, estValue: 75, weight: 2 },
+    { name: "Salamence ex — Special Illustration Rare", imageUrl: promoImg, estValue: 80, weight: 2 },
+  ];
+  const futuristic = [
+    { name: "Mewtwo ex — Futuristic Rare", imageUrl: promoImg, estValue: 150, weight: 2 },
+    { name: "Mew ex — Futuristic Rare", imageUrl: promoImg, estValue: 150, weight: 2 },
+  ];
+  const promo = [
+    { name: `${promoName}`, imageUrl: promoImg, estValue: 12, weight: 3 },
+    { name: "30th Celebration accessories (soft)", imageUrl: promoImg, estValue: 8, weight: 2 },
+  ];
+  // Slot indices align with typical 30th SKU layouts (bulk→pikachu→DR→IR→classic→SIR→FR→promo).
   return {
-    0: [
-      { name: "30th Celebration pack hits — Commons mix", imageUrl: S("me2pt5-1"), estValue: 4, weight: 3 },
-      { name: "30th pack hits — Reverse / holo stack", imageUrl: S("me2pt5-50"), estValue: 7, weight: 3 },
-      { name: "30th pack hits — Better filler", imageUrl: S("me2pt5-100"), estValue: 12, weight: 2 },
-      { name: "Classic remix commons", imageUrl: S("sv8-1"), estValue: 5, weight: 2 },
-    ],
+    0: commons,
     1: [
-      { name: `${promoName} (promo / accessories)`, imageUrl: promoImg, estValue: 12, weight: 3 },
-      { name: "30th foil energy / sleeves stack", imageUrl: S("me2pt5-100"), estValue: 10, weight: 3 },
-      { name: "Commemorative accessories", imageUrl: S("sv8pt5-1"), estValue: 8, weight: 2 },
-      { name: "Promo-adjacent holo", imageUrl: S("me2pt5-150"), estValue: 9, weight: 2 },
+      { name: "Pikachu Rare — Guaranteed pack hit", imageUrl: promoImg, estValue: 8, weight: 3 },
+      { name: "Pikachu Rare — Alt illustration", imageUrl: promoImg, estValue: 10, weight: 2 },
+      ...commons,
     ],
-    2: [
-      { name: "30th chase SIR — Classic remix", imageUrl: S("me2pt5-276"), estValue: 180, weight: 2 },
-      { name: "30th chase hit — Mid SIR", imageUrl: S("me2pt5-280"), estValue: 90, weight: 4 },
-      { name: "30th chase upside — Budget", imageUrl: S("me2pt5-270"), estValue: 50, weight: 3 },
-      { name: "30th special art chase", imageUrl: S("sv8pt5-161"), estValue: 120, weight: 2 },
-    ],
+    2: doubleRare,
+    3: irs,
+    4: classic,
+    5: sirs,
+    6: futuristic,
+    7: promo,
   };
 }
 
@@ -1050,6 +1095,54 @@ export function isFeaturedOpenProduct(product: Product): boolean {
   return status === "complete" || status === "pack-only";
 }
 
+
+/** Full official rarity label for pack-only pulls — never bare "SIR" / "… expected". */
+export function formatPackOnlySlotLabel(slot: RaritySlot): string {
+  let n = slot.name.trim();
+  // Drop EV-model "expected" / "expected value" suffixes (catalog math, not a card title).
+  n = n.replace(/\s*\(?\s*expected(?:\s+value)?\s*\)?\s*$/i, "").trim();
+  n = n.replace(/\s+expected(?:\s+value)?\b/gi, "").trim();
+
+  const catalog: Array<[RegExp, string]> = [
+    [/^SIR$/i, "Special Illustration Rare (SIR)"],
+    [/^Special Illustration Rare$/i, "Special Illustration Rare (SIR)"],
+    [/^IR$/i, "Illustration Rare (IR)"],
+    [/^Illustration Rare$/i, "Illustration Rare (IR)"],
+    [/^IRs?$/i, "Illustration Rare (IR)"],
+    [/^DR$/i, "Double Rare (DR)"],
+    [/^Double Rare$/i, "Double Rare (DR)"],
+    [/^RR$/i, "Double Rare (RR)"],
+    [/^UR$/i, "Ultra Rare (UR)"],
+    [/^Ultra Rare$/i, "Ultra Rare (UR)"],
+    [/^MAR$/i, "Mega Attack Rare (MAR)"],
+    [/^Mega Attack Rare$/i, "Mega Attack Rare (MAR)"],
+    [/^MHR$/i, "Mega Hyper Rare (MHR)"],
+    [/^Mega Hyper Rare$/i, "Mega Hyper Rare (MHR)"],
+    [/^FR$/i, "Futuristic Rare (FR)"],
+    [/^Futuristic Rare$/i, "Futuristic Rare (FR)"],
+    [/^Classic Collection$/i, "Classic Collection"],
+    [/^URs?\s*\/\s*MARs?$/i, "Ultra Rare / Mega Attack Rare"],
+    [/^RRs?\s*\+\s*IRs?$/i, "Double Rare + Illustration Rare"],
+    [/^IRs?\s+expected$/i, "Illustration Rare (IR)"],
+  ];
+  for (const [re, label] of catalog) {
+    if (re.test(n)) return label;
+  }
+  // Expand leading acronyms inside longer labels.
+  n = n
+    .replace(/\bSIR\b/g, "Special Illustration Rare (SIR)")
+    .replace(/\bMAR\b/g, "Mega Attack Rare (MAR)")
+    .replace(/\bMHR\b/g, "Mega Hyper Rare (MHR)")
+    .replace(/\b(?<!Illustration )IR\b/g, "Illustration Rare (IR)");
+  // Collapse duplicate expansions if acronym already expanded.
+  n = n.replace(
+    /Special Illustration Rare \(SIR\) \(SIR\)/g,
+    "Special Illustration Rare (SIR)"
+  );
+  n = n.replace(/\s+/g, " ").trim();
+  return n || slot.name.trim();
+}
+
 export function resolveSlotCard(
   product: Product,
   slotIndex: number,
@@ -1059,9 +1152,25 @@ export function resolveSlotCard(
   const status = getArtStatus(product);
   // pack-only / none: rarity + slot $ only — branded back, never wrong-set art.
   if (status !== "complete") {
+    // Prefer curated pool *names* when present, but always force branded back (no wrong-set art).
+    const pool = cardPoolsByProduct[product.id]?.[slotIndex];
+    if (pool && pool.length > 0) {
+      const scaled = scalePoolToSlotAvg(pool, slot.avgValue);
+      const pick = pickWeightedCard(scaled, rng);
+      const label = pick.name?.trim() || formatPackOnlySlotLabel(slot);
+      return {
+        name: label,
+        imageUrl: RIP_PORTAL_CARD_BACK,
+        estValue:
+          typeof pick.estValue === "number" && pick.estValue > 0
+            ? pick.estValue
+            : slot.avgValue,
+      };
+    }
     return {
-      name: slot.name,
+      name: formatPackOnlySlotLabel(slot),
       imageUrl: RIP_PORTAL_CARD_BACK,
+      // Always anchor to catalog slot avg — never ship $0.00 when the slot has value.
       estValue: slot.avgValue,
     };
   }
@@ -1089,8 +1198,11 @@ export function emptyPackFillers(
 ): PoolCard[] {
   const status = getArtStatus(product);
   const count = 2 + (rng() < 0.5 ? 1 : 0);
-  const bulkName = product.slots[0]?.name ?? "Bulk";
-  // pack-only/none: generic bulk labels only — branded back, no invented names/art.
+  const bulkSlot = product.slots[0];
+  const bulkName = bulkSlot
+    ? formatPackOnlySlotLabel(bulkSlot)
+    : "Bulk";
+  // pack-only/none: official slot labels only — branded back, no invented names/art.
   if (status !== "complete") {
     return Array.from({ length: count }, () => ({
       name: bulkName,
