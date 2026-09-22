@@ -14,6 +14,8 @@ import {
   categories,
   products,
   calculateEV,
+  productDisplayName,
+  type ArtStatus,
   type Category,
   type Product,
 } from "@/lib/products";
@@ -21,6 +23,7 @@ import { findProduct } from "@/lib/riplog";
 import {
   getArtStatus,
   isFeaturedOpenProduct,
+  RIP_PORTAL_CARD_BACK,
 } from "@/lib/cardPools";
 import {
   OPEN_SIM_DISCLAIMER,
@@ -111,6 +114,98 @@ function hapticPulse(pattern: number | number[], reduced: boolean) {
   } catch {
     /* ignore */
   }
+}
+
+function playSfx(
+  kind: "tear" | "hit",
+  enabled: boolean,
+  reduced: boolean
+) {
+  if (!enabled || reduced || typeof window === "undefined") return;
+  try {
+    const AC =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    if (kind === "tear") {
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(380, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + 0.28);
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.06, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.32);
+    } else {
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(660, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(990, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.07, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.24);
+    }
+    window.setTimeout(() => void ctx.close(), 450);
+  } catch {
+    /* ignore */
+  }
+}
+
+function ArtBadge({ status }: { status: ArtStatus }) {
+  if (status === "complete") {
+    return (
+      <span className="ml-1.5 align-middle text-[9px] uppercase tracking-wider text-fuchsia-300/90 border border-fuchsia-500/40 rounded px-1 py-0.5">
+        ART
+      </span>
+    );
+  }
+  if (status === "pack-only") {
+    return (
+      <span className="ml-1.5 align-middle text-[9px] uppercase tracking-wider text-cyan-300/90 border border-cyan-500/40 rounded px-1 py-0.5">
+        PACK
+      </span>
+    );
+  }
+  return (
+    <span className="ml-1.5 align-middle text-[9px] uppercase tracking-wider text-zinc-500 border border-zinc-700 rounded px-1 py-0.5">
+      NAME
+    </span>
+  );
+}
+
+function PullArt({
+  imageUrl,
+  className,
+  imgClassName,
+}: {
+  imageUrl?: string;
+  className?: string;
+  imgClassName?: string;
+}) {
+  const src = imageUrl || RIP_PORTAL_CARD_BACK;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      className={imgClassName ?? className}
+      onError={(e) => {
+        const el = e.currentTarget;
+        if (!el.src.endsWith(RIP_PORTAL_CARD_BACK)) {
+          el.src = RIP_PORTAL_CARD_BACK;
+        }
+      }}
+    />
+  );
 }
 
 /** Set-art thumb or generic pack silhouette — never a huge emoji crowding the title. */
@@ -279,6 +374,8 @@ function OpenInner() {
   } | null>(null);
   const [screen, setScreen] = useState<OpenScreen>("pick");
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showSetSheet, setShowSetSheet] = useState(false);
+  const [sfxEnabled, setSfxEnabled] = useState(false);
   const [showOdds, setShowOdds] = useState(false);
   const [sessionChip, setSessionChip] = useState<SessionChip>({
     packs: 0,
@@ -362,6 +459,7 @@ function OpenInner() {
       setZoomCard(null);
       setScreen("stage");
       setShowOdds(false);
+      setShowSetSheet(false);
       setSessionChip({ packs: 0, spent: 0, hits: 0, vsEV: 0 });
       setSessionXp(0);
       const params = new URLSearchParams();
@@ -372,12 +470,15 @@ function OpenInner() {
   );
 
   const categoryProducts = useMemo(() => {
-    const list = products.filter((p) => p.category === category);
+    // Featured Open = complete | pack-only only. artStatus none stays on EV calc.
+    const list = products.filter(
+      (p) => p.category === category && isFeaturedOpenProduct(p)
+    );
     return [...list].sort((a, b) => {
-      const af = isFeaturedOpenProduct(a) ? 0 : 1;
-      const bf = isFeaturedOpenProduct(b) ? 0 : 1;
-      if (af !== bf) return af - bf;
-      return 0;
+      const ao = getArtStatus(a) === "complete" ? 0 : 1;
+      const bo = getArtStatus(b) === "complete" ? 0 : 1;
+      if (ao !== bo) return ao - bo;
+      return productDisplayName(a).localeCompare(productDisplayName(b));
     });
   }, [category]);
 
@@ -414,6 +515,7 @@ function OpenInner() {
     }));
     setSessionXp((x) => x + next.quantity);
     playWhoosh(reducedMotion);
+    playSfx("tear", sfxEnabled, reducedMotion);
     hapticPulse([18, 40, 28], reducedMotion);
 
     const labels = product.slots.map((s) => s.name);
@@ -427,7 +529,10 @@ function OpenInner() {
         (pk) => packRarity(pk, price) === "chase"
       );
       setShowConfetti(hasChase);
-      if (hasChase) hapticPulse([12, 30, 12, 30, 40], reducedMotion);
+      if (hasChase) {
+        hapticPulse([12, 30, 12, 30, 40], reducedMotion);
+        playSfx("hit", sfxEnabled, reducedMotion);
+      }
     };
 
     if (reducedMotion) {
@@ -459,6 +564,7 @@ function OpenInner() {
         if (hasChase) {
           setShowConfetti(true);
           hapticPulse([12, 30, 12, 30, 40], reducedMotion);
+          playSfx("hit", sfxEnabled, reducedMotion);
           trackTimeout(
             window.setTimeout(() => setShowConfetti(false), 1100)
           );
@@ -486,6 +592,7 @@ function OpenInner() {
           if (pk && tier === "chase") {
             setShowConfetti(true);
             hapticPulse(30, reducedMotion);
+            playSfx("hit", sfxEnabled, reducedMotion);
             trackTimeout(
               window.setTimeout(() => setShowConfetti(false), 900)
             );
@@ -510,6 +617,7 @@ function OpenInner() {
     tearDurationMs,
     trackTimeout,
     trackInterval,
+    sfxEnabled,
   ]);
 
   const shareToInstagram = useCallback(async () => {
@@ -689,7 +797,7 @@ function OpenInner() {
                 Pick a set
               </h2>
               <p className="text-[10px] text-zinc-600 truncate">
-                Featured = solid card art
+                ART = full pulls · PACK = product art only
               </p>
             </div>
             <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
@@ -714,7 +822,7 @@ function OpenInner() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto">
               {categoryProducts.map((p) => {
                 const active = product?.id === p.id;
-                const featured = isFeaturedOpenProduct(p);
+                const status = getArtStatus(p);
                 return (
                   <button
                     key={p.id}
@@ -729,12 +837,8 @@ function OpenInner() {
                     <ProductRowIcon product={p} />
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm text-zinc-100 font-medium leading-snug break-words whitespace-normal">
-                        {p.name}
-                        {featured && (
-                          <span className="ml-1.5 align-middle text-[9px] uppercase tracking-wider text-fuchsia-300/90 border border-fuchsia-500/40 rounded px-1 py-0.5">
-                            Art
-                          </span>
-                        )}
+                        {productDisplayName(p)}
+                        <ArtBadge status={status} />
                       </span>
                       <span className="block text-[11px] text-zinc-500 leading-snug mt-0.5 break-words whitespace-normal">
                         {p.format} · {fmtMoney(p.defaultPrice)}
@@ -749,29 +853,28 @@ function OpenInner() {
 
         {onStage && product && (
           <>
-            {/* Compact product chrome — change set without bouncing to full "1 · Product" */}
+            {/* Compact set chip — sheet to change set (keeps stage; no full-page reset) */}
             <div className="flex items-center gap-2.5 rounded-xl border border-zinc-800/90 bg-black/35 px-3 py-2">
               <ProductRowIcon product={product} />
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold text-zinc-100 leading-snug break-words">
-                  {product.name}
+                  {productDisplayName(product)}
+                  <ArtBadge status={artStatus} />
                 </div>
                 <div className="text-[11px] text-zinc-500 leading-snug break-words">
                   {product.format} · {fmtMoney(price)}
-                  {artStatus === "complete" ? " · full art" : " · rarity view"}
+                  {artStatus === "complete"
+                    ? " · full pull art"
+                    : " · pack art · name/rarity/$ pulls"}
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  setScreen("pick");
-                  setPhase("idle");
-                  setSession(null);
-                  setSummaryReady(false);
-                }}
-                className="shrink-0 text-[11px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-400 hover:text-zinc-200"
+                onClick={() => setShowSetSheet(true)}
+                className="shrink-0 text-[11px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:text-cyan-200 hover:border-cyan-500/40"
+                aria-haspopup="dialog"
               >
-                Change
+                Set
               </button>
             </div>
 
@@ -832,8 +935,12 @@ function OpenInner() {
                   />
                 </div>
 
-                <div
-                  className={`pack-stage relative mx-auto w-full flex-1 min-h-[220px] max-w-md rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-black to-emerald-950/30 flex items-center justify-center overflow-hidden ${packStageClass}`}
+                <button
+                  type="button"
+                  onClick={runOpen}
+                  disabled={phase === "tearing"}
+                  aria-label={`Open ${quantity} simulated pack${quantity === 1 ? "" : "s"}`}
+                  className={`pack-stage relative mx-auto w-full flex-1 min-h-[220px] max-w-md rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-black to-emerald-950/30 flex items-center justify-center overflow-hidden text-left disabled:opacity-80 ${packStageClass}`}
                 >
                   <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.35),transparent_70%)]" />
                   {phase === "tearing" && (
@@ -853,11 +960,11 @@ function OpenInner() {
                     </div>
                     {phase === "idle" && (
                       <div className="mt-1.5 text-[10px] text-zinc-500 tracking-wide">
-                        Tap Open · free educational sim
+                        Tap pack to open · free educational sim
                       </div>
                     )}
                   </div>
-                </div>
+                </button>
 
                 <button
                   type="button"
@@ -1072,31 +1179,10 @@ function OpenInner() {
                               aria-label={`View details for ${stripTitle}`}
                               onClick={() => setZoomCard({ pull, tier: pt })}
                             >
-                              {pull.imageUrl ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={pull.imageUrl}
-                                  alt=""
-                                  loading="lazy"
-                                  decoding="async"
-                                  onError={(e) => {
-                                    const el = e.currentTarget;
-                                    el.style.display = "none";
-                                    const fb =
-                                      el.nextElementSibling as HTMLElement | null;
-                                    if (fb) fb.style.display = "flex";
-                                  }}
-                                />
-                              ) : null}
-                              <span
-                                className="pack-strip-fallback"
-                                style={{
-                                  display: pull.imageUrl ? "none" : "flex",
-                                }}
-                                aria-hidden
-                              >
-                                ◆
-                              </span>
+                              <PullArt
+                                imageUrl={pull.imageUrl}
+                                imgClassName="h-full w-full object-cover"
+                              />
                             </button>
                           );
                         })}
@@ -1148,37 +1234,10 @@ function OpenInner() {
                                         : ""
                                     }`}
                                   >
-                                    {pull.imageUrl ? (
-                                      // eslint-disable-next-line @next/next/no-img-element
-                                      <img
-                                        src={pull.imageUrl}
-                                        alt=""
-                                        width={40}
-                                        height={56}
-                                        loading="lazy"
-                                        decoding="async"
-                                        className="h-14 w-10 object-cover"
-                                        onError={(e) => {
-                                          const el = e.currentTarget;
-                                          el.style.display = "none";
-                                          const fallback =
-                                            el.nextElementSibling as HTMLElement | null;
-                                          if (fallback)
-                                            fallback.style.display = "flex";
-                                        }}
-                                      />
-                                    ) : null}
-                                    <span
-                                      className="h-14 w-10 items-center justify-center text-[10px] text-zinc-500"
-                                      style={{
-                                        display: pull.imageUrl
-                                          ? "none"
-                                          : "flex",
-                                      }}
-                                      aria-hidden
-                                    >
-                                      ◆
-                                    </span>
+                                    <PullArt
+                                      imageUrl={pull.imageUrl}
+                                      imgClassName="h-14 w-10 object-cover"
+                                    />
                                   </div>
                                   <div className="min-w-0 flex-1">
                                     <div className="text-[12px] sm:text-[13px] font-semibold text-white leading-snug break-words whitespace-normal">
@@ -1280,7 +1339,7 @@ function OpenInner() {
               onClick={runOpen}
               className="w-full py-3.5 rounded-2xl text-sm font-semibold bg-cyan-500/25 border border-cyan-400/60 text-cyan-50 hover:bg-cyan-500/35 portal-glow open-cta-pulse shadow-lg shadow-cyan-950/50 backdrop-blur-md"
             >
-              Open another · {session.product.name}
+              Open another · {productDisplayName(session.product)}
             </button>
           </div>
         </div>
@@ -1321,6 +1380,91 @@ function OpenInner() {
               No IAP for packs. Future VIP (if any) is data/alerts only — never
               paid pack opens.
             </p>
+            <label className="flex items-center justify-between gap-3 rounded-xl border border-zinc-800 bg-black/40 px-3 py-2.5 text-[12px] text-zinc-300">
+              <span>
+                Sound effects{" "}
+                <span className="text-zinc-600">(off by default)</span>
+              </span>
+              <input
+                type="checkbox"
+                checked={sfxEnabled}
+                onChange={(e) => setSfxEnabled(e.target.checked)}
+                className="h-4 w-4 accent-cyan-400"
+              />
+            </label>
+
+          </div>
+        </div>
+      )}
+
+
+      {showSetSheet && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Change set"
+          onClick={() => setShowSetSheet(false)}
+        >
+          <div
+            className="w-full max-w-md max-h-[75vh] overflow-hidden rounded-2xl border border-purple-500/30 bg-zinc-950 shadow-xl flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-2">
+              <h2 className="text-sm font-semibold text-cyan-200">Change set</h2>
+              <button
+                type="button"
+                className="text-zinc-500 hover:text-zinc-300 text-sm"
+                onClick={() => setShowSetSheet(false)}
+              >
+                Close
+              </button>
+            </div>
+            <div className="flex gap-1.5 overflow-x-auto px-4 pb-2">
+              {categories.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setCategory(c.id)}
+                  className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] border ${
+                    category === c.id
+                      ? "bg-cyan-500/15 border-cyan-400/50 text-cyan-300"
+                      : "bg-black/40 border-zinc-700 text-zinc-400"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+            <div className="overflow-y-auto px-4 pb-4 space-y-2">
+              {categoryProducts.map((p) => {
+                const active = product?.id === p.id;
+                const status = getArtStatus(p);
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => selectProduct(p)}
+                    className={`w-full text-left rounded-xl border px-3 py-2.5 flex gap-3 items-start ${
+                      active
+                        ? "border-cyan-400/50 bg-cyan-500/10"
+                        : "border-zinc-800 bg-black/30"
+                    }`}
+                  >
+                    <ProductRowIcon product={p} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm text-zinc-100 font-medium leading-snug break-words">
+                        {productDisplayName(p)}
+                        <ArtBadge status={status} />
+                      </span>
+                      <span className="block text-[11px] text-zinc-500 mt-0.5">
+                        {p.format} · {fmtMoney(p.defaultPrice)}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

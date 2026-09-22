@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "Portal — Rip Portal, Portal Verdict, Rip Log, Under-EV Watch, Free Pack Opener, and more. Multi-hobby pack EV tools for collectors.",
   alternates: { canonical: "https://ripsportal.com/about" },
   openGraph: {
-    title: "About Portal · Rip Portal",
+    title: "About Rip Portal",
     description:
       "Math-first collector tools: EV calculator, Verdict, Rip Log, Under-EV Watch, and free pack simulation.",
     url: "https://ripsportal.com/about",
@@ -25,7 +25,7 @@ export default function AboutPage() {
           <BrandLogo height={36} />
         </div>
         <h1 className="mt-5 text-2xl md:text-3xl headline-flare">
-          About Portal
+          About Rip Portal
         </h1>
         <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
           Portal is the brand behind collector tools that help you know before

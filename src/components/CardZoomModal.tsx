@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import BuyLinks from "@/components/BuyLinks";
 import { fmtMoney, type SimPull } from "@/lib/simulate";
+import { RIP_PORTAL_CARD_BACK } from "@/lib/cardPools";
 import {
   downloadSingleCardShareImage,
   shareOrDownloadSingleCardImage,
@@ -219,7 +220,13 @@ export default function CardZoomModal({
               style={{ display: pull.imageUrl ? "none" : "flex" }}
               aria-hidden
             >
-              <span className="text-5xl">{productEmoji}</span>
+              {/* Branded back — never emoji-as-art or wrong-set art */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={RIP_PORTAL_CARD_BACK}
+                alt=""
+                className="h-full w-full object-cover rounded-lg"
+              />
             </div>
           </div>
         </div>

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="336" viewBox="0 0 240 336" role="img" aria-label="Rip Portal card back">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a0533"/>
+      <stop offset="45%" stop-color="#0b1220"/>
+      <stop offset="100%" stop-color="#041016"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#39ff14"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="45%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="240" height="336" rx="18" fill="url(#bg)"/>
+  <rect x="10" y="10" width="220" height="316" rx="14" fill="none" stroke="url(#ring)" stroke-width="2.5" opacity="0.9"/>
+  <rect x="22" y="22" width="196" height="292" rx="10" fill="none" stroke="#7c3aed" stroke-opacity="0.35" stroke-width="1"/>
+  <circle cx="120" cy="140" r="70" fill="url(#glow)"/>
+  <circle cx="120" cy="140" r="46" fill="none" stroke="url(#ring)" stroke-width="3"/>
+  <circle cx="120" cy="140" r="28" fill="#0b1220" stroke="#22d3ee" stroke-width="2"/>
+  <path d="M120 118 L132 140 L120 162 L108 140 Z" fill="#39ff14" opacity="0.95"/>
+  <text x="120" y="230" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="18" font-weight="800" fill="#e0f2fe" letter-spacing="2">RIP PORTAL</text>
+  <text x="120" y="252" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" fill="#94a3b8" letter-spacing="1.5">KNOW BEFORE YOU RIP</text>
+  <text x="120" y="300" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-size="8" fill="#64748b">SIM · NOT A REAL PULL</text>
+</svg>

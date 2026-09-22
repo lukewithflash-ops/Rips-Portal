@@ -10,6 +10,9 @@
 
 import type { ArtStatus, Category, Product, RaritySlot } from "@/lib/products";
 
+/** Branded card back when we lack that card's real art — never show another set's art. */
+export const RIP_PORTAL_CARD_BACK = "/cards/rip-portal-card-back.svg";
+
 export interface PoolCard {
   name: string;
   /** Small thumb URL (CDN or /public/cards/…). */
@@ -1028,13 +1031,14 @@ export function getArtStatus(product: Product): ArtStatus {
   if (product.artStatus) return product.artStatus;
   const pools = cardPoolsByProduct[product.id];
   if (!pools) return "none";
-  // Has any curated slot pool → partial (name/rarity/$ only until marked complete).
+  // Has any curated slot pool → pack-only (name/rarity/$ only until marked complete).
   const hasPool = Object.values(pools).some((slot) => slot && slot.length > 0);
-  return hasPool ? "partial" : "none";
+  return hasPool ? "pack-only" : "none";
 }
 
 export function isFeaturedOpenProduct(product: Product): boolean {
-  return getArtStatus(product) === "complete";
+  const status = getArtStatus(product);
+  return status === "complete" || status === "pack-only";
 }
 
 export function resolveSlotCard(
@@ -1044,7 +1048,7 @@ export function resolveSlotCard(
   rng: () => number = Math.random
 ): PoolCard {
   const status = getArtStatus(product);
-  // Partial / none: rarity + slot $ only — no invented card names, no wrong art.
+  // pack-only / none: rarity + slot $ only — no invented card names, no wrong art.
   if (status !== "complete") {
     return {
       name: slot.name,
@@ -1071,7 +1075,7 @@ export function emptyPackFillers(
   const status = getArtStatus(product);
   const count = 2 + (rng() < 0.5 ? 1 : 0);
   const bulkName = product.slots[0]?.name ?? "Bulk";
-  // Partial/none: generic bulk labels only — no invented names or art.
+  // pack-only/none: generic bulk labels only — no invented names or art.
   if (status !== "complete") {
     return Array.from({ length: count }, () => ({
       name: bulkName,
