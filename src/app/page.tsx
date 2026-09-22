@@ -18,6 +18,11 @@ import KeeperEvPanel from "@/components/KeeperEvPanel";
 import DealAlertsBanner from "@/components/DealAlertsBanner";
 import BuyLinks, { AffiliateDisclosure } from "@/components/BuyLinks";
 import { markPackInteracted } from "@/lib/pwa-install";
+import BrandLogo from "@/components/BrandLogo";
+import {
+  shareOrDownloadProductImage,
+  downloadProductShareImage,
+} from "@/lib/openShareImage";
 
 function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
@@ -35,6 +40,8 @@ function HomeInner() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const verdictRef = useRef<HTMLDivElement>(null);
   const [verdictHighlight, setVerdictHighlight] = useState(false);
+  const [shareImageBusy, setShareImageBusy] = useState(false);
+  const [shareImageNote, setShareImageNote] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -243,21 +250,65 @@ function HomeInner() {
 
   const roiVisual = Math.min(100, Math.max(0, Math.abs(roi)));
 
+  const logPrefillHref = effectiveProduct
+    ? `/log?pack=${effectiveProduct.id}&qty=${quantity}&price=${encodeURIComponent(
+        String(Math.round(price * 100) / 100)
+      )}`
+    : "/log";
+
+  const productShareMeta =
+    effectiveProduct && result
+      ? {
+          productId: effectiveProduct.id,
+          productName: effectiveProduct.name,
+          productFormat: effectiveProduct.format,
+          productEmoji: effectiveProduct.emoji,
+          price,
+          ev: result.totalEV,
+          roi,
+          quantity,
+        }
+      : null;
+
+  const handleShareProductImage = async () => {
+    if (!productShareMeta || shareImageBusy) return;
+    setShareImageBusy(true);
+    setShareImageNote("Building 9:16 share card…");
+    try {
+      const outcome = await shareOrDownloadProductImage(productShareMeta, "story");
+      if (outcome === "shared") {
+        setShareImageNote("Shared — pick Stories / Messages in the sheet");
+      } else if (outcome === "downloaded") {
+        setShareImageNote("Saved image — ready for Stories");
+      } else if (outcome === "unsupported") {
+        await downloadProductShareImage(productShareMeta, "story");
+        setShareImageNote("Saved image (share sheet unavailable)");
+      } else {
+        setShareImageNote(null);
+      }
+    } catch {
+      try {
+        if (productShareMeta) {
+          await downloadProductShareImage(productShareMeta, "story");
+          setShareImageNote("Saved image");
+        }
+      } catch {
+        setShareImageNote("Couldn’t build share image");
+      }
+    } finally {
+      setShareImageBusy(false);
+      window.setTimeout(() => setShareImageNote(null), 3200);
+    }
+  };
+
   return (
     <div className="flex min-h-screen portal-bg">
       <aside className="sidebar w-56 flex-shrink-0 hidden lg:flex flex-col">
         <div className="p-4 border-b border-green-500/10">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 portal-glow flex items-center justify-center text-lg font-bold text-black">
-              🌀
-            </div>
-            <div>
-              <div className="font-bold text-green-400 neon-text text-sm leading-tight">
-                Rip Portal
-              </div>
-              <div className="text-[10px] text-zinc-500 tracking-wider">
-                PACK EV CALCULATOR
-              </div>
+          <div className="flex flex-col gap-1">
+            <BrandLogo height={40} href={null} />
+            <div className="text-[10px] text-purple-300/70 tracking-[0.18em] uppercase pl-0.5">
+              Pack EV Calculator
             </div>
           </div>
         </div>
@@ -336,8 +387,9 @@ function HomeInner() {
           <div className="rounded-xl overflow-hidden border border-purple-500/30 purple-glow relative">
             <div className="h-28 bg-gradient-to-br from-purple-900/50 via-black to-green-900/40 flex items-center justify-center relative">
               <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_center,rgba(57,255,20,0.25),transparent_70%)]" />
-              <div className="w-16 h-16 rounded-full border-2 border-green-400/70 portal-glow flex items-center justify-center z-10">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-400/30 to-purple-500/20" />
+              <div className="z-10 drop-shadow-[0_0_24px_rgba(192,38,255,0.45)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/icons/portal-app-icon.png" alt="" width={64} height={64} className="rounded-2xl border border-purple-400/30" />
               </div>
             </div>
             <div className="p-3 bg-black/70">
@@ -353,24 +405,19 @@ function HomeInner() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="border-b border-green-500/15 bg-black/40 backdrop-blur-md sticky top-0 z-40">
+        <header className="border-b border-purple-500/20 bg-black/40 backdrop-blur-md sticky top-0 z-40 site-chrome">
           <div className="px-4 md:px-6 py-3 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="lg:hidden flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 portal-glow flex items-center justify-center text-sm font-bold text-black">
-                  🌀
-                </div>
-                <span className="font-bold text-green-400 neon-text text-sm">
-                  Rip Portal
-                </span>
+              <div className="lg:hidden flex items-center">
+                <BrandLogo height={32} compact href={null} />
               </div>
               <div className="hidden md:flex items-center gap-2 text-xs text-zinc-500">
-                <span className="text-green-400/80 font-medium">MULTIVERSE LAB</span>
+                <span className="text-purple-300/90 font-medium">MULTIVERSE LAB</span>
                 <span className="text-zinc-700">•</span>
                 <span>DASHBOARD</span>
               </div>
             </div>
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/30 text-green-300">
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-purple-500/15 border border-purple-400/35 text-purple-200">
               ⚡ Free Access
             </span>
           </div>
@@ -378,15 +425,15 @@ function HomeInner() {
 
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <div className="mb-5">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-green-400/70 mb-1.5">
-              Calculate. Rip. Repeat.
+            <div className="text-[11px] uppercase tracking-[0.22em] text-purple-300/80 mb-1.5">
+              Calculate · Rip · Repeat
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-              Pack EV. <span className="text-green-400 neon-text">Perfected.</span>
+            <h1 className="text-2xl md:text-4xl headline-flare tracking-tight">
+              Pack EV. Perfected.
             </h1>
-            <p className="text-sm text-zinc-500 mt-1 max-w-lg">
+            <p className="text-sm text-zinc-400 mt-2 max-w-lg leading-relaxed">
               Expected value for Pokémon, Sports & One Piece — know before you
-              rip.
+              rip. Purple foil energy, green math accents.
             </p>
           </div>
 
@@ -954,6 +1001,14 @@ function HomeInner() {
                           >
                             Copy share link
                           </button>
+                          <button
+                            type="button"
+                            disabled={!result || shareImageBusy}
+                            onClick={() => void handleShareProductImage()}
+                            className="text-[11px] text-pink-300/90 hover:text-pink-200 underline-offset-2 hover:underline disabled:opacity-40 disabled:no-underline"
+                          >
+                            {shareImageBusy ? "Building…" : "Share image (9:16)"}
+                          </button>
                           <Link
                             href={`/open?pack=${effectiveProduct.id}`}
                             className="text-[11px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline"
@@ -961,12 +1016,15 @@ function HomeInner() {
                             Simulate open
                           </Link>
                           <Link
-                            href={`/log?pack=${effectiveProduct.id}&qty=${quantity}`}
+                            href={logPrefillHref}
                             className="text-[11px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline"
                           >
                             Log this rip
                           </Link>
                         </div>
+                        {shareImageNote && (
+                          <p className="mt-1 text-[10px] text-pink-200/80">{shareImageNote}</p>
+                        )}
                         <div className="mt-3">
                           <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
                             Buy
@@ -1119,6 +1177,24 @@ function HomeInner() {
                             </span>
                           )}
                         </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={shareImageBusy}
+                            onClick={() => void handleShareProductImage()}
+                            className="inline-flex items-center justify-center rounded-lg border border-pink-500/40 bg-pink-500/10 px-3 py-2 text-[12px] font-medium text-pink-200 hover:bg-pink-500/20 disabled:opacity-40"
+                          >
+                            {shareImageBusy
+                              ? "Building share card…"
+                              : "📤 Share EV image (9:16)"}
+                          </button>
+                          <Link
+                            href={logPrefillHref}
+                            className="inline-flex items-center justify-center rounded-lg border border-cyan-500/35 bg-cyan-500/10 px-3 py-2 text-[12px] font-medium text-cyan-300 hover:bg-cyan-500/20"
+                          >
+                            📝 Log this rip
+                          </Link>
+                        </div>
                       </div>
                     )}
 
@@ -1257,7 +1333,7 @@ function HomeInner() {
                           {VERDICT_DISCLAIMER}
                         </p>
                         <Link
-                          href={`/log?pack=${effectiveProduct.id}&qty=${quantity}`}
+                          href={logPrefillHref}
                           className="mt-3 inline-flex items-center justify-center w-full sm:w-auto rounded-lg border border-cyan-500/35 bg-cyan-500/10 px-3 py-2 text-[12px] font-medium text-cyan-300 hover:bg-cyan-500/20"
                         >
                           📝 Log this rip — compare pulls to EV

@@ -36,6 +36,7 @@ import {
   downloadOpenShareImage,
   shareOrDownloadOpenImage,
 } from "@/lib/openShareImage";
+import BrandLogo from "@/components/BrandLogo";
 
 type Phase = "idle" | "tearing" | "reveal";
 
@@ -464,15 +465,10 @@ function OpenInner() {
 
   return (
     <div className="flex min-h-screen portal-bg flex-col">
-      <header className="border-b border-green-500/15 bg-black/40 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-purple-500/20 bg-black/40 backdrop-blur-md sticky top-0 z-40 site-chrome">
         <div className="px-4 md:px-6 py-3 flex items-center justify-between gap-3 max-w-3xl mx-auto w-full">
           <div className="flex items-center gap-2.5 min-w-0">
-            <Link
-              href="/"
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 portal-glow flex items-center justify-center text-sm font-bold text-black shrink-0"
-            >
-              🌀
-            </Link>
+            <BrandLogo height={34} compact />
             <div className="min-w-0">
               <div className="font-bold text-cyan-300 neon-text text-sm leading-tight">
                 Free Pack Opener

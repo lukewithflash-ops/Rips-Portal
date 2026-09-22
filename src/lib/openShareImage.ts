@@ -641,3 +641,250 @@ export async function downloadOpenShareImage(
       : `rip-portal-${session.product.id}-square.png`;
   downloadBlob(blob, filename);
 }
+
+
+/* ─── Product / calculator 9:16 share card ─────────────────────────────── */
+
+export interface ProductShareMeta {
+  productId: string;
+  productName: string;
+  productFormat: string;
+  productEmoji?: string;
+  /** Pack / unit price the user is evaluating */
+  price: number;
+  /** Expected value per unit */
+  ev: number;
+  /** ROI % vs price */
+  roi: number;
+  /** Optional quantity (shows scaled totals when > 1) */
+  quantity?: number;
+}
+
+function drawPortalMark(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  r: number
+) {
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fillStyle = "#050508";
+  ctx.fill();
+
+  const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 0.85);
+  core.addColorStop(0, "#020206");
+  core.addColorStop(0.55, "#0a0614");
+  core.addColorStop(1, "#1a0a28");
+  ctx.beginPath();
+  ctx.arc(cx, cy, r * 0.85, 0, Math.PI * 2);
+  ctx.fillStyle = core;
+  ctx.fill();
+
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate((-28 * Math.PI) / 180);
+  ctx.shadowColor = "rgba(57,255,20,0.45)";
+  ctx.shadowBlur = r * 0.55;
+  const ring = ctx.createLinearGradient(-r, r * 0.4, r, -r * 0.4);
+  ring.addColorStop(0, "#39ff14");
+  ring.addColorStop(0.4, "#00f0ff");
+  ring.addColorStop(0.75, "#a855f7");
+  ring.addColorStop(1, "#bf00ff");
+  ctx.strokeStyle = ring;
+  ctx.lineWidth = Math.max(3, r * 0.14);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 0.62, r * 0.44, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/**
+ * Story-sized (1080x1920) share card for a product EV calc —
+ * name, pack price, EV, ROI, ripsportal.com branding.
+ */
+export async function renderProductShareImage(
+  meta: ProductShareMeta,
+  options: Pick<ShareImageOptions, "format"> = {}
+): Promise<Blob> {
+  const format = options.format ?? "story";
+  const { w, h } = SIZES[format];
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas_unavailable");
+
+  const bg = ctx.createLinearGradient(0, 0, w, h);
+  bg.addColorStop(0, "#030306");
+  bg.addColorStop(0.45, "#0a1a12");
+  bg.addColorStop(1, "#0a0614");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, w, h);
+
+  const orb = (cx: number, cy: number, r: number, color: string) => {
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    g.addColorStop(0, color);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  };
+  orb(w * 0.18, h * 0.1, 440, "rgba(57,255,20,0.16)");
+  orb(w * 0.82, h * 0.22, 400, "rgba(191,0,255,0.14)");
+  orb(w * 0.5, h * 0.88, 480, "rgba(0,240,255,0.1)");
+
+  const pad = 64;
+  let y = pad;
+
+  drawPortalMark(ctx, pad + 28, y + 28, 28);
+  ctx.fillStyle = "#4ade80";
+  ctx.font = "750 40px system-ui, sans-serif";
+  ctx.fillText("Rip Portal", pad + 72, y + 38);
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "600 22px system-ui, sans-serif";
+  ctx.fillText("PACK EV CARD", pad + 72, y + 72);
+  y += 120;
+
+  const qty = meta.quantity && meta.quantity > 1 ? meta.quantity : 1;
+  const title =
+    qty > 1 ? qty + "x " + meta.productName : meta.productName;
+  ctx.fillStyle = "#f1f5f9";
+  ctx.font = "700 56px system-ui, sans-serif";
+  const titleMax = w - pad * 2;
+  const words = title.split(/\s+/);
+  let line1 = "";
+  let line2 = "";
+  for (const word of words) {
+    const trial = line1 ? line1 + " " + word : word;
+    if (ctx.measureText(trial).width <= titleMax) {
+      line1 = trial;
+    } else if (!line2) {
+      line2 = word;
+    } else {
+      const t2 = line2 + " " + word;
+      if (ctx.measureText(t2).width <= titleMax) line2 = t2;
+      else {
+        line2 = truncate(ctx, t2, titleMax);
+        break;
+      }
+    }
+  }
+  ctx.fillText(line1, pad, y + 56);
+  y += 64;
+  if (line2) {
+    ctx.fillText(truncate(ctx, line2, titleMax), pad, y + 56);
+    y += 64;
+  }
+
+  ctx.fillStyle = "#a7f3d0";
+  ctx.font = "500 28px system-ui, sans-serif";
+  ctx.fillText(truncate(ctx, meta.productFormat, titleMax), pad, y + 28);
+  y += 64;
+
+  ctx.strokeStyle = "rgba(57,255,20,0.28)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(pad, y);
+  ctx.lineTo(w - pad, y);
+  ctx.stroke();
+  y += 48;
+
+  const profit = meta.ev - meta.price;
+  const positive = meta.roi >= 0;
+
+  const stats = [
+    { label: "PACK PRICE", value: fmtMoney(meta.price), color: "#e2e8f0" },
+    { label: "EXPECTED VALUE", value: fmtMoney(meta.ev), color: "#6ee7b7" },
+    {
+      label: "ROI",
+      value: (meta.roi >= 0 ? "+" : "") + meta.roi.toFixed(1) + "%",
+      color: positive ? "#4ade80" : "#f87171",
+    },
+    {
+      label: "VS PRICE",
+      value: (profit >= 0 ? "+" : "") + fmtMoney(profit),
+      color: positive ? "#4ade80" : "#f87171",
+    },
+  ];
+
+  const cardGap = 28;
+  const cardH = 168;
+  for (const s of stats) {
+    ctx.fillStyle = "#0c0c16";
+    roundRect(ctx, pad, y, w - pad * 2, cardH, 28);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(57,255,20,0.22)";
+    ctx.lineWidth = 2;
+    roundRect(ctx, pad, y, w - pad * 2, cardH, 28);
+    ctx.stroke();
+
+    ctx.fillStyle = "#64748b";
+    ctx.font = "700 24px system-ui, sans-serif";
+    ctx.fillText(s.label, pad + 36, y + 52);
+
+    ctx.fillStyle = s.color;
+    ctx.font = "750 64px ui-monospace, SFMono-Regular, Menlo, monospace";
+    ctx.fillText(s.value, pad + 36, y + 128);
+
+    y += cardH + cardGap;
+  }
+
+  if (qty > 1) {
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "500 26px system-ui, sans-serif";
+    const scaled =
+      "Session · " +
+      fmtMoney(meta.price * qty) +
+      " spent · EV " +
+      fmtMoney(meta.ev * qty);
+    ctx.fillText(truncate(ctx, scaled, titleMax), pad, y + 8);
+    y += 48;
+  }
+
+  drawPortalMark(ctx, w / 2, h - 220, 70);
+
+  ctx.fillStyle = "rgba(148,163,184,0.7)";
+  ctx.font = "600 28px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("ripsportal.com", w / 2, h - 110);
+  ctx.fillStyle = "rgba(148,163,184,0.45)";
+  ctx.font = "500 20px system-ui, sans-serif";
+  ctx.fillText(
+    "Catalog EV · entertainment math · not financial advice",
+    w / 2,
+    h - 72
+  );
+  ctx.textAlign = "left";
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (b) => (b ? resolve(b) : reject(new Error("toBlob_failed"))),
+      "image/png",
+      0.92
+    );
+  });
+  return blob;
+}
+
+export async function shareOrDownloadProductImage(
+  meta: ProductShareMeta,
+  format: ShareImageFormat = "story"
+): Promise<"shared" | "downloaded" | "cancelled" | "unsupported"> {
+  const blob = await renderProductShareImage(meta, { format });
+  const filename =
+    format === "story"
+      ? "rip-portal-" + meta.productId + "-ev-story.png"
+      : "rip-portal-" + meta.productId + "-ev-square.png";
+  return shareBlobAsPng(blob, filename);
+}
+
+export async function downloadProductShareImage(
+  meta: ProductShareMeta,
+  format: ShareImageFormat = "story"
+): Promise<void> {
+  const blob = await renderProductShareImage(meta, { format });
+  const filename =
+    format === "story"
+      ? "rip-portal-" + meta.productId + "-ev-story.png"
+      : "rip-portal-" + meta.productId + "-ev-square.png";
+  downloadBlob(blob, filename);
+}

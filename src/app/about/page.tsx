@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import BrandLogo from "@/components/BrandLogo";
 
 export const metadata: Metadata = {
   title: "About",
@@ -20,13 +21,10 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen portal-bg flex flex-col">
       <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-10">
-        <Link
-          href="/"
-          className="text-[12px] text-green-400/90 hover:text-green-300"
-        >
-          ← Rip Portal
-        </Link>
-        <h1 className="mt-4 text-2xl font-bold text-green-400 neon-text">
+        <div className="flex items-center gap-3">
+          <BrandLogo height={36} />
+        </div>
+        <h1 className="mt-5 text-2xl md:text-3xl headline-flare">
           About Portal
         </h1>
         <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
