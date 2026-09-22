@@ -3,23 +3,26 @@
 :root {
   --portal-green: #39ff14;
   --portal-green-dim: #1a8f0a;
-  --neon-purple: #bf00ff;
+  --neon-purple: #c026ff;
+  --neon-violet: #7c3aed;
+  --neon-magenta: #e879f9;
   --neon-cyan: #00f0ff;
-  --void-bg: #030306;
-  --card-bg: #0a0a12;
-  --sidebar-bg: #06060c;
+  --void-bg: #06040c;
+  --card-bg: #0e0a16;
+  --sidebar-bg: #090612;
+  --foil-edge: rgba(192, 38, 255, 0.45);
 }
 
 @theme inline {
   --color-background: var(--void-bg);
-  --color-foreground: #e8e8f0;
+  --color-foreground: #efe8ff;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--void-bg);
-  color: #e8e8f0;
+  color: #efe8ff;
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
@@ -27,56 +30,86 @@ body {
 
 .portal-glow {
   box-shadow:
-    0 0 12px rgba(57, 255, 20, 0.55),
-    0 0 28px rgba(57, 255, 20, 0.25),
-    0 0 50px rgba(57, 255, 20, 0.12);
+    0 0 12px rgba(192, 38, 255, 0.45),
+    0 0 28px rgba(124, 58, 237, 0.28),
+    0 0 42px rgba(57, 255, 20, 0.12);
 }
 
 .portal-glow-strong {
   box-shadow:
-    0 0 18px rgba(57, 255, 20, 0.7),
-    0 0 45px rgba(57, 255, 20, 0.35),
-    0 0 80px rgba(57, 255, 20, 0.15);
+    0 0 18px rgba(192, 38, 255, 0.65),
+    0 0 40px rgba(124, 58, 237, 0.35),
+    0 0 70px rgba(57, 255, 20, 0.14);
 }
 
 .portal-border {
-  border: 1px solid rgba(57, 255, 20, 0.4);
+  border: 1px solid rgba(192, 38, 255, 0.42);
 }
 
 .neon-text {
+  text-shadow:
+    0 0 10px rgba(192, 38, 255, 0.75),
+    0 0 22px rgba(124, 58, 237, 0.4),
+    0 0 8px rgba(57, 255, 20, 0.25);
+}
+
+.neon-text-green {
   text-shadow:
     0 0 8px rgba(57, 255, 20, 0.85),
     0 0 18px rgba(57, 255, 20, 0.4);
 }
 
 .purple-glow {
-  box-shadow: 0 0 18px rgba(191, 0, 255, 0.45), 0 0 35px rgba(191, 0, 255, 0.2);
+  box-shadow:
+    0 0 20px rgba(192, 38, 255, 0.5),
+    0 0 42px rgba(124, 58, 237, 0.28),
+    0 0 8px rgba(232, 121, 249, 0.18);
 }
 
 .portal-bg {
   background:
-    radial-gradient(ellipse at 12% 18%, rgba(57, 255, 20, 0.1) 0%, transparent 42%),
-    radial-gradient(ellipse at 88% 72%, rgba(191, 0, 255, 0.09) 0%, transparent 48%),
-    radial-gradient(ellipse at 50% 50%, rgba(0, 240, 255, 0.04) 0%, transparent 55%),
-    #030306;
+    radial-gradient(ellipse at 10% 0%, rgba(192, 38, 255, 0.22) 0%, transparent 42%),
+    radial-gradient(ellipse at 90% 12%, rgba(124, 58, 237, 0.18) 0%, transparent 45%),
+    radial-gradient(ellipse at 75% 85%, rgba(57, 255, 20, 0.07) 0%, transparent 48%),
+    radial-gradient(ellipse at 20% 70%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 50%, rgba(14, 6, 28, 0.9) 0%, transparent 70%),
+    #06040c;
+  position: relative;
+}
+.portal-bg::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+}
+.portal-bg > * {
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar {
-  background: linear-gradient(180deg, #08080f 0%, #050508 100%);
-  border-right: 1px solid rgba(57, 255, 20, 0.12);
+  background: linear-gradient(185deg, #120a1c 0%, #080510 55%, #05040a 100%);
+  border-right: 1px solid rgba(192, 38, 255, 0.18);
+  box-shadow: inset -1px 0 0 rgba(57, 255, 20, 0.06);
 }
 
 .sidebar-item {
   transition: all 0.2s ease;
 }
 .sidebar-item:hover {
-  background: rgba(57, 255, 20, 0.07);
-  color: #39ff14;
+  background: rgba(192, 38, 255, 0.1);
+  color: #e9d5ff;
 }
 .sidebar-item.active {
-  background: rgba(57, 255, 20, 0.12);
-  color: #39ff14;
-  border-left: 3px solid #39ff14;
+  background: linear-gradient(90deg, rgba(192, 38, 255, 0.2), rgba(57, 255, 20, 0.06));
+  color: #f3e8ff;
+  border-left: 3px solid #c026ff;
+  box-shadow: inset 0 0 18px rgba(192, 38, 255, 0.12);
 }
 
 .card-hover {
@@ -84,20 +117,43 @@ body {
 }
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 22px rgba(57, 255, 20, 0.3);
-  border-color: rgba(57, 255, 20, 0.65);
+  box-shadow:
+    0 0 22px rgba(192, 38, 255, 0.28),
+    0 0 8px rgba(57, 255, 20, 0.12);
+  border-color: rgba(192, 38, 255, 0.55);
 }
 
 .panel {
-  background: rgba(10, 10, 18, 0.75);
-  border: 1px solid rgba(57, 255, 20, 0.18);
-  backdrop-filter: blur(12px);
+  background:
+    linear-gradient(155deg, rgba(28, 14, 42, 0.72), rgba(10, 8, 18, 0.82));
+  border: 1px solid rgba(192, 38, 255, 0.22);
+  backdrop-filter: blur(14px);
+  box-shadow:
+    inset 0 1px 0 rgba(232, 121, 249, 0.08),
+    0 0 24px rgba(124, 58, 237, 0.08);
+}
+
+.headline-flare {
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  background: linear-gradient(115deg, #f5e8ff 0%, #e879f9 35%, #a3e635 70%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 18px rgba(192, 38, 255, 0.35));
+}
+
+.site-chrome {
+  border-color: rgba(192, 38, 255, 0.2) !important;
+  background: rgba(8, 4, 16, 0.72) !important;
+  box-shadow: 0 1px 0 rgba(192, 38, 255, 0.08);
 }
 
 ::-webkit-scrollbar { width: 7px; }
-::-webkit-scrollbar-track { background: #0a0a10; }
-::-webkit-scrollbar-thumb { background: #1a8f0a; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #39ff14; }
+::-webkit-scrollbar-track { background: #0c0814; }
+::-webkit-scrollbar-thumb { background: #6b21a8; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #c026ff; }
 
 @keyframes soft-pulse {
   0%, 100% { opacity: 1; }

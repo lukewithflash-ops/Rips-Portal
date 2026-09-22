@@ -13,6 +13,7 @@ import {
   hasPackInteracted,
   subscribePackInteracted,
 } from "@/lib/pwa-install";
+import { BrandAppIcon } from "@/components/BrandLogo";
 
 function useDeferredPrompt() {
   return useSyncExternalStore(
@@ -94,8 +95,8 @@ export default function InstallPrompt() {
       <div className="pointer-events-auto mx-auto max-w-lg sm:mx-0 rounded-xl border border-green-500/25 bg-[#0a0a12]/95 backdrop-blur-md shadow-[0_0_20px_rgba(57,255,20,0.1)]">
         {/* Compact single-row bar on small screens */}
         <div className="flex items-center gap-2 px-2.5 py-1.5 sm:px-3 sm:py-2">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-green-500/30 bg-black/50 text-[9px] font-extrabold tracking-tight text-green-400 neon-text">
-            RP
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-purple-500/35 bg-black/50 overflow-hidden">
+            <BrandAppIcon size={28} />
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[12px] font-semibold leading-tight text-zinc-100 sm:text-[13px]">

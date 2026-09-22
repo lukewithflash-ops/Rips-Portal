@@ -24,6 +24,7 @@ import {
   type RipLogSessionV1,
 } from "@/lib/riplog";
 import { computeKeeperEV } from "@/lib/keeper";
+import BrandLogo from "@/components/BrandLogo";
 
 function emptyCounts(product: Product | null): number[] {
   return product ? product.slots.map(() => 0) : [];
@@ -37,6 +38,7 @@ function LogInner() {
   const packFromUrl = searchParams.get("pack");
   const sessionFromUrl = searchParams.get("s");
   const qtyFromUrl = searchParams.get("qty");
+  const priceFromUrl = searchParams.get("price");
 
   const [category, setCategory] = useState<Category>("pokemon");
   const [productId, setProductId] = useState<string | null>(null);
@@ -85,13 +87,18 @@ function LogInner() {
       if (p) {
         setCategory(p.category);
         setProductId(p.id);
-        setPriceStr("");
         setCounts(emptyCounts(p));
         const q = qtyFromUrl ? parseInt(qtyFromUrl, 10) : NaN;
         if (Number.isFinite(q) && q >= 1) setQuantity(Math.min(9999, q));
+        const pr = priceFromUrl ? parseFloat(priceFromUrl) : NaN;
+        if (Number.isFinite(pr) && pr >= 0) {
+          setPriceStr(String(Math.round(pr * 100) / 100));
+        } else {
+          setPriceStr("");
+        }
       }
     }
-  }, [sessionFromUrl, packFromUrl, qtyFromUrl]);
+  }, [sessionFromUrl, packFromUrl, qtyFromUrl, priceFromUrl]);
 
   useEffect(() => {
     setLocalSessions(loadLocalSessions());
@@ -178,15 +185,10 @@ function LogInner() {
 
   return (
     <div className="flex min-h-screen portal-bg flex-col">
-      <header className="border-b border-green-500/15 bg-black/40 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-purple-500/20 bg-black/40 backdrop-blur-md sticky top-0 z-40 site-chrome">
         <div className="px-4 md:px-6 py-3 flex items-center justify-between gap-3 max-w-3xl mx-auto w-full">
           <div className="flex items-center gap-2.5 min-w-0">
-            <Link
-              href="/"
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 portal-glow flex items-center justify-center text-sm font-bold text-black shrink-0"
-            >
-              🌀
-            </Link>
+            <BrandLogo height={34} compact />
             <div className="min-w-0">
               <div className="font-bold text-green-400 neon-text text-sm leading-tight">
                 Rip Log
@@ -206,6 +208,54 @@ function LogInner() {
       </header>
 
       <main className="flex-1 px-4 md:px-6 py-5 max-w-3xl mx-auto w-full space-y-4 pb-24">
+        {/* Sticky session summary — on-device MVP */}
+        {stats && (
+          <div className="sticky top-[3.25rem] z-30 -mx-1 px-1">
+            <div className="rounded-xl border border-purple-400/35 bg-[#12081c]/92 backdrop-blur-md px-3 py-2.5 purple-glow">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-purple-300/80 mb-1">
+                Session summary
+              </div>
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13px] font-mono text-zinc-100">
+                <span>
+                  spent{" "}
+                  <span className="text-purple-200 font-semibold">
+                    {fmtMoney(stats.costPaid)}
+                  </span>
+                </span>
+                <span className="text-zinc-600">·</span>
+                <span>
+                  hits{" "}
+                  <span className="text-fuchsia-200 font-semibold">
+                    {fmtMoney(stats.actualValue)}
+                  </span>
+                </span>
+                <span className="text-zinc-600">·</span>
+                <span>
+                  EV said{" "}
+                  <span className="text-emerald-300 font-semibold">
+                    {fmtMoney(stats.expectedEV)}
+                  </span>
+                </span>
+                <span className="text-zinc-600">·</span>
+                <span
+                  className={
+                    stats.vsExpected >= 0 ? "text-emerald-300" : "text-rose-300"
+                  }
+                >
+                  {stats.vsExpected >= 0 ? "+" : ""}
+                  {fmtMoney(stats.vsExpected)} vs EV
+                </span>
+              </div>
+              {product && (
+                <div className="text-[10px] text-zinc-500 mt-1 truncate">
+                  {stats.quantity}× {product.name}
+                  {note ? ` · ${note}` : ""} · stays on this device
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {hydratedFromShare && stats && (
           <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-[12px] text-cyan-200">
             Viewing a shared rip session — edit anything to make it yours, then

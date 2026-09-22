@@ -1,16 +1,15 @@
 import Link from "next/link";
 import InstallAppButton from "@/components/InstallAppButton";
+import BrandLogo from "@/components/BrandLogo";
 import { AffiliateDisclosure } from "@/components/BuyLinks";
 
 export default function SiteFooter() {
   return (
-    <footer className="mt-auto border-t border-green-500/10 bg-black/40">
+    <footer className="mt-auto border-t border-purple-500/20 bg-black/50">
       <div className="mx-auto max-w-5xl px-4 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-green-400/90 tracking-wide">
-            Portal
-          </div>
-          <p className="text-[11px] text-zinc-500 mt-0.5 leading-relaxed">
+          <BrandLogo height={32} compact />
+          <p className="text-[11px] text-zinc-400 mt-1.5 leading-relaxed">
             Tools for card rippers — Know before you rip
           </p>
           <AffiliateDisclosure className="mt-2 max-w-md" />

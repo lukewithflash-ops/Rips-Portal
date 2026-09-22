@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import BrandLogo from "@/components/BrandLogo";
 
 const LS_KEY = "rip-portal-waitlist-v1";
 
@@ -153,12 +154,7 @@ export default function WaitlistPage() {
   return (
     <div className="min-h-screen portal-bg flex flex-col">
       <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-10 pb-24">
-        <Link
-          href="/"
-          className="text-[12px] text-green-400/90 hover:text-green-300"
-        >
-          ← Rip Portal
-        </Link>
+        <BrandLogo height={34} compact />
 
         <div className="mt-4 panel rounded-2xl p-5 border border-purple-500/30 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-transparent to-green-500/10 pointer-events-none" />
@@ -166,7 +162,7 @@ export default function WaitlistPage() {
             <div className="text-[10px] uppercase tracking-widest text-purple-300/90 font-semibold mb-1">
               Portal
             </div>
-            <h1 className="text-2xl font-bold text-green-400 neon-text tracking-tight">
+            <h1 className="text-2xl md:text-3xl headline-flare tracking-tight">
               Join the waitlist
             </h1>
             <p className="mt-2 text-sm text-zinc-300 leading-relaxed">
