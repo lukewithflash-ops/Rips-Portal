@@ -1,5 +1,5 @@
 /* Rip Portal — offline shell + Web Push (honest prices: never fake live data) */
-const CACHE_VERSION = "rip-portal-v5-set-packonly";
+const CACHE_VERSION = "rip-portal-v6-real-card-pools";
 const SHELL_URLS = [
   "/",
   "/open",

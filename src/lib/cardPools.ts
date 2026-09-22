@@ -36,6 +36,21 @@ export type ProductPools = Record<number, PoolCard[]>;
 
 const S = (id: string) => `https://images.scrydex.com/pokemon/${id}/small`;
 /**
+ * Keep name + Scrydex pokemon id adjacent — same honesty rule as opc.
+ * Never pair a name with art from another card/set.
+ */
+const poke = (
+  name: string,
+  id: string,
+  estValue: number,
+  weight?: number
+): PoolCard => ({
+  name,
+  imageUrl: S(id),
+  estValue,
+  ...(weight !== undefined ? { weight } : {}),
+});
+/**
  * Scrydex One Piece thumbs use set collector IDs (e.g. OP16-118).
  * Always pair the pool display name with an ID whose Scrydex art depicts that
  * character — OP16-118 is Portgas.D.Ace SEC, not Luffy; OP09-119 is Luffy SEC.
@@ -86,495 +101,526 @@ const POKE = "/cards/placeholder-poke.svg";
 
 const ascendedPack: ProductPools = {
   0: [
-    { name: "Erika's Oddish", imageUrl: S("me2pt5-1"), estValue: 0.12, weight: 8 },
-    { name: "Dratini", imageUrl: S("me2pt5-150"), estValue: 0.2, weight: 6 },
-    { name: "Team Rocket Grunt common", imageUrl: S("me2pt5-50"), estValue: 0.25, weight: 6 },
-    { name: "Assorted Commons Pack", imageUrl: S("me2pt5-100"), estValue: 0.4, weight: 5 },
-    { name: "Uncommon Trainer Mix", imageUrl: S("me2pt5-180"), estValue: 0.75, weight: 4 },
-    { name: "Reverse Holo Common", imageUrl: S("me2pt5-200"), estValue: 1.4, weight: 3 },
-    { name: "Holo Energy / Promo filler", imageUrl: S("me2pt5-220"), estValue: 3.2, weight: 2 },
-    { name: "Popular Uncommon chase-adjacent", imageUrl: S("me2pt5-226"), estValue: 6, weight: 1 }
+    poke("Erika's Oddish", "me2pt5-1", 0.12, 8),
+    poke("Charmander", "me2pt5-20", 0.16, 6),
+    poke("Psyduck", "me2pt5-39", 0.24, 5),
+    poke("Dratini", "me2pt5-150", 0.2, 5),
+    poke("Totodile", "me2pt5-41", 0.24, 4),
+    poke("Ethan's Slugma", "me2pt5-23", 0.1, 4),
+    poke("N's Darumaka", "me2pt5-32", 0.18, 3),
+    poke("Team Rocket's Tarountula", "me2pt5-18", 0.09, 3),
   ],
   1: [
-    { name: "Double Rare — Midline EX", imageUrl: S("me2pt5-150"), estValue: 0.55, weight: 5 },
-    { name: "Double Rare — Playable EX", imageUrl: S("me2pt5-180"), estValue: 1, weight: 4 },
-    { name: "Double Rare — Splashy Art", imageUrl: S("me2pt5-200"), estValue: 1.7, weight: 3 },
-    { name: "Double Rare — Hot Name", imageUrl: S("me2pt5-220"), estValue: 2.6, weight: 2 },
-    { name: "Double Rare — Set favorite", imageUrl: S("me2pt5-240"), estValue: 3.2, weight: 1 }
+    poke("Mega Charizard Y ex", "me2pt5-22", 7.5, 2),
+    poke("Ethan's Ho-Oh ex", "me2pt5-26", 0.89, 4),
+    poke("Cinderace ex", "me2pt5-38", 0.82, 4),
+    poke("Mega Meganium ex", "me2pt5-10", 1.13, 3),
+    poke("Erika's Vileplume ex", "me2pt5-3", 0.79, 3),
   ],
   2: [
-    { name: "Psyduck — Illustration Rare", imageUrl: S("me2pt5-226"), estValue: 70, weight: 1 },
-    { name: "Scenic IR — Mid Set", imageUrl: S("me2pt5-230"), estValue: 12, weight: 4 },
-    { name: "Cute IR — Trainer Scene", imageUrl: S("me2pt5-240"), estValue: 8, weight: 5 },
-    { name: "Standard Illustration Rare", imageUrl: S("me2pt5-220"), estValue: 5, weight: 6 },
-    { name: "Budget Illustration Rare", imageUrl: S("me2pt5-200"), estValue: 3, weight: 4 },
-    { name: "IR — Character spotlight", imageUrl: S("me2pt5-250"), estValue: 15, weight: 2 }
+    poke("Psyduck — Illustration Rare", "me2pt5-226", 70, 1),
   ],
   3: [
-    { name: "Ultra Rare — Full Art Trainer", imageUrl: S("me2pt5-250"), estValue: 1.1, weight: 4 },
-    { name: "Ultra Rare — EX Full Art", imageUrl: S("me2pt5-260"), estValue: 1.7, weight: 4 },
-    { name: "Ultra Rare — Splash Art", imageUrl: S("me2pt5-270"), estValue: 2.4, weight: 3 },
-    { name: "Ultra Rare — Hot Character", imageUrl: S("me2pt5-200"), estValue: 3.8, weight: 1 }
+    poke("Mega Charizard Y ex", "me2pt5-22", 1.7, 3),
+    poke("Ethan's Ho-Oh ex", "me2pt5-26", 1.1, 4),
+    poke("Cinderace ex", "me2pt5-38", 2.4, 3),
   ],
   4: [
-    { name: "Mega Attack Rare — Mid Tier", imageUrl: S("me2pt5-250"), estValue: 10, weight: 5 },
-    { name: "Mega Attack Rare — Strong Art", imageUrl: S("me2pt5-260"), estValue: 16, weight: 4 },
-    { name: "Mega Attack Rare — Chase-adjacent", imageUrl: S("me2pt5-270"), estValue: 28, weight: 2 },
-    { name: "Mega Feraligatr ex — MAR/SIR bridge", imageUrl: S("me2pt5-274"), estValue: 40, weight: 1 }
+    poke("Mega Feraligatr ex — Mega Attack Rare", "me2pt5-274", 40, 2),
+    poke("Mega Charizard Y ex", "me2pt5-22", 16, 4),
+    poke("Ethan's Ho-Oh ex", "me2pt5-26", 10, 4),
   ],
   5: [
-    { name: "Mega Gengar ex SIR", imageUrl: S("me2pt5-284"), estValue: 1120, weight: 1 },
-    { name: "Pikachu ex SIR (276)", imageUrl: S("me2pt5-276"), estValue: 1100, weight: 1 },
-    { name: "Mega Dragonite ex SIR", imageUrl: S("me2pt5-290"), estValue: 710, weight: 2 },
-    { name: "Pikachu ex SIR (277)", imageUrl: S("me2pt5-277"), estValue: 380, weight: 4 },
-    { name: "Team Rocket's Mewtwo ex SIR", imageUrl: S("me2pt5-281"), estValue: 380, weight: 4 },
-    { name: "Lillie's Clefairy ex SIR", imageUrl: S("me2pt5-280"), estValue: 170, weight: 7 },
-    { name: "N's Zoroark ex SIR", imageUrl: S("me2pt5-286"), estValue: 165, weight: 7 },
-    { name: "Mega Feraligatr ex SIR", imageUrl: S("me2pt5-274"), estValue: 155, weight: 7 },
-    { name: "Mid-tier SIR — Set Favorite", imageUrl: S("me2pt5-270"), estValue: 90, weight: 10 },
-    { name: "Budget SIR — Floor Art", imageUrl: S("me2pt5-260"), estValue: 55, weight: 8 }
+    poke("Mega Gengar ex SIR", "me2pt5-284", 1120, 1),
+    poke("Pikachu ex SIR (276)", "me2pt5-276", 1100, 1),
+    poke("Mega Dragonite ex SIR", "me2pt5-290", 710, 2),
+    poke("Pikachu ex SIR (277)", "me2pt5-277", 380, 4),
+    poke("Team Rocket's Mewtwo ex SIR", "me2pt5-281", 380, 4),
+    poke("Lillie's Clefairy ex SIR", "me2pt5-280", 170, 7),
+    poke("N's Zoroark ex SIR", "me2pt5-286", 165, 7),
+    poke("Mega Feraligatr ex SIR", "me2pt5-274", 155, 7),
+    poke("Steven's Metagross ex SIR", "me2pt5-289", 90, 8),
+    poke("Mega Diancie ex SIR", "me2pt5-282", 55, 8),
   ],
   6: [
-    { name: "Mega Charizard Y ex — Mega Hyper Rare", imageUrl: S("me2pt5-294"), estValue: 420, weight: 3 },
-    { name: "Gold Hyper Rare — Energy / Item", imageUrl: S("me2pt5-290"), estValue: 180, weight: 2 },
-    { name: "Gold Hyper Rare — Trainer", imageUrl: S("me2pt5-280"), estValue: 250, weight: 2 }
+    poke("Mega Charizard Y ex — Mega Hyper Rare", "me2pt5-294", 420, 3),
+    poke("Mega Dragonite ex — Mega Hyper Rare", "me2pt5-295", 250, 2),
   ],
 };
 
 const ascendedEtb: ProductPools = {
   0: [
-    { name: "Bulk value across packs — Commons mix", imageUrl: S("me2pt5-1"), estValue: 4, weight: 3 },
-    { name: "Bulk value — Reverse holos & uncommons", imageUrl: S("me2pt5-50"), estValue: 7, weight: 3 },
-    { name: "Bulk value — Better filler stack", imageUrl: S("me2pt5-100"), estValue: 10, weight: 2 },
-    { name: "Bulk — Popular reverses", imageUrl: S("me2pt5-150"), estValue: 8, weight: 2 }
+    poke("Erika's Oddish — bulk commons", "me2pt5-1", 4, 3),
+    poke("Charmander — reverse / uncommon stack", "me2pt5-20", 7, 3),
+    poke("Psyduck — better bulk", "me2pt5-39", 10, 2),
+    poke("Dratini — popular reverses", "me2pt5-150", 8, 2),
   ],
   1: [
-    { name: "Double Rare stack + Psyduck IR", imageUrl: S("me2pt5-226"), estValue: 35, weight: 2 },
-    { name: "IR spotlight — Scenic mid", imageUrl: S("me2pt5-230"), estValue: 28, weight: 3 },
-    { name: "Psyduck — Illustration Rare", imageUrl: S("me2pt5-226"), estValue: 22, weight: 3 },
-    { name: "IR spotlight from the box", imageUrl: S("me2pt5-240"), estValue: 30, weight: 2 }
+    poke("Psyduck — Illustration Rare", "me2pt5-226", 35, 2),
+    poke("Psyduck — Illustration Rare", "me2pt5-226", 28, 3),
+    poke("Ethan's Ho-Oh ex", "me2pt5-26", 22, 3),
+    poke("Cinderace ex", "me2pt5-38", 30, 2),
   ],
   2: [
-    { name: "Mega Feraligatr ex — Mega Attack Rare", imageUrl: S("me2pt5-274"), estValue: 18, weight: 3 },
-    { name: "Mega Feraligatr ex MAR", imageUrl: S("me2pt5-274"), estValue: 24, weight: 2 },
-    { name: "Ultra Rare — Full Art Trainer", imageUrl: S("me2pt5-250"), estValue: 14, weight: 3 }
+    poke("Mega Feraligatr ex — Mega Attack Rare", "me2pt5-274", 24, 2),
+    poke("Mega Charizard Y ex — Double Rare", "me2pt5-22", 18, 3),
+    poke("Mega Charizard Y ex", "me2pt5-22", 14, 3),
   ],
   3: [
-    { name: "Mega Gengar ex SIR", imageUrl: S("me2pt5-284"), estValue: 1120, weight: 1 },
-    { name: "Pikachu ex SIR", imageUrl: S("me2pt5-276"), estValue: 1100, weight: 1 },
-    { name: "Mega Dragonite ex SIR", imageUrl: S("me2pt5-290"), estValue: 710, weight: 2 },
-    { name: "Lillie's Clefairy ex SIR", imageUrl: S("me2pt5-280"), estValue: 170, weight: 5 },
-    { name: "N's Zoroark ex SIR", imageUrl: S("me2pt5-286"), estValue: 165, weight: 5 },
-    { name: "Team Rocket's Mewtwo ex SIR", imageUrl: S("me2pt5-281"), estValue: 380, weight: 2 },
-    { name: "Budget SIR from the box", imageUrl: S("me2pt5-270"), estValue: 70, weight: 6 }
+    poke("Mega Gengar ex SIR", "me2pt5-284", 1120, 1),
+    poke("Pikachu ex SIR", "me2pt5-276", 1100, 1),
+    poke("Mega Dragonite ex SIR", "me2pt5-290", 710, 2),
+    poke("Lillie's Clefairy ex SIR", "me2pt5-280", 170, 5),
+    poke("N's Zoroark ex SIR", "me2pt5-286", 165, 5),
+    poke("Team Rocket's Mewtwo ex SIR", "me2pt5-281", 380, 2),
+    poke("Steven's Metagross ex SIR", "me2pt5-289", 70, 6),
   ],
   4: [
-    { name: "Mega Charizard Y ex — Mega Hyper Rare", imageUrl: S("me2pt5-294"), estValue: 420, weight: 3 },
-    { name: "Gold Mega Hyper Rare", imageUrl: S("me2pt5-290"), estValue: 220, weight: 2 }
+    poke("Mega Charizard Y ex — Mega Hyper Rare", "me2pt5-294", 420, 3),
+    poke("Mega Dragonite ex — Mega Hyper Rare", "me2pt5-295", 220, 2),
   ],
 };
 
 const ascendedBundle: ProductPools = {
   0: [
-    { name: "Bulk across 6 packs", imageUrl: S("me2pt5-1"), estValue: 3.5, weight: 3 },
-    { name: "Reverse holo stack", imageUrl: S("me2pt5-50"), estValue: 4.8, weight: 3 },
-    { name: "Better bulk stack", imageUrl: S("me2pt5-100"), estValue: 6.5, weight: 2 }
+    poke("Erika's Oddish — bulk across 6 packs", "me2pt5-1", 3.5, 3),
+    poke("Charmander — reverse holo stack", "me2pt5-20", 4.8, 3),
+    poke("Psyduck — better bulk", "me2pt5-39", 6.5, 2),
   ],
   1: [
-    { name: "RRs + Psyduck IR", imageUrl: S("me2pt5-226"), estValue: 28, weight: 2 },
-    { name: "Scenic IR — Mid Set", imageUrl: S("me2pt5-230"), estValue: 18, weight: 4 },
-    { name: "Cute IR — Trainer Scene", imageUrl: S("me2pt5-240"), estValue: 14, weight: 3 }
+    poke("Psyduck — Illustration Rare", "me2pt5-226", 28, 2),
+    poke("Psyduck — Illustration Rare", "me2pt5-226", 18, 4),
+    poke("Ethan's Ho-Oh ex", "me2pt5-26", 14, 3),
   ],
   2: [
-    { name: "Ultra Rare — EX Full Art", imageUrl: S("me2pt5-260"), estValue: 12, weight: 3 },
-    { name: "Mega Feraligatr ex — MAR", imageUrl: S("me2pt5-274"), estValue: 18, weight: 2 },
-    { name: "Ultra Rare — Splash Art", imageUrl: S("me2pt5-270"), estValue: 8, weight: 3 }
+    poke("Mega Charizard Y ex", "me2pt5-22", 12, 3),
+    poke("Mega Feraligatr ex — MAR", "me2pt5-274", 18, 2),
+    poke("Cinderace ex", "me2pt5-38", 8, 3),
   ],
   3: [
-    { name: "Mega Gengar ex SIR", imageUrl: S("me2pt5-284"), estValue: 1120, weight: 1 },
-    { name: "Pikachu ex SIR", imageUrl: S("me2pt5-276"), estValue: 1100, weight: 1 },
-    { name: "Team Rocket's Mewtwo ex SIR", imageUrl: S("me2pt5-281"), estValue: 380, weight: 3 },
-    { name: "Lillie's Clefairy ex SIR", imageUrl: S("me2pt5-280"), estValue: 170, weight: 5 },
-    { name: "Budget SIR", imageUrl: S("me2pt5-270"), estValue: 70, weight: 6 }
+    poke("Mega Gengar ex SIR", "me2pt5-284", 1120, 1),
+    poke("Pikachu ex SIR", "me2pt5-276", 1100, 1),
+    poke("Team Rocket's Mewtwo ex SIR", "me2pt5-281", 380, 3),
+    poke("Lillie's Clefairy ex SIR", "me2pt5-280", 170, 5),
+    poke("Steven's Metagross ex SIR", "me2pt5-289", 70, 6),
   ],
   4: [
-    { name: "Mega Charizard Y ex — Mega Hyper Rare", imageUrl: S("me2pt5-294"), estValue: 420, weight: 3 },
-    { name: "Gold Hyper Rare", imageUrl: S("me2pt5-280"), estValue: 200, weight: 2 }
+    poke("Mega Charizard Y ex — Mega Hyper Rare", "me2pt5-294", 420, 3),
+    poke("Mega Dragonite ex — Mega Hyper Rare", "me2pt5-295", 200, 2),
   ],
 };
 
 const prismaticPack: ProductPools = {
   0: [
-    { name: "Eevee — Prismatic Common", imageUrl: S("sv8pt5-1"), estValue: 0.12, weight: 5 },
-    { name: "Prismatic Common — Eeveelution line", imageUrl: S("sv8pt5-28"), estValue: 0.15, weight: 5 },
-    { name: "Prismatic Uncommon mix", imageUrl: S("sv8pt5-50"), estValue: 0.28, weight: 4 },
-    { name: "Bulk Commons stack", imageUrl: S("sv8pt5-75"), estValue: 0.4, weight: 3 },
-    { name: "Reverse holo common", imageUrl: S("sv8pt5-100"), estValue: 0.55, weight: 2 }
+    poke("Eevee", "sv8pt5-1", 0.12, 5),
   ],
   1: [
-    { name: "Rare Holo — Mid set", imageUrl: S("sv8pt5-75"), estValue: 1.1, weight: 4 },
-    { name: "Rare Holo — Popular", imageUrl: S("sv8pt5-100"), estValue: 2, weight: 3 },
-    { name: "Reverse Holo Rare", imageUrl: S("sv8pt5-28"), estValue: 2.8, weight: 2 },
-    { name: "Rare Holo — Eeveelution", imageUrl: S("sv8pt5-50"), estValue: 2.4, weight: 2 }
+    poke("Eevee", "sv8pt5-1", 1.5, 3),
   ],
   2: [
-    { name: "Ultra / EX — Playable", imageUrl: S("sv8pt5-100"), estValue: 5, weight: 4 },
-    { name: "Ultra / EX — Splash art", imageUrl: S("sv8pt5-144"), estValue: 9, weight: 3 },
-    { name: "EX chase-adjacent", imageUrl: S("sv8pt5-161"), estValue: 14, weight: 1 },
-    { name: "Eeveelution EX — Mid", imageUrl: S("sv8pt5-75"), estValue: 7, weight: 2 }
+    poke("Espeon ex", "sv8pt5-155", 14, 2),
+    poke("Sylveon ex", "sv8pt5-156", 12, 2),
+    poke("Leafeon ex", "sv8pt5-144", 9, 3),
+    poke("Umbreon ex", "sv8pt5-161", 18, 1),
   ],
   3: [
-    { name: "Illustration Rare — Eeveelution scene", imageUrl: S("sv8pt5-144"), estValue: 35, weight: 2 },
-    { name: "Illustration Rare — Mid", imageUrl: S("sv8pt5-100"), estValue: 18, weight: 4 },
-    { name: "Budget Illustration Rare", imageUrl: S("sv8pt5-75"), estValue: 12, weight: 4 },
-    { name: "IR — Trainer / scenic", imageUrl: S("sv8pt5-50"), estValue: 16, weight: 3 }
+    poke("Eevee", "sv8pt5-1", 16, 3),
+    poke("Leafeon ex", "sv8pt5-144", 35, 2),
+    poke("Espeon ex", "sv8pt5-155", 28, 2),
+    poke("Sylveon ex", "sv8pt5-156", 30, 2),
   ],
   4: [
-    { name: "Special Illustration Rare — Top chase", imageUrl: S("sv8pt5-161"), estValue: 450, weight: 1 },
-    { name: "Special Illustration Rare — Strong", imageUrl: S("sv8pt5-144"), estValue: 220, weight: 3 },
-    { name: "Special Illustration Rare — Mid", imageUrl: S("sv8pt5-100"), estValue: 120, weight: 5 },
-    { name: "Budget SIR", imageUrl: S("sv8pt5-75"), estValue: 70, weight: 4 },
-    { name: "SIR — Eeveelution favorite", imageUrl: S("sv8pt5-50"), estValue: 95, weight: 3 }
+    poke("Umbreon ex SIR", "sv8pt5-161", 450, 1),
+    poke("Sylveon ex SIR", "sv8pt5-156", 220, 3),
+    poke("Espeon ex SIR", "sv8pt5-155", 120, 5),
+    poke("Leafeon ex SIR", "sv8pt5-144", 95, 4),
   ],
   5: [
-    { name: "Master Ball / Big Chase — God pack adjacent", imageUrl: S("sv8pt5-161"), estValue: 1400, weight: 1 },
-    { name: "Master Ball pattern chase", imageUrl: S("sv8pt5-144"), estValue: 700, weight: 2 },
-    { name: "Big Prismatic chase hit", imageUrl: S("sv8pt5-100"), estValue: 500, weight: 2 }
+    poke("Umbreon ex SIR", "sv8pt5-161", 1400, 1),
+    poke("Sylveon ex SIR", "sv8pt5-156", 700, 2),
+    poke("Espeon ex SIR", "sv8pt5-155", 500, 2),
   ],
 };
 
 const surgingPack: ProductPools = {
   0: [
-    { name: "Surging Sparks Common", imageUrl: S("sv8-1"), estValue: 0.15, weight: 5 },
-    { name: "Surging Sparks Uncommon", imageUrl: S("sv8-100"), estValue: 0.35, weight: 4 },
-    { name: "Bulk reverse holo", imageUrl: S("sv8-180"), estValue: 0.7, weight: 3 },
-    { name: "Electric-type common mix", imageUrl: S("sv8-220"), estValue: 0.45, weight: 3 }
+    poke("Exeggcute", "sv8-1", 0.13, 5),
+    poke("Pikachu line — Quaxly", "sv8-50", 0.2, 4),
+    poke("Annihilape", "sv8-100", 0.35, 4),
+    poke("Eevee", "sv8-143", 0.45, 3),
+    poke("Snorlax", "sv8-144", 0.55, 2),
   ],
   1: [
-    { name: "Rare / Holo — Mid", imageUrl: S("sv8-180"), estValue: 0.85, weight: 4 },
-    { name: "Rare / Holo — Popular", imageUrl: S("sv8-220"), estValue: 1.5, weight: 3 },
-    { name: "Reverse Holo Rare", imageUrl: S("sv8-100"), estValue: 2, weight: 2 },
-    { name: "Rare — Splash name", imageUrl: S("sv8-1"), estValue: 1.2, weight: 2 }
+    poke("Skeledirge", "sv8-31", 0.85, 4),
+    poke("Chien-Pao", "sv8-56", 1.2, 3),
+    poke("Dialga", "sv8-135", 1.5, 2),
+    poke("Palkia", "sv8-136", 1.4, 2),
   ],
   2: [
-    { name: "Pikachu ex — Double Rare / Hyper", imageUrl: S("sv8-247"), estValue: 12, weight: 1 },
-    { name: "Double Rare / EX — Mid", imageUrl: S("sv8-220"), estValue: 4, weight: 4 },
-    { name: "Double Rare / EX — Splash", imageUrl: S("sv8-242"), estValue: 6, weight: 3 },
-    { name: "EX — Playable mid", imageUrl: S("sv8-180"), estValue: 5, weight: 2 }
+    poke("Pikachu ex", "sv8-57", 12, 1),
+    poke("Latias ex", "sv8-76", 6, 2),
+    poke("Ceruledge ex", "sv8-36", 4, 4),
+    poke("Sylveon ex", "sv8-86", 5, 3),
+    poke("Hydreigon ex", "sv8-119", 3.5, 3),
   ],
   3: [
-    { name: "Archaludon ex SIR", imageUrl: S("sv8-241"), estValue: 40, weight: 2 },
-    { name: "Alolan Exeggutor ex SIR", imageUrl: S("sv8-242"), estValue: 25, weight: 3 },
-    { name: "Illustration Rare — Mid", imageUrl: S("sv8-220"), estValue: 10, weight: 4 },
-    { name: "Budget IR", imageUrl: S("sv8-180"), estValue: 6, weight: 3 },
-    { name: "IR — Electric scene", imageUrl: S("sv8-100"), estValue: 12, weight: 2 }
+    poke("Latios — Illustration Rare", "sv8-203", 35, 1),
+    poke("Ceruledge — Illustration Rare", "sv8-197", 25, 2),
+    poke("Feebas — Illustration Rare", "sv8-198", 10, 4),
+    poke("Spheal — Illustration Rare", "sv8-199", 9, 3),
+    poke("Exeggcute — Illustration Rare", "sv8-192", 7, 3),
   ],
   4: [
-    { name: "Pikachu ex — Gold Hyper Rare", imageUrl: S("sv8-247"), estValue: 280, weight: 1 },
-    { name: "Special Illustration Rare — Top", imageUrl: S("sv8-246"), estValue: 120, weight: 3 },
-    { name: "SIR / Special — Mid", imageUrl: S("sv8-244"), estValue: 70, weight: 4 },
-    { name: "Budget SIR", imageUrl: S("sv8-243"), estValue: 45, weight: 3 },
-    { name: "SIR — Set favorite", imageUrl: S("sv8-242"), estValue: 55, weight: 2 }
+    poke("Pikachu ex SIR", "sv8-238", 280, 1),
+    poke("Latias ex SIR", "sv8-239", 180, 2),
+    poke("Milotic ex SIR", "sv8-237", 120, 3),
+    poke("Alolan Exeggutor ex SIR", "sv8-242", 45, 4),
+    poke("Archaludon ex SIR", "sv8-241", 25, 4),
+    poke("Pikachu ex — Hyper Rare", "sv8-247", 85, 2),
   ],
 };
 
 const destinedPack: ProductPools = {
   0: [
-    { name: "Destined Rivals Common", imageUrl: S("sv10-1"), estValue: 0.15, weight: 5 },
-    { name: "Team Rocket Uncommon mix", imageUrl: S("sv10-50"), estValue: 0.35, weight: 4 },
-    { name: "Bulk reverse holo", imageUrl: S("sv10-182"), estValue: 0.65, weight: 3 },
-    { name: "Rocket grunt common", imageUrl: S("sv10-50"), estValue: 0.25, weight: 4 }
+    poke("Pinsir", "sv10-1", 0.15, 5),
+    poke("Ethan's Cyndaquil", "sv10-32", 0.25, 4),
+    poke("Team Rocket's Houndour", "sv10-37", 0.2, 4),
+    poke("Torchic", "sv10-40", 0.3, 3),
   ],
   1: [
-    { name: "Rare / Holo — Rocket theme", imageUrl: S("sv10-182"), estValue: 0.95, weight: 4 },
-    { name: "Rare / Holo — Popular", imageUrl: S("sv10-225"), estValue: 1.4, weight: 3 },
-    { name: "Reverse Holo Rare", imageUrl: S("sv10-50"), estValue: 1.9, weight: 2 },
-    { name: "Rare — Rival spotlight", imageUrl: S("sv10-1"), estValue: 1.2, weight: 2 }
+    poke("Ethan's Typhlosion", "sv10-34", 1.2, 3),
+    poke("Cynthia's Roserade", "sv10-8", 0.95, 4),
+    poke("Team Rocket's Spidops", "sv10-20", 0.9, 3),
+    poke("Blaziken", "sv10-42", 1.1, 2),
   ],
   2: [
-    { name: "EX / Double Rare — Mid", imageUrl: S("sv10-182"), estValue: 3.5, weight: 4 },
-    { name: "EX / Double Rare — Splash", imageUrl: S("sv10-225"), estValue: 6, weight: 3 },
-    { name: "Hot EX name", imageUrl: S("sv10-239"), estValue: 10, weight: 1 },
-    { name: "EX — Team Rocket", imageUrl: S("sv10-50"), estValue: 5, weight: 2 }
+    poke("Ethan's Ho-Oh ex", "sv10-39", 5, 2),
+    poke("Team Rocket's Mewtwo ex", "sv10-81", 8, 1),
+    poke("Yanmega ex", "sv10-3", 3.5, 4),
+    poke("Arboliva ex", "sv10-23", 4, 3),
   ],
   3: [
-    { name: "Illustration Rare — Rocket scene", imageUrl: S("sv10-225"), estValue: 22, weight: 3 },
-    { name: "Illustration Rare — Mid", imageUrl: S("sv10-182"), estValue: 12, weight: 4 },
-    { name: "Budget IR", imageUrl: S("sv10-50"), estValue: 8, weight: 3 },
-    { name: "IR — Rival art", imageUrl: S("sv10-1"), estValue: 14, weight: 2 }
+    poke("Misty's Psyduck — Illustration Rare", "sv10-193", 55, 1),
+    poke("Team Rocket's Meowth — Illustration Rare", "sv10-203", 22, 3),
   ],
   4: [
-    { name: "SIR / Chase — Top Team Rocket", imageUrl: S("sv10-239"), estValue: 320, weight: 1 },
-    { name: "SIR / Chase — Strong", imageUrl: S("sv10-225"), estValue: 140, weight: 3 },
-    { name: "SIR — Mid", imageUrl: S("sv10-182"), estValue: 80, weight: 4 },
-    { name: "Budget SIR", imageUrl: S("sv10-50"), estValue: 50, weight: 3 },
-    { name: "SIR — Set favorite", imageUrl: S("sv10-1"), estValue: 65, weight: 2 }
+    poke("Team Rocket's Mewtwo ex SIR", "sv10-231", 320, 1),
+    poke("Ethan's Ho-Oh ex SIR", "sv10-230", 160, 2),
+    poke("Cynthia's Garchomp ex SIR", "sv10-232", 120, 3),
+    poke("Team Rocket's Moltres ex SIR", "sv10-229", 80, 4),
+    poke("Team Rocket's Mewtwo ex — Hyper Rare", "sv10-240", 65, 3),
   ],
 };
 
 const journeyPack: ProductPools = {
   0: [
-    { name: "Journey Together Common", imageUrl: S("sv9-1"), estValue: 0.12, weight: 5 },
-    { name: "Journey Uncommon mix", imageUrl: S("sv9-50"), estValue: 0.3, weight: 4 },
-    { name: "Bulk reverse", imageUrl: S("sv9-160"), estValue: 0.55, weight: 3 },
-    { name: "Partner Pokémon common", imageUrl: S("sv9-50"), estValue: 0.2, weight: 4 }
+    poke("Caterpie", "sv9-1", 0.12, 5),
+    poke("Hop's Wooloo", "sv9-135", 0.25, 4),
   ],
   1: [
-    { name: "Rare / Holo", imageUrl: S("sv9-160"), estValue: 0.85, weight: 4 },
-    { name: "Rare / Holo — Popular", imageUrl: S("sv9-185"), estValue: 1.35, weight: 3 },
-    { name: "Reverse Holo Rare", imageUrl: S("sv9-50"), estValue: 1.7, weight: 2 },
-    { name: "Rare — Trainer partner", imageUrl: S("sv9-1"), estValue: 1.1, weight: 2 }
+    poke("Hop's Wooloo", "sv9-135", 1.1, 3),
+    poke("Caterpie", "sv9-1", 0.85, 3),
   ],
   2: [
-    { name: "EX / Double Rare — Mid", imageUrl: S("sv9-160"), estValue: 3, weight: 4 },
-    { name: "EX / Double Rare — Splash", imageUrl: S("sv9-185"), estValue: 5, weight: 3 },
-    { name: "Hot EX", imageUrl: S("sv9-185"), estValue: 8, weight: 1 },
-    { name: "EX — Journey spotlight", imageUrl: S("sv9-50"), estValue: 4, weight: 2 }
+    poke("N's Zoroark ex", "sv9-98", 5, 2),
+    poke("Iono's Bellibolt ex", "sv9-53", 4, 3),
   ],
   3: [
-    { name: "Illustration Rare — Strong", imageUrl: S("sv9-185"), estValue: 20, weight: 2 },
-    { name: "Illustration Rare — Mid", imageUrl: S("sv9-160"), estValue: 10, weight: 4 },
-    { name: "Budget IR", imageUrl: S("sv9-50"), estValue: 6, weight: 3 },
-    { name: "IR — Partner scene", imageUrl: S("sv9-1"), estValue: 12, weight: 2 }
+    poke("Hop's Wooloo — Illustration Rare", "sv9-170", 20, 2),
+    poke("N's Zoroark ex", "sv9-98", 12, 2),
+    poke("Iono's Bellibolt ex", "sv9-53", 10, 3),
   ],
   4: [
-    { name: "SIR / Special — Top", imageUrl: S("sv9-185"), estValue: 220, weight: 1 },
-    { name: "SIR / Special — Mid", imageUrl: S("sv9-160"), estValue: 70, weight: 4 },
-    { name: "Budget SIR", imageUrl: S("sv9-50"), estValue: 40, weight: 3 },
-    { name: "SIR — Journey favorite", imageUrl: S("sv9-1"), estValue: 55, weight: 2 }
+    poke("N's Zoroark ex SIR", "sv9-185", 220, 1),
+    poke("Iono's Bellibolt ex SIR", "sv9-183", 90, 3),
   ],
 };
 
+const obsidianPack: ProductPools = {
+  0: [
+    poke("Oddish", "sv3-1", 0.12, 5),
+  ],
+  1: [
+    poke("Oddish", "sv3-1", 1.0, 3),
+    poke("Charizard ex", "sv3-125", 1.5, 2),
+  ],
+  2: [
+    poke("Charizard ex", "sv3-125", 8, 2),
+    poke("Pidgeot ex", "sv3-164", 5, 3),
+    poke("Charizard ex — Ultra Rare", "sv3-215", 6, 2),
+  ],
+  3: [
+    poke("Ninetales — Illustration Rare", "sv3-199", 35, 2),
+    poke("Cleffa — Illustration Rare", "sv3-202", 30, 2),
+    poke("Gloom — Illustration Rare", "sv3-198", 18, 3),
+    poke("Pidgey — Illustration Rare", "sv3-207", 12, 4),
+  ],
+  4: [
+    poke("Charizard ex SIR", "sv3-223", 180, 1),
+    poke("Pidgeot ex SIR", "sv3-225", 45, 3),
+    poke("Charizard ex — Ultra Rare", "sv3-215", 55, 3),
+    poke("Charizard ex — Hyper Rare", "sv3-228", 70, 2),
+  ],
+};
 
-/** Named modern SV-style pack pool with deeper chase / mid / bulk lists. */
-function svStylePack(
-  setCode: string,
-  names: {
-    commons: string[];
-    rares: string[];
-    exs: string[];
-    irs: string[];
-    chase: string;
-    chaseId: string;
-    midChase: string;
-  }
-): ProductPools {
-  const c = (n: number) => S(`${setCode}-${n}`);
-  return {
-    0: [
-      { name: names.commons[0]!, imageUrl: c(1), estValue: 0.12, weight: 5 },
-      { name: names.commons[1]!, imageUrl: c(50), estValue: 0.28, weight: 4 },
-      { name: names.commons[2]!, imageUrl: c(100), estValue: 0.45, weight: 3 },
-      { name: "Reverse holo common", imageUrl: c(160), estValue: 0.55, weight: 2 },
-      { name: "Better bulk card", imageUrl: c(80), estValue: 0.7, weight: 1 },
-    ],
-    1: [
-      { name: names.rares[0]!, imageUrl: c(160), estValue: 0.75, weight: 4 },
-      { name: names.rares[1]!, imageUrl: c(180), estValue: 1.2, weight: 3 },
-      { name: "Reverse Holo Rare", imageUrl: c(100), estValue: 1.7, weight: 2 },
-      { name: names.rares[2]!, imageUrl: c(50), estValue: 1.0, weight: 2 },
-    ],
-    2: [
-      { name: names.exs[0]!, imageUrl: c(180), estValue: 3, weight: 4 },
-      { name: names.exs[1]!, imageUrl: c(200), estValue: 5, weight: 3 },
-      { name: names.exs[2]!, imageUrl: names.chaseId.includes("-") ? S(names.chaseId) : c(210), estValue: 8, weight: 1 },
-      { name: "EX — Playable mid", imageUrl: c(160), estValue: 4, weight: 2 },
-    ],
-    3: [
-      { name: names.irs[0]!, imageUrl: S(names.chaseId), estValue: 18, weight: 2 },
-      { name: names.irs[1]!, imageUrl: c(200), estValue: 9, weight: 4 },
-      { name: "Budget IR", imageUrl: c(180), estValue: 5, weight: 3 },
-      { name: names.irs[2]!, imageUrl: c(160), estValue: 11, weight: 2 },
-    ],
-    4: [
-      { name: names.chase, imageUrl: S(names.chaseId), estValue: 180, weight: 1 },
-      { name: names.midChase, imageUrl: c(200), estValue: 55, weight: 4 },
-      { name: "Budget SIR", imageUrl: c(180), estValue: 35, weight: 3 },
-      { name: "SIR — Set favorite", imageUrl: c(160), estValue: 45, weight: 2 },
-    ],
-  };
-}
+const temporalPack: ProductPools = {
+  0: [
+    poke("Iron Leaves ex", "sv5-203", 0.5, 1),
+    poke("Walking Wake ex", "sv5-205", 0.5, 1),
+  ],
+  1: [
+    poke("Iron Leaves ex", "sv5-203", 1.2, 1),
+    poke("Walking Wake ex", "sv5-205", 1.2, 1),
+  ],
+  2: [
+    poke("Iron Leaves ex", "sv5-203", 5, 1),
+    poke("Walking Wake ex", "sv5-205", 5, 1),
+  ],
+  3: [
+    poke("Iron Leaves ex", "sv5-203", 14, 1),
+    poke("Walking Wake ex", "sv5-205", 14, 1),
+  ],
+  4: [
+    poke("Iron Leaves ex SIR", "sv5-203", 120, 2),
+    poke("Walking Wake ex SIR", "sv5-205", 100, 2),
+  ],
+};
+
+const paradoxPack: ProductPools = {
+  0: [
+    poke("Roaring Moon ex SIR", "sv4-248", 0.5, 1),
+    poke("Iron Valiant ex SIR", "sv4-251", 0.5, 1),
+  ],
+  1: [
+    poke("Roaring Moon ex SIR", "sv4-248", 1.2, 1),
+    poke("Iron Valiant ex SIR", "sv4-251", 1.2, 1),
+  ],
+  2: [
+    poke("Roaring Moon ex SIR", "sv4-248", 6, 1),
+    poke("Iron Valiant ex SIR", "sv4-251", 5, 1),
+  ],
+  3: [
+    poke("Roaring Moon ex SIR", "sv4-248", 18, 1),
+    poke("Iron Valiant ex SIR", "sv4-251", 14, 1),
+  ],
+  4: [
+    poke("Roaring Moon ex SIR", "sv4-248", 160, 1),
+    poke("Iron Valiant ex SIR", "sv4-251", 90, 2),
+  ],
+};
+
+const paldeaPack: ProductPools = {
+  0: [
+    poke("Sprigatito", "sv2-1", 0.12, 5),
+  ],
+  1: [
+    poke("Sprigatito", "sv2-1", 1.0, 3),
+  ],
+  2: [
+    poke("Iono SIR", "sv2-269", 5, 2),
+    poke("Sprigatito", "sv2-1", 3, 3),
+  ],
+  3: [
+    poke("Iono SIR", "sv2-269", 18, 2),
+    poke("Sprigatito", "sv2-1", 8, 3),
+  ],
+  4: [
+    poke("Iono SIR", "sv2-269", 180, 1),
+  ],
+};
 
 const chaosRising: ProductPools = {
   0: [
-    { name: "Chaos Rising Common", imageUrl: S("me4-1"), estValue: 0.15, weight: 5 },
-    { name: "Chaos Rising Uncommon", imageUrl: S("me4-50"), estValue: 0.4, weight: 4 },
-    { name: "Reverse holo mix", imageUrl: S("me4-180"), estValue: 0.75, weight: 3 },
-    { name: "Chaos bulk common", imageUrl: S("me4-100"), estValue: 0.3, weight: 4 }
+    poke("Weedle", "me4-1", 0.09, 5),
+    poke("Froakie", "me4-20", 0.18, 4),
+    poke("Golbat", "me4-50", 0.2, 4),
+    poke("Chespin", "me4-5", 0.15, 3),
   ],
   1: [
-    { name: "Double Rare (DR) — Mid", imageUrl: S("me4-180"), estValue: 2.2, weight: 4 },
-    { name: "Double Rare (DR) — Splash", imageUrl: S("me4-200"), estValue: 3.5, weight: 3 },
-    { name: "Double Rare — Hot", imageUrl: S("me4-220"), estValue: 6, weight: 1 },
-    { name: "DR — Playable", imageUrl: S("me4-100"), estValue: 2.8, weight: 2 }
+    poke("Mega Greninja ex", "me4-22", 2.5, 2),
+    poke("Mega Pyroar ex", "me4-15", 2.0, 3),
+    poke("Mega Floette ex", "me4-35", 2.2, 3),
+    poke("Beedrill ex", "me4-3", 1.8, 4),
+    poke("Cinccino ex", "me4-73", 2.4, 2),
   ],
   2: [
-    { name: "Ultra Rare — Mid", imageUrl: S("me4-180"), estValue: 4, weight: 4 },
-    { name: "Ultra Rare — Full Art", imageUrl: S("me4-200"), estValue: 7, weight: 3 },
-    { name: "Ultra Rare — Hot", imageUrl: S("me4-220"), estValue: 12, weight: 1 },
-    { name: "UR — Character", imageUrl: S("me4-100"), estValue: 5.5, weight: 2 }
+    poke("Mega Greninja ex — Ultra Rare", "me4-100", 9, 2),
+    poke("Mega Floette ex — Ultra Rare", "me4-101", 5, 3),
+    poke("Mega Dragalge ex — Ultra Rare", "me4-104", 4, 3),
+    poke("Cinccino ex — Ultra Rare", "me4-105", 6, 2),
   ],
   3: [
-    { name: "Illustration Rare — Strong", imageUrl: S("me4-220"), estValue: 18, weight: 2 },
-    { name: "Illustration Rare — Mid", imageUrl: S("me4-200"), estValue: 9, weight: 4 },
-    { name: "Budget IR", imageUrl: S("me4-180"), estValue: 5, weight: 3 },
-    { name: "IR — Chaos scene", imageUrl: S("me4-100"), estValue: 11, weight: 2 }
+    poke("Froakie — Illustration Rare", "me4-88", 12, 2),
+    poke("Ampharos — Illustration Rare", "me4-90", 10, 3),
+    poke("Xerneas — Illustration Rare", "me4-91", 9, 3),
+    poke("Chespin — Illustration Rare", "me4-87", 6, 4),
   ],
   4: [
-    { name: "Special Illustration Rare — Top", imageUrl: S("me4-220"), estValue: 220, weight: 1 },
-    { name: "SIR — Mid", imageUrl: S("me4-200"), estValue: 70, weight: 4 },
-    { name: "Budget SIR", imageUrl: S("me4-180"), estValue: 40, weight: 3 },
-    { name: "SIR — Set favorite", imageUrl: S("me4-100"), estValue: 55, weight: 2 }
+    poke("Mega Greninja ex SIR", "me4-116", 160, 1),
+    poke("Cinccino ex SIR", "me4-119", 50, 3),
+    poke("Mega Dragalge ex SIR", "me4-118", 35, 3),
+    poke("Mega Floette ex SIR", "me4-117", 25, 4),
   ],
   5: [
-    { name: "Mega Hyper Rare — Gold chase", imageUrl: S("me4-220"), estValue: 400, weight: 2 },
-    { name: "Mega Hyper Rare — Gold item", imageUrl: S("me4-200"), estValue: 180, weight: 2 }
+    poke("Mega Greninja ex — Mega Hyper Rare", "me4-122", 400, 2),
   ],
 };
 
 const perfectOrder: ProductPools = {
   0: [
-    { name: "Perfect Order Common", imageUrl: S("me3-1"), estValue: 0.15, weight: 5 },
-    { name: "Perfect Order Uncommon", imageUrl: S("me3-50"), estValue: 0.4, weight: 4 },
-    { name: "Reverse holo mix", imageUrl: S("me3-180"), estValue: 0.75, weight: 3 },
-    { name: "Order bulk common", imageUrl: S("me3-100"), estValue: 0.3, weight: 4 }
+    poke("Spinarak", "me3-1", 0.1, 5),
+    poke("Rowlet", "me3-10", 0.15, 4),
+    poke("Gastly", "me3-48", 0.2, 4),
+    poke("Clefairy", "me3-30", 0.18, 3),
   ],
   1: [
-    { name: "Double Rare — Mid", imageUrl: S("me3-180"), estValue: 2.2, weight: 4 },
-    { name: "Double Rare — Splash", imageUrl: S("me3-200"), estValue: 3.4, weight: 3 },
-    { name: "Double Rare — Hot", imageUrl: S("me3-180"), estValue: 5.5, weight: 1 },
-    { name: "DR — Playable", imageUrl: S("me3-100"), estValue: 2.7, weight: 2 }
+    poke("Mega Zygarde ex", "me3-47", 2.5, 2),
+    poke("Mega Starmie ex", "me3-21", 2.2, 3),
+    poke("Mega Clefable ex", "me3-31", 2.0, 3),
+    poke("Meowth ex", "me3-62", 3.5, 2),
+    poke("Decidueye ex", "me3-12", 1.8, 4),
   ],
   2: [
-    { name: "Ultra Rare — Mid", imageUrl: S("me3-180"), estValue: 3.5, weight: 4 },
-    { name: "Ultra Rare — Full Art", imageUrl: S("me3-200"), estValue: 6, weight: 3 },
-    { name: "Ultra Rare — Hot", imageUrl: S("me3-180"), estValue: 10, weight: 1 },
-    { name: "UR — Character", imageUrl: S("me3-100"), estValue: 5, weight: 2 }
+    poke("Meowth ex — Ultra Rare", "me3-107", 10, 2),
+    poke("Mega Zygarde ex — Ultra Rare", "me3-104", 5, 3),
+    poke("Mega Starmie ex — Ultra Rare", "me3-102", 6, 3),
+    poke("Mega Clefable ex — Ultra Rare", "me3-103", 5, 3),
   ],
   3: [
-    { name: "Illustration Rare — Strong", imageUrl: S("me3-200"), estValue: 16, weight: 2 },
-    { name: "Illustration Rare — Mid", imageUrl: S("me3-180"), estValue: 8, weight: 4 },
-    { name: "Budget IR", imageUrl: S("me3-100"), estValue: 5, weight: 3 },
-    { name: "IR — Order scene", imageUrl: S("me3-50"), estValue: 10, weight: 2 }
+    poke("Clefairy — Illustration Rare", "me3-94", 16, 2),
+    poke("Dedenne — Illustration Rare", "me3-93", 10, 3),
+    poke("Rowlet — Illustration Rare", "me3-90", 8, 3),
+    poke("Espurr — Illustration Rare", "me3-95", 6, 4),
   ],
   4: [
-    { name: "Special Illustration Rare — Top", imageUrl: S("me3-200"), estValue: 200, weight: 1 },
-    { name: "SIR — Mid", imageUrl: S("me3-180"), estValue: 65, weight: 4 },
-    { name: "Budget SIR", imageUrl: S("me3-100"), estValue: 40, weight: 3 },
-    { name: "SIR — Set favorite", imageUrl: S("me3-50"), estValue: 50, weight: 2 }
+    poke("Meowth ex SIR", "me3-121", 200, 1),
+    poke("Mega Clefable ex SIR", "me3-119", 55, 3),
+    poke("Mega Zygarde ex SIR", "me3-120", 50, 3),
+    poke("Mega Starmie ex SIR", "me3-118", 40, 4),
   ],
   5: [
-    { name: "Mega Zygarde — Mega Hyper Rare", imageUrl: S("me3-200"), estValue: 450, weight: 2 },
-    { name: "Gold Mega Hyper Rare", imageUrl: S("me3-180"), estValue: 200, weight: 2 }
+    poke("Mega Zygarde ex — Mega Hyper Rare", "me3-124", 450, 2),
   ],
 };
 
 const pitchBlack: ProductPools = {
   0: [
-    { name: "Pitch Black Common", imageUrl: S("me5-1"), estValue: 0.15, weight: 5 },
-    { name: "Pitch Black Uncommon", imageUrl: S("me5-50"), estValue: 0.45, weight: 4 },
-    { name: "Reverse holo mix", imageUrl: S("me5-180"), estValue: 0.85, weight: 3 },
-    { name: "Dark-type bulk", imageUrl: S("me5-100"), estValue: 0.35, weight: 4 }
+    poke("Tropius", "me5-1", 0.1, 5),
+    poke("Slowpoke", "me5-29", 0.25, 4),
+    poke("Litwick", "me5-36", 0.2, 4),
+    poke("Popplio", "me5-18", 0.15, 3),
   ],
   1: [
-    { name: "Double Rare — Mid", imageUrl: S("me5-180"), estValue: 2.5, weight: 4 },
-    { name: "Double Rare — Splash", imageUrl: S("me5-200"), estValue: 3.8, weight: 3 },
-    { name: "Double Rare — Hot", imageUrl: S("me5-180"), estValue: 6.5, weight: 1 },
-    { name: "DR — Playable", imageUrl: S("me5-100"), estValue: 3, weight: 2 }
+    poke("Mega Darkrai ex", "me5-48", 3.0, 2),
+    poke("Mega Chandelure ex", "me5-38", 2.5, 3),
+    poke("Mega Zeraora ex", "me5-27", 2.2, 3),
+    poke("Morpeko ex", "me5-55", 2.0, 3),
+    poke("Wailord ex", "me5-16", 1.8, 4),
   ],
   2: [
-    { name: "Ultra Rare — Mid", imageUrl: S("me5-180"), estValue: 4.5, weight: 4 },
-    { name: "Ultra Rare — Full Art", imageUrl: S("me5-200"), estValue: 8, weight: 3 },
-    { name: "Ultra Rare — Hot", imageUrl: S("me5-180"), estValue: 14, weight: 1 },
-    { name: "UR — Darkrai-adjacent", imageUrl: S("me5-100"), estValue: 6, weight: 2 }
+    poke("Mega Darkrai ex — Ultra Rare", "me5-101", 12, 2),
+    poke("Mega Chandelure ex — Ultra Rare", "me5-99", 7, 3),
+    poke("Mega Zeraora ex — Ultra Rare", "me5-98", 6, 3),
+    poke("Morpeko ex — Ultra Rare", "me5-102", 5, 3),
   ],
   3: [
-    { name: "Illustration Rare — Strong", imageUrl: S("me5-200"), estValue: 20, weight: 2 },
-    { name: "Illustration Rare — Mid", imageUrl: S("me5-180"), estValue: 10, weight: 4 },
-    { name: "Budget IR", imageUrl: S("me5-100"), estValue: 6, weight: 3 },
-    { name: "IR — Night scene", imageUrl: S("me5-50"), estValue: 12, weight: 2 }
+    poke("Slowbro — Illustration Rare", "me5-90", 14, 2),
+    poke("Goldeen — Illustration Rare", "me5-87", 10, 3),
+    poke("Primarina — Illustration Rare", "me5-88", 8, 3),
+    poke("Armarouge — Illustration Rare", "me5-86", 6, 4),
   ],
   4: [
-    { name: "Special Illustration Rare — Top", imageUrl: S("me5-200"), estValue: 250, weight: 1 },
-    { name: "SIR — Mid", imageUrl: S("me5-180"), estValue: 80, weight: 4 },
-    { name: "Budget SIR", imageUrl: S("me5-100"), estValue: 45, weight: 3 },
-    { name: "SIR — Set favorite", imageUrl: S("me5-50"), estValue: 60, weight: 2 }
+    poke("Mega Darkrai ex SIR", "me5-116", 250, 1),
+    poke("Morpeko ex SIR", "me5-117", 80, 3),
+    poke("Mega Zeraora ex SIR", "me5-114", 55, 3),
+    poke("Mega Chandelure ex SIR", "me5-115", 45, 4),
   ],
   5: [
-    { name: "Mega Darkrai — Mega Hyper Rare", imageUrl: S("me5-200"), estValue: 500, weight: 2 },
-    { name: "Gold Mega Hyper Rare", imageUrl: S("me5-180"), estValue: 220, weight: 2 }
+    poke("Mega Darkrai ex — Mega Hyper Rare", "me5-120", 500, 2),
   ],
 };
 
-
-/** 30th Celebration SKUs — named promos + pack hits with real Ascended/classic art. */
-/**
- * 30th Celebration — official set-list names for pack-only plates.
- * Art URLs are ignored at resolve time (branded back) until real 30th scans are wired.
- * Do not invent Pokémon names; list matches EN 30th Celebration checklist.
- */
-function thirtiethPools(promoName: string, promoImg: string): ProductPools {
-  const commons = [
-    { name: "Pikachu Rare — Assorted print", imageUrl: promoImg, estValue: 4, weight: 3 },
-    { name: "30th Celebration — Common / Uncommon mix", imageUrl: promoImg, estValue: 3, weight: 3 },
-    { name: "Rare Holo — Mid set", imageUrl: promoImg, estValue: 6, weight: 2 },
+/** 30th Celebration — Scrydex set code me55. Name↔id pairs from EN checklist. */
+function thirtiethPools(promoName: string, promoId: string): ProductPools {
+  const bulk = [
+    poke("Exeggcute", "me55-1", 0.25, 4),
+    poke("Vulpix", "me55-9", 0.2, 4),
+    poke("Slowpoke", "me55-16", 0.3, 3),
+    poke("Wishiwashi", "me55-22", 0.25, 3),
+    poke("Marill", "me55-67", 0.25, 3),
+    poke("Eevee", "me55-116", 0.5, 2),
+    poke("Snorlax", "me55-119", 0.7, 2),
+    poke("Mew", "me55-65", 1.2, 1),
+  ];
+  const pikachuRares = [
+    poke("Pikachu Rare (#23)", "me55-23", 2.0, 3),
+    poke("Pikachu Rare (#27)", "me55-27", 3.6, 2),
+    poke("Pikachu Rare (#32)", "me55-32", 3.8, 2),
+    poke("Pikachu Rare (#36)", "me55-36", 3.5, 2),
+    poke("Pikachu Rare (#40)", "me55-40", 6.8, 1),
+    poke("Pikachu Rare (#48)", "me55-48", 2.6, 3),
+    poke("Pikachu Rare (#52)", "me55-52", 1.5, 3),
   ];
   const doubleRare = [
-    { name: "Double Rare (DR) — Midline ex", imageUrl: promoImg, estValue: 2.5, weight: 4 },
-    { name: "Double Rare (DR) — Playable ex", imageUrl: promoImg, estValue: 3.5, weight: 3 },
-    { name: "Double Rare (DR) — Splashy art", imageUrl: promoImg, estValue: 4.5, weight: 2 },
+    poke("Fuecoco ex", "me55-15", 2.5, 3),
+    poke("Greninja ex", "me55-21", 3.0, 3),
+    poke("Pikachu ex (#53)", "me55-53", 4.5, 2),
+    poke("Pikachu ex (#54)", "me55-54", 3.5, 2),
+    poke("Mewtwo ex", "me55-64", 3.0, 2),
+    poke("Mew ex", "me55-66", 7.0, 1),
+    poke("Espeon ex", "me55-70", 2.5, 2),
+    poke("Sylveon ex", "me55-71", 2.4, 2),
+    poke("Gengar ex", "me55-90", 4.0, 2),
+    poke("Umbreon ex", "me55-92", 3.5, 2),
+    poke("Jirachi ex", "me55-102", 2.0, 3),
+    poke("Salamence ex", "me55-109", 1.8, 3),
   ];
   const irs = [
-    { name: "Alolan Exeggutor — Illustration Rare", imageUrl: promoImg, estValue: 18, weight: 2 },
-    { name: "Lapras — Illustration Rare", imageUrl: promoImg, estValue: 16, weight: 2 },
-    { name: "Articuno — Illustration Rare", imageUrl: promoImg, estValue: 20, weight: 2 },
-    { name: "Zapdos — Illustration Rare", imageUrl: promoImg, estValue: 20, weight: 2 },
-    { name: "Moltres — Illustration Rare", imageUrl: promoImg, estValue: 20, weight: 2 },
-    { name: "Gholdengo — Illustration Rare", imageUrl: promoImg, estValue: 14, weight: 2 },
-    { name: "Morpeko — Illustration Rare", imageUrl: promoImg, estValue: 12, weight: 3 },
+    poke("Maushold — Illustration Rare", "me55-146", 28, 1),
+    poke("Meowth — Illustration Rare", "me55-144", 21, 2),
+    poke("Galarian Meowth — Illustration Rare", "me55-141", 16, 2),
+    poke("Alolan Meowth — Illustration Rare", "me55-139", 15, 2),
+    poke("Articuno — Illustration Rare", "me55-132", 15, 2),
+    poke("Lapras — Illustration Rare", "me55-131", 14, 2),
+    poke("Moltres — Illustration Rare", "me55-130", 14, 2),
+    poke("Zapdos — Illustration Rare", "me55-133", 12, 2),
+    poke("Hisuian Zorua — Illustration Rare", "me55-145", 12, 2),
+    poke("Morpeko — Illustration Rare", "me55-135", 11, 3),
+    poke("Alolan Exeggutor — Illustration Rare", "me55-129", 5, 4),
   ];
-  const classic = [
-    { name: "Classic Collection — Base Set Charizard reprint", imageUrl: promoImg, estValue: 45, weight: 1 },
-    { name: "Classic Collection — Crystal Lugia reprint", imageUrl: promoImg, estValue: 35, weight: 2 },
-    { name: "Classic Collection — Mid reprint", imageUrl: promoImg, estValue: 18, weight: 4 },
-    { name: "Classic Collection — Budget reprint", imageUrl: promoImg, estValue: 10, weight: 3 },
-  ];
+  // Classic Collection reprints are not in Scrydex me55 — omit curated pool
+  // so resolveSlotCard falls back to slot label + branded back (honest).
   const sirs = [
-    { name: "Pikachu ex — Special Illustration Rare", imageUrl: promoImg, estValue: 120, weight: 2 },
-    { name: "Pikachu ex (alt) — Special Illustration Rare", imageUrl: promoImg, estValue: 110, weight: 2 },
-    { name: "Greninja ex — Special Illustration Rare", imageUrl: promoImg, estValue: 95, weight: 2 },
-    { name: "Sylveon ex — Special Illustration Rare", imageUrl: promoImg, estValue: 90, weight: 2 },
-    { name: "Gengar ex — Special Illustration Rare", imageUrl: promoImg, estValue: 85, weight: 2 },
-    { name: "Mewtwo ex — Special Illustration Rare", imageUrl: promoImg, estValue: 100, weight: 2 },
-    { name: "Mew ex — Special Illustration Rare", imageUrl: promoImg, estValue: 100, weight: 2 },
-    { name: "Fuecoco ex — Special Illustration Rare", imageUrl: promoImg, estValue: 70, weight: 3 },
-    { name: "Jirachi ex — Special Illustration Rare", imageUrl: promoImg, estValue: 75, weight: 2 },
-    { name: "Salamence ex — Special Illustration Rare", imageUrl: promoImg, estValue: 80, weight: 2 },
+    poke("Mew ex SIR", "me55-152", 175, 1),
+    poke("Gengar ex SIR", "me55-154", 130, 2),
+    poke("Pikachu ex SIR (#150)", "me55-150", 110, 2),
+    poke("Pikachu ex SIR (#149)", "me55-149", 92, 2),
+    poke("Mewtwo ex SIR", "me55-151", 87, 2),
+    poke("Sylveon ex SIR", "me55-153", 72, 3),
+    poke("Jirachi ex SIR", "me55-155", 71, 3),
+    poke("Greninja ex SIR", "me55-148", 40, 4),
+    poke("Salamence ex SIR", "me55-156", 29, 4),
+    poke("Fuecoco ex SIR", "me55-147", 23, 5),
   ];
   const futuristic = [
-    { name: "Mewtwo ex — Futuristic Rare", imageUrl: promoImg, estValue: 150, weight: 2 },
-    { name: "Mew ex — Futuristic Rare", imageUrl: promoImg, estValue: 150, weight: 2 },
+    poke("Mew ex — Futuristic Rare", "me55-158", 110, 2),
+    poke("Mewtwo ex — Futuristic Rare", "me55-157", 78, 2),
   ];
   const promo = [
-    { name: `${promoName}`, imageUrl: promoImg, estValue: 12, weight: 3 },
-    { name: "30th Celebration accessories (soft)", imageUrl: promoImg, estValue: 8, weight: 2 },
+    poke(promoName, promoId, 12, 3),
   ];
-  // Slot indices align with typical 30th SKU layouts (bulk→pikachu→DR→IR→classic→SIR→FR→promo).
   return {
-    0: commons,
-    1: [
-      { name: "Pikachu Rare — Guaranteed pack hit", imageUrl: promoImg, estValue: 8, weight: 3 },
-      { name: "Pikachu Rare — Alt illustration", imageUrl: promoImg, estValue: 10, weight: 2 },
-      ...commons,
-    ],
+    0: bulk,
+    1: pikachuRares,
     2: doubleRare,
     3: irs,
-    4: classic,
+    // 4 Classic Collection: intentionally omitted (no verified me55 art)
     5: sirs,
     6: futuristic,
     7: promo,
   };
 }
+
 
 const baseChromeHobby: ProductPools = {
   0: [
@@ -874,42 +920,10 @@ export const cardPoolsByProduct: Record<string, ProductPools> = {
   "poke-surging-pack": surgingPack,
   "poke-destined-pack": destinedPack,
   "poke-journey-pack": journeyPack,
-  "poke-obsidian-pack": svStylePack("sv3", {
-    commons: ["Obsidian Flames Common", "Fire-type uncommon mix", "Charizard line bulk"],
-    rares: ["Rare Holo — Mid", "Rare Holo — Popular", "Rare — Dragon / Fire"],
-    exs: ["EX / Double Rare — Mid", "EX / Double Rare — Splash", "Charizard ex — Mid"],
-    irs: ["Illustration Rare — Strong", "Illustration Rare — Mid", "IR — Scenic"],
-    chase: "Charizard ex SIR — Obsidian",
-    chaseId: "sv3-230",
-    midChase: "SIR / Special — Mid Obsidian",
-  }),
-  "poke-temporal-pack": svStylePack("sv5", {
-    commons: ["Temporal Forces Common", "Ancient / Future uncommon", "Bulk reverse mix"],
-    rares: ["Rare Holo — Mid", "Rare Holo — Popular", "Rare — Paradox adjacent"],
-    exs: ["EX / Double Rare — Mid", "EX / Double Rare — Splash", "Hot EX — Temporal"],
-    irs: ["Illustration Rare — Strong", "Illustration Rare — Mid", "IR — Time scene"],
-    chase: "Walking Wake / Iron Leaves SIR — Temporal",
-    chaseId: "sv5-218",
-    midChase: "SIR / ACE SPEC — Mid Temporal",
-  }),
-  "poke-paradox-pack": svStylePack("sv4", {
-    commons: ["Paradox Rift Common", "Ancient / Future uncommon", "Bulk reverse mix"],
-    rares: ["Rare Holo — Mid", "Rare Holo — Popular", "Rare — Paradox"],
-    exs: ["EX / Double Rare — Mid", "EX / Double Rare — Splash", "Roaring Moon / Iron Valiant mid"],
-    irs: ["Illustration Rare — Strong", "Illustration Rare — Mid", "IR — Paradox scene"],
-    chase: "Roaring Moon ex SIR — Paradox",
-    chaseId: "sv4-248",
-    midChase: "SIR / Special — Mid Paradox",
-  }),
-  "poke-paldea-pack": svStylePack("sv2", {
-    commons: ["Paldea Evolved Common", "Paldea uncommon mix", "Bulk reverse mix"],
-    rares: ["Rare Holo — Mid", "Rare Holo — Popular", "Rare — Paldea"],
-    exs: ["EX / Double Rare — Mid", "EX / Double Rare — Splash", "Iono / Miriam adjacent"],
-    irs: ["Illustration Rare — Strong", "Illustration Rare — Mid", "IR — Paldea scene"],
-    chase: "Iono SIR — Paldea Evolved",
-    chaseId: "sv2-254",
-    midChase: "SIR / Special — Mid Paldea",
-  }),
+  "poke-obsidian-pack": obsidianPack,
+  "poke-temporal-pack": temporalPack,
+  "poke-paradox-pack": paradoxPack,
+  "poke-paldea-pack": paldeaPack,
   "poke-surging-bb": {
     0: surgingPack[0]!,
     1: [
@@ -922,19 +936,19 @@ export const cardPoolsByProduct: Record<string, ProductPools> = {
   "poke-chaos-rising-pack": chaosRising,
   "poke-perfect-order-pack": perfectOrder,
   "poke-pitch-black-pack": pitchBlack,
-  "poke-30th-etb": thirtiethPools("Full-art Nidorina promo", S("me2pt5-1")),
-  "poke-30th-pc-etb": thirtiethPools("Nidorina promo (PC stamp)", S("me2pt5-1")),
-  "poke-30th-bundle": thirtiethPools("30th Celebration pack art", S("me2pt5-50")),
-  "poke-30th-poster": thirtiethPools("Articuno / Zapdos / Moltres promos", S("sv8-180")),
-  "poke-30th-tech-sticker-exeggutor": thirtiethPools("Alolan Exeggutor foil promo", S("sv8-242")),
-  "poke-30th-tech-sticker-lucario": thirtiethPools("Lucario foil promo", S("sv8-100")),
-  "poke-30th-ex-box-sylveon": thirtiethPools("Sylveon ex promo", S("sv8pt5-144")),
-  "poke-30th-ex-box-greninja": thirtiethPools("Greninja ex promo", S("sv8-220")),
-  "poke-30th-knockout": thirtiethPools("Eevee foil promo", S("sv8pt5-1")),
-  "poke-30th-binder": thirtiethPools("30th portfolio + packs", S("me2pt5-100")),
-  "poke-30th-mini-tin": thirtiethPools("Day & Night Pikachu art", S("me2pt5-276")),
-  "poke-30th-upc-day": thirtiethPools("Pikachu ex (day) + Espeon ex", S("me2pt5-276")),
-  "poke-30th-upc-night": thirtiethPools("Pikachu ex (night) + Umbreon ex", S("sv8pt5-161")),
+  "poke-30th-etb": thirtiethPools("Nidorina (promo)", "me55-88"),
+  "poke-30th-pc-etb": thirtiethPools("Nidorina (PC promo)", "me55-88"),
+  "poke-30th-bundle": thirtiethPools("Pikachu Rare", "me55-40"),
+  "poke-30th-poster": thirtiethPools("Articuno (promo set art)", "me55-132"),
+  "poke-30th-tech-sticker-exeggutor": thirtiethPools("Alolan Exeggutor (promo)", "me55-129"),
+  "poke-30th-tech-sticker-lucario": thirtiethPools("Lucario (promo)", "me55-83"),
+  "poke-30th-ex-box-sylveon": thirtiethPools("Sylveon ex (promo)", "me55-153"),
+  "poke-30th-ex-box-greninja": thirtiethPools("Greninja ex (promo)", "me55-148"),
+  "poke-30th-knockout": thirtiethPools("Eevee (promo)", "me55-116"),
+  "poke-30th-binder": thirtiethPools("Pikachu Rare", "me55-32"),
+  "poke-30th-mini-tin": thirtiethPools("Pikachu ex", "me55-149"),
+  "poke-30th-upc-day": thirtiethPools("Pikachu ex (day) + Espeon ex", "me55-149"),
+  "poke-30th-upc-night": thirtiethPools("Pikachu ex (night) + Umbreon ex", "me55-150"),
   "base-chrome-hobby": baseChromeHobby,
   "base-chrome-mega": baseChromeMega,
   "base-update-hobby": baseUpdateHobby,
