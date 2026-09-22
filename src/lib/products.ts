@@ -9,27 +9,40 @@ export interface RaritySlot {
   avgValue: number;
 }
 
-export type ArtStatus = "complete" | "partial" | "none";
+export type ArtStatus = "complete" | "pack-only" | "none";
 
 export interface Product {
   id: string;
   category: Category;
+  /** Official TCG / Topps / Bandai display name (no nicknames). */
   name: string;
+  /**
+   * Optional override for UI; defaults to `name`.
+   * Prefer fixing `name` — displayName is only for rare catalog edge cases.
+   */
+  displayName?: string;
   format: string;
   defaultPrice: number;
   slots: RaritySlot[];
   notes?: string;
   accent?: string;
+  /** Category chrome only — never use as featured product art. */
   emoji?: string;
   image?: string;
   tag?: "hot" | "value" | "chase";
   /**
-   * Card-art readiness for /open reveals.
-   * complete = curated named cards + matching thumbs (featured).
-   * partial / none = rarity + slot $ only — no invented names or wrong art.
-   * Prefer marking few completes over fake art.
+   * Art honesty for /open.
+   * complete = official product image + pull art that belongs to that set (featured).
+   * pack-only = official product image; pulls show name + rarity + slot $ (no wrong card art).
+   * none = hide from featured Open; keep on EV calculator.
+   * Prefer none over shipping guessed thumbs or emoji-as-art.
    */
   artStatus?: ArtStatus;
+}
+
+/** Official display name for EV / Open / Log / Cards. */
+export function productDisplayName(product: Product): string {
+  return (product.displayName ?? product.name).trim();
 }
 
 export const categories: { id: Category; label: string; emoji: string; color: string }[] = [
@@ -72,6 +85,7 @@ const rawProducts: Product[] = [
     accent: "from-violet-700 to-purple-500",
     emoji: "📦",
     image: "/products/poke-ascended-etb.webp",
+    artStatus: "complete",
     tag: "chase",
     slots: [
       { name: "Bulk value across 9 packs", odds: "guaranteed", oddsNum: 1, avgValue: 7 },
@@ -91,6 +105,7 @@ const rawProducts: Product[] = [
     accent: "from-fuchsia-700 to-violet-600",
     emoji: "📦",
     image: "/products/poke-ascended-bundle.webp",
+    artStatus: "complete",
     tag: "hot",
     slots: [
       { name: "Bulk across 6 packs", odds: "guaranteed", oddsNum: 1, avgValue: 4.8 },
@@ -110,6 +125,7 @@ const rawProducts: Product[] = [
     accent: "from-yellow-500 to-orange-400",
     emoji: "⚡",
     image: "/products/poke-surging-pack.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.45 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.4 },
@@ -128,6 +144,7 @@ const rawProducts: Product[] = [
     accent: "from-red-600 to-orange-500",
     emoji: "🔥",
     image: "/products/poke-destined-pack.webp",
+    artStatus: "pack-only",
     tag: "chase",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.4 },
@@ -147,6 +164,7 @@ const rawProducts: Product[] = [
     accent: "from-emerald-500 to-teal-400",
     emoji: "🗺️",
     image: "/products/poke-journey-pack.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.35 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.2 },
@@ -165,6 +183,7 @@ const rawProducts: Product[] = [
     accent: "from-pink-500 to-rose-400",
     emoji: "✨",
     image: "/products/poke-prismatic-pack.webp",
+    artStatus: "pack-only",
     tag: "hot",
     slots: [
       { name: "Bulk / Commons", odds: "~50%", oddsNum: 0.5, avgValue: 0.3 },
@@ -185,6 +204,7 @@ const rawProducts: Product[] = [
     accent: "from-orange-700 to-red-500",
     emoji: "🌋",
     image: "/products/poke-obsidian-pack.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.0 },
@@ -203,6 +223,7 @@ const rawProducts: Product[] = [
     accent: "from-sky-600 to-indigo-400",
     emoji: "⏳",
     image: "/products/poke-temporal-pack.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.1 },
@@ -221,6 +242,7 @@ const rawProducts: Product[] = [
     accent: "from-violet-600 to-blue-500",
     emoji: "🌀",
     image: "/products/poke-paradox-pack.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.3 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.15 },
@@ -239,6 +261,7 @@ const rawProducts: Product[] = [
     accent: "from-lime-500 to-green-500",
     emoji: "🌿",
     image: "/products/poke-paldea-pack.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk", odds: "~100%", oddsNum: 1, avgValue: 0.28 },
       { name: "Rare / Holo", odds: "1:4", oddsNum: 0.25, avgValue: 1.0 },
@@ -257,6 +280,7 @@ const rawProducts: Product[] = [
     accent: "from-yellow-600 to-orange-500",
     emoji: "🗃️",
     image: "/products/poke-surging-bb.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk across box", odds: "guaranteed", oddsNum: 1, avgValue: 16 },
       { name: "Rares / EXs expected", odds: "many", oddsNum: 1, avgValue: 45 },
@@ -276,6 +300,7 @@ const rawProducts: Product[] = [
     accent: "from-cyan-600 to-teal-400",
     emoji: "🌊",
     image: "/products/poke-chaos-rising-pack.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 0.45 },
@@ -296,6 +321,7 @@ const rawProducts: Product[] = [
     accent: "from-stone-500 to-zinc-400",
     emoji: "🧩",
     image: "/products/poke-perfect-order-pack.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 0.45 },
@@ -316,6 +342,7 @@ const rawProducts: Product[] = [
     accent: "from-zinc-800 to-violet-700",
     emoji: "🌑",
     image: "/products/poke-pitch-black-pack.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 0.48 },
@@ -339,6 +366,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "chase",
     image: "/products/poke-30th-etb.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×9)", odds: "guaranteed", oddsNum: 1, avgValue: 4.95 },
       { name: "Pikachu Rare (×9 guaranteed)", odds: "9×1:1", oddsNum: 1, avgValue: 13.95 },
@@ -361,6 +389,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "chase",
     image: "/products/poke-30th-pc-etb.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×11)", odds: "guaranteed", oddsNum: 1, avgValue: 6.05 },
       { name: "Pikachu Rare (×11 guaranteed)", odds: "11×1:1", oddsNum: 1, avgValue: 17.05 },
@@ -383,6 +412,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "hot",
     image: "/products/poke-30th-bundle.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×6)", odds: "guaranteed", oddsNum: 1, avgValue: 3.3 },
       { name: "Pikachu Rare (×6 guaranteed)", odds: "6×1:1", oddsNum: 1, avgValue: 9.3 },
@@ -404,6 +434,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "hot",
     image: "/products/poke-30th-poster.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×3)", odds: "guaranteed", oddsNum: 1, avgValue: 1.65 },
       { name: "Pikachu Rare (×3 guaranteed)", odds: "3×1:1", oddsNum: 1, avgValue: 4.65 },
@@ -426,6 +457,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "hot",
     image: "/products/poke-30th-tech-sticker-exeggutor.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×3)", odds: "guaranteed", oddsNum: 1, avgValue: 1.65 },
       { name: "Pikachu Rare (×3 guaranteed)", odds: "3×1:1", oddsNum: 1, avgValue: 4.65 },
@@ -448,6 +480,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "hot",
     image: "/products/poke-30th-tech-sticker-lucario.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×3)", odds: "guaranteed", oddsNum: 1, avgValue: 1.65 },
       { name: "Pikachu Rare (×3 guaranteed)", odds: "3×1:1", oddsNum: 1, avgValue: 4.65 },
@@ -470,6 +503,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "hot",
     image: "/products/poke-30th-ex-box-sylveon.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×4)", odds: "guaranteed", oddsNum: 1, avgValue: 2.2 },
       { name: "Pikachu Rare (×4 guaranteed)", odds: "4×1:1", oddsNum: 1, avgValue: 6.2 },
@@ -492,6 +526,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "hot",
     image: "/products/poke-30th-ex-box-greninja.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×4)", odds: "guaranteed", oddsNum: 1, avgValue: 2.2 },
       { name: "Pikachu Rare (×4 guaranteed)", odds: "4×1:1", oddsNum: 1, avgValue: 6.2 },
@@ -514,6 +549,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "hot",
     image: "/products/poke-30th-knockout.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×2)", odds: "guaranteed", oddsNum: 1, avgValue: 1.1 },
       { name: "Pikachu Rare (×2 guaranteed)", odds: "2×1:1", oddsNum: 1, avgValue: 3.1 },
@@ -536,6 +572,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "hot",
     image: "/products/poke-30th-binder.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×5)", odds: "guaranteed", oddsNum: 1, avgValue: 2.75 },
       { name: "Pikachu Rare (×5 guaranteed)", odds: "5×1:1", oddsNum: 1, avgValue: 7.75 },
@@ -558,6 +595,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "hot",
     image: "/products/poke-30th-mini-tin.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×2)", odds: "guaranteed", oddsNum: 1, avgValue: 1.1 },
       { name: "Pikachu Rare (×2 guaranteed)", odds: "2×1:1", oddsNum: 1, avgValue: 3.1 },
@@ -580,6 +618,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "chase",
     image: "/products/poke-30th-upc-day.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×29)", odds: "guaranteed", oddsNum: 1, avgValue: 15.95 },
       { name: "Pikachu Rare (×29 guaranteed)", odds: "29×1:1", oddsNum: 1, avgValue: 44.95 },
@@ -603,6 +642,7 @@ const rawProducts: Product[] = [
     emoji: "🎉",
     tag: "chase",
     image: "/products/poke-30th-upc-night.webp",
+    artStatus: "pack-only",
     slots: [
       { name: "Bulk / Commons + Rare Holo (×29)", odds: "guaranteed", oddsNum: 1, avgValue: 15.95 },
       { name: "Pikachu Rare (×29 guaranteed)", odds: "29×1:1", oddsNum: 1, avgValue: 44.95 },
@@ -627,6 +667,7 @@ const rawProducts: Product[] = [
     accent: "from-yellow-600 to-orange-300",
     emoji: "🎴",
     image: "/products/bball-chrome-update-value.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 14 },
@@ -644,6 +685,7 @@ const rawProducts: Product[] = [
     accent: "from-amber-600 to-yellow-400",
     emoji: "📦",
     image: "/products/bball-chrome-update-mega.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Base + Refractors / X-Fractors", odds: "strong", oddsNum: 1, avgValue: 28 },
@@ -662,6 +704,7 @@ const rawProducts: Product[] = [
     accent: "from-orange-600 to-amber-400",
     emoji: "🏀",
     image: "/products/bball-chrome-update-hobby.webp",
+    artStatus: "pack-only",
     tag: "chase",
     slots: [
       { name: "Base + Refractors (box total)", odds: "many", oddsNum: 1, avgValue: 60 },
@@ -681,6 +724,7 @@ const rawProducts: Product[] = [
     accent: "from-red-600 to-orange-500",
     emoji: "🏀",
     image: "/products/bball-hoops-blaster.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 10 },
@@ -698,6 +742,7 @@ const rawProducts: Product[] = [
     accent: "from-slate-600 to-zinc-400",
     emoji: "🎯",
     image: "/products/bball-select-blaster.webp",
+    artStatus: "none",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 14 },
@@ -717,6 +762,7 @@ const rawProducts: Product[] = [
     accent: "from-rose-600 to-red-400",
     emoji: "📦",
     image: "/products/base-chrome-mega.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 20 },
@@ -734,6 +780,7 @@ const rawProducts: Product[] = [
     accent: "from-red-600 to-rose-400",
     emoji: "⚾",
     image: "/products/base-chrome-hobby.webp",
+    artStatus: "pack-only",
     tag: "chase",
     slots: [
       { name: "Base + Refractors", odds: "many", oddsNum: 1, avgValue: 50 },
@@ -753,6 +800,7 @@ const rawProducts: Product[] = [
     accent: "from-sky-600 to-blue-400",
     emoji: "🏟️",
     image: "/products/base-update-hobby.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 45 },
@@ -771,6 +819,7 @@ const rawProducts: Product[] = [
     accent: "from-blue-600 to-sky-400",
     emoji: "⚾",
     image: "/products/base-series1-blaster.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 9 },
@@ -788,6 +837,7 @@ const rawProducts: Product[] = [
     accent: "from-amber-700 to-yellow-500",
     emoji: "📜",
     image: "/products/base-heritage-blaster.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 11 },
@@ -827,6 +877,7 @@ const rawProducts: Product[] = [
     accent: "from-blue-700 to-cyan-500",
     emoji: "🗃️",
     image: "/products/op-16-box.webp",
+    artStatus: "pack-only",
     tag: "value",
     slots: [
       { name: "Bulk + Rares", odds: "guaranteed", oddsNum: 1, avgValue: 22 },

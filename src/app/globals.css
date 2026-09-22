@@ -795,3 +795,28 @@ body {
     box-shadow: 0 0 12px rgba(34, 211, 238, 0.35);
   }
 }
+
+
+/* Open pack-stage: bulk deals fast; hits linger with rarity glow (no slot-machine commons) */
+@keyframes pack-deal-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.pull-chip {
+  animation: pack-deal-in 0.28s ease-out both;
+}
+.pull-chip-common {
+  animation-duration: 0.16s;
+}
+.pull-chip-chase,
+.soft-hit-row {
+  animation-duration: 0.45s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pull-chip,
+  .pull-chip-common,
+  .pull-chip-chase,
+  .soft-hit-row {
+    animation: none;
+  }
+}
