@@ -13,6 +13,15 @@ import type { ArtStatus, Category, Product, RaritySlot } from "@/lib/products";
 /** Branded card back when we lack that card's real art — never show another set's art. */
 export const RIP_PORTAL_CARD_BACK = "/cards/rip-portal-card-back.svg";
 
+/** True when URL is missing or our branded pack-only back (no real card art). */
+export function isBrandedCardBack(imageUrl?: string | null): boolean {
+  if (!imageUrl) return true;
+  return (
+    imageUrl === RIP_PORTAL_CARD_BACK ||
+    imageUrl.endsWith("/cards/rip-portal-card-back.svg")
+  );
+}
+
 export interface PoolCard {
   name: string;
   /** Small thumb URL (CDN or /public/cards/…). */
@@ -1048,21 +1057,27 @@ export function resolveSlotCard(
   rng: () => number = Math.random
 ): PoolCard {
   const status = getArtStatus(product);
-  // pack-only / none: rarity + slot $ only — no invented card names, no wrong art.
+  // pack-only / none: rarity + slot $ only — branded back, never wrong-set art.
   if (status !== "complete") {
     return {
       name: slot.name,
+      imageUrl: RIP_PORTAL_CARD_BACK,
       estValue: slot.avgValue,
     };
   }
   const pool = cardPoolsByProduct[product.id]?.[slotIndex];
   if (pool && pool.length > 0) {
     const scaled = scalePoolToSlotAvg(pool, slot.avgValue);
-    return pickWeightedCard(scaled, rng);
+    const pick = pickWeightedCard(scaled, rng);
+    return {
+      ...pick,
+      imageUrl: pick.imageUrl || RIP_PORTAL_CARD_BACK,
+    };
   }
   // Complete but missing a slot pool: still avoid inventing names/art.
   return {
     name: slot.name,
+    imageUrl: RIP_PORTAL_CARD_BACK,
     estValue: slot.avgValue,
   };
 }
@@ -1075,10 +1090,11 @@ export function emptyPackFillers(
   const status = getArtStatus(product);
   const count = 2 + (rng() < 0.5 ? 1 : 0);
   const bulkName = product.slots[0]?.name ?? "Bulk";
-  // pack-only/none: generic bulk labels only — no invented names or art.
+  // pack-only/none: generic bulk labels only — branded back, no invented names/art.
   if (status !== "complete") {
     return Array.from({ length: count }, () => ({
       name: bulkName,
+      imageUrl: RIP_PORTAL_CARD_BACK,
       estValue: 0,
       weight: 1,
     }));
@@ -1090,12 +1106,17 @@ export function emptyPackFillers(
       const pick = pickWeightedCard(pool0, rng);
       out.push({
         name: pick.name,
-        imageUrl: pick.imageUrl,
+        imageUrl: pick.imageUrl || RIP_PORTAL_CARD_BACK,
         estValue: 0,
         weight: 1,
       });
     } else {
-      out.push({ name: bulkName, estValue: 0, weight: 1 });
+      out.push({
+        name: bulkName,
+        imageUrl: RIP_PORTAL_CARD_BACK,
+        estValue: 0,
+        weight: 1,
+      });
     }
   }
   return out;

@@ -1,5 +1,5 @@
 /* Rip Portal — offline shell + Web Push (honest prices: never fake live data) */
-const CACHE_VERSION = "rip-portal-v3-swirl";
+const CACHE_VERSION = "rip-portal-v4-pack-backs";
 const SHELL_URLS = [
   "/",
   "/open",
@@ -12,6 +12,7 @@ const SHELL_URLS = [
   "/icons/apple-touch-icon.png",
   "/icons/portal-app-icon.png",
   "/icons/splash-swirl-1024.png",
+  "/cards/rip-portal-card-back.svg",
 ];
 
 self.addEventListener("install", (event) => {

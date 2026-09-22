@@ -552,6 +552,96 @@ body {
   font-size: 14px;
 }
 
+
+/* Pack-only branded back overlays (name / rarity / $ on card face) */
+.pull-art-wrap {
+  isolation: isolate;
+}
+.pack-art-badge {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  z-index: 2;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ecfeff;
+  background: rgba(8, 145, 178, 0.88);
+  border: 1px solid rgba(103, 232, 249, 0.7);
+  line-height: 1.2;
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+.pack-art-badge-compact {
+  top: 2px;
+  left: 2px;
+  padding: 0 3px;
+  font-size: 5.5px;
+  letter-spacing: 0.04em;
+}
+.pack-art-plate {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 10px 4px 3px;
+  background: linear-gradient(
+    to top,
+    rgba(2, 6, 23, 0.95) 0%,
+    rgba(2, 6, 23, 0.78) 55%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+.pack-art-plate-compact {
+  padding: 8px 2px 2px;
+  gap: 0;
+}
+.pack-art-plate-name {
+  font-size: 8px;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.15;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+.pack-art-plate-compact .pack-art-plate-name {
+  font-size: 5.5px;
+  -webkit-line-clamp: 1;
+}
+.pack-art-plate-meta {
+  font-size: 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #6ee7b7;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pack-art-plate-compact .pack-art-plate-meta {
+  font-size: 5px;
+}
+.open-after-ctas {
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  border-radius: 1rem;
+  padding: 0.75rem;
+  background: linear-gradient(
+    160deg,
+    rgba(8, 47, 73, 0.45),
+    rgba(2, 6, 23, 0.55)
+  );
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.12);
+}
+
 .share-toast {
   animation: summary-in 0.3s ease-out both;
 }
