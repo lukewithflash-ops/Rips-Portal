@@ -7,4 +7,4 @@
 
 Slot odds and `avgValue` still live in `src/lib/products.ts`.
 
-Catalog source of truth is `src/lib/products.ts` (EV, `/open`, Rip Log, Cards pack picker). `findProduct()` resolves legacy aliases (e.g. Suraina → Surging Sparks).
+Catalog source of truth is `src/lib/products.ts` (EV, `/open`, Rip Log, Cards pack picker). `findProduct()` resolves legacy aliases (legacy misspelled IDs → Surging Sparks).

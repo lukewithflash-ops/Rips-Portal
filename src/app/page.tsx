@@ -179,7 +179,7 @@ function HomeInner() {
       if (!q) return true;
       const hay = `${p.name} ${p.format}`.toLowerCase();
       if (hay.includes(q)) return true;
-      // Misspellings like "Suraina" resolve to Surging Sparks via aliases
+      // Legacy misspelled pack IDs resolve to Surging Sparks via aliases
       return Object.entries(PRODUCT_ID_ALIASES).some(
         ([alias, pid]) => alias.includes(q) && pid === p.id
       );

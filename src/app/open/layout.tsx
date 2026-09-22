@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 
+/** Always revalidate /open so CDN HIT shells cannot outlive catalog renames. */
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Free Pack Opener",
   description:

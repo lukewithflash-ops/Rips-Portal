@@ -855,8 +855,7 @@ export const products: Product[] = rawProducts.map((p) => {
 
 /**
  * Legacy / misspelling aliases → canonical product ids.
- * Keeps deep links working if anyone bookmarked "Suraina" / suraina-* slugs.
- * Display names stay "Surging Sparks" on the canonical products.
+ * Legacy misspelled IDs map to canonical Surging Sparks products. UI display name is always Surging Sparks.
  */
 export const PRODUCT_ID_ALIASES: Record<string, string> = {
   suraina: "poke-surging-pack",
