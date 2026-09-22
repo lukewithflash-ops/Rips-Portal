@@ -53,7 +53,7 @@ export default function InstallPrompt() {
       setVisible(false);
       return;
     }
-    // Prefer: wait until the user has opened/calculated one pack
+    // Show once after successful EV calc OR pack open — never on first paint
     if (!packReady) {
       setVisible(false);
       return;

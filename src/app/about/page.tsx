@@ -111,11 +111,18 @@ export default function AboutPage() {
         </div>
 
         <p className="mt-8 text-[12px] text-zinc-500">
-          Questions or pack tips? Use the{" "}
+          Questions or pack tips? Email{" "}
+          <a
+            href="mailto:lukewithflash@gmail.com"
+            className="text-cyan-300 hover:underline"
+          >
+            lukewithflash@gmail.com
+          </a>
+          , use the{" "}
           <Link href="/waitlist" className="text-purple-300 hover:underline">
             waitlist
-          </Link>{" "}
-          or the email capture on{" "}
+          </Link>
+          , or the email capture on{" "}
           <Link href="/deals" className="text-emerald-300 hover:underline">
             Under-EV Watch
           </Link>

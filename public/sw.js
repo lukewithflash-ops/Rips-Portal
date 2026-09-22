@@ -1,11 +1,17 @@
-/* Rip Portal — offline shell + Web Push */
-const CACHE_VERSION = "rip-portal-v2";
+/* Rip Portal — offline shell + Web Push (honest prices: never fake live data) */
+const CACHE_VERSION = "rip-portal-v3-swirl";
 const SHELL_URLS = [
   "/",
+  "/open",
+  "/deals",
+  "/log",
+  "/privacy",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/apple-touch-icon.png",
+  "/icons/portal-app-icon.png",
+  "/icons/splash-swirl-1024.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -40,25 +46,50 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Never cache API / prices as "live" — network only; fail closed offline
+  if (
+    url.pathname.startsWith("/api/") ||
+    url.pathname.includes("prices") ||
+    url.pathname.endsWith(".json")
+  ) {
+    return;
+  }
+
   // Network-first for navigations; cache fallback for offline shell
+  // Cache each route path so /open /deals /log deep links work from home screen
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put("/", copy));
+          if (response.ok) {
+            const copy = response.clone();
+            const path =
+              url.pathname === "/" ||
+              url.pathname === "/open" ||
+              url.pathname === "/deals" ||
+              url.pathname === "/log" ||
+              url.pathname === "/privacy"
+                ? url.pathname
+                : "/";
+            caches.open(CACHE_VERSION).then((cache) => cache.put(path, copy));
+          }
           return response;
         })
         .catch(() =>
-          caches.match("/").then((cached) => cached || Response.error())
+          caches.match(url.pathname).then(
+            (cached) =>
+              cached ||
+              caches.match("/").then((home) => home || Response.error())
+          )
         )
     );
     return;
   }
 
-  // Cache-first for static public assets (icons, products, next static)
+  // Cache-first for static public assets (icons, brand, products, next static)
   const isStatic =
     url.pathname.startsWith("/icons/") ||
+    url.pathname.startsWith("/brand/") ||
     url.pathname.startsWith("/products/") ||
     url.pathname.startsWith("/_next/static/");
 
@@ -117,9 +148,10 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const raw =
     (event.notification.data && event.notification.data.url) || "/deals";
-  const path = typeof raw === "string" && raw.startsWith("http")
-    ? raw
-    : new URL(raw || "/deals", self.location.origin).href;
+  const path =
+    typeof raw === "string" && raw.startsWith("http")
+      ? raw
+      : new URL(raw || "/deals", self.location.origin).href;
 
   event.waitUntil(
     self.clients
@@ -129,7 +161,9 @@ self.addEventListener("notificationclick", (event) => {
           if ("focus" in client) {
             if ("navigate" in client) {
               try {
-                return client.navigate(path).then((c) => (c && c.focus ? c.focus() : client.focus()));
+                return client
+                  .navigate(path)
+                  .then((c) => (c && c.focus ? c.focus() : client.focus()));
               } catch {
                 return client.focus();
               }

@@ -144,7 +144,7 @@ export async function promptInstall(): Promise<"accepted" | "dismissed" | "unava
   }
 }
 
-/** Set after the user opens/calculates a pack once — gates the install toast. */
+/** Set after successful EV calc or pack open — gates the install toast (once). */
 const PACK_INTERACT_KEY = "rip-portal-pack-interacted";
 
 export function hasPackInteracted(): boolean {

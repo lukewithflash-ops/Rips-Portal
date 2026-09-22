@@ -97,12 +97,21 @@ export default function PrivacyPage() {
 
           <section className="panel rounded-xl p-4 space-y-2">
             <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
-              Contact
+              Contact / support
             </h2>
             <p>
-              For privacy questions about Portal / Rip Portal, use the contact
-              path on the site when available. This stub is not a full legal
-              policy.
+              Privacy or support questions about Rip Portal:{" "}
+              <a
+                href="mailto:lukewithflash@gmail.com"
+                className="text-cyan-300 hover:underline"
+              >
+                lukewithflash@gmail.com
+              </a>
+              . You can also use the{" "}
+              <a href="/waitlist" className="text-purple-300 hover:underline">
+                waitlist
+              </a>
+              . This page is a practical stub, not a full legal policy.
             </p>
           </section>
         </div>
