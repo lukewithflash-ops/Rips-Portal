@@ -12,7 +12,10 @@ import {
 import Link from "next/link";
 import BuyLinks from "@/components/BuyLinks";
 import { fmtMoney, type SimPull } from "@/lib/simulate";
-import { RIP_PORTAL_CARD_BACK } from "@/lib/cardPools";
+import {
+  isBrandedCardBack,
+  RIP_PORTAL_CARD_BACK,
+} from "@/lib/cardPools";
 import {
   downloadSingleCardShareImage,
   shareOrDownloadSingleCardImage,
@@ -238,6 +241,14 @@ export default function CardZoomModal({
           >
             {title}
           </h2>
+          {isBrandedCardBack(pull.imageUrl) && (
+            <p className="mt-1.5 text-[10px] uppercase tracking-wider text-cyan-300/90">
+              <span className="inline-block rounded border border-cyan-500/50 bg-cyan-500/15 px-1.5 py-0.5 mr-1.5">
+                PACK art
+              </span>
+              Branded back · name + rarity + slot $ (no card scan yet)
+            </p>
+          )}
 
           <div id={descId} className="mt-3 space-y-2">
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5">

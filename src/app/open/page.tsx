@@ -28,6 +28,7 @@ import {
 } from "@/lib/riplog";
 import {
   getArtStatus,
+  isBrandedCardBack,
   isFeaturedOpenProduct,
   RIP_PORTAL_CARD_BACK,
 } from "@/lib/cardPools";
@@ -200,27 +201,77 @@ function PullArt({
   imageUrl,
   className,
   imgClassName,
+  packOnly,
+  label,
+  rarity,
+  valueLabel,
+  compact,
 }: {
   imageUrl?: string;
   className?: string;
   imgClassName?: string;
+  /** Pack-only / no real art — show branded back + name plate. */
+  packOnly?: boolean;
+  label?: string;
+  rarity?: string;
+  valueLabel?: string;
+  /** Tiny strip thumbs: badge + short plate. */
+  compact?: boolean;
 }) {
   const src = imageUrl || RIP_PORTAL_CARD_BACK;
+  const showPlate =
+    packOnly || isBrandedCardBack(imageUrl);
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt=""
-      loading="lazy"
-      decoding="async"
-      className={imgClassName ?? className}
-      onError={(e) => {
-        const el = e.currentTarget;
-        if (!el.src.endsWith(RIP_PORTAL_CARD_BACK)) {
-          el.src = RIP_PORTAL_CARD_BACK;
-        }
-      }}
-    />
+    <span
+      className={`pull-art-wrap relative block h-full w-full overflow-hidden ${
+        className ?? ""
+      }`}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className={imgClassName ?? "h-full w-full object-cover"}
+        onError={(e) => {
+          const el = e.currentTarget;
+          if (!el.src.endsWith(RIP_PORTAL_CARD_BACK)) {
+            el.src = RIP_PORTAL_CARD_BACK;
+          }
+        }}
+      />
+      {showPlate && (
+        <>
+          <span
+            className={`pack-art-badge ${
+              compact ? "pack-art-badge-compact" : ""
+            }`}
+            aria-hidden
+          >
+            PACK art
+          </span>
+          {(label || rarity || valueLabel) && (
+            <span
+              className={`pack-art-plate ${
+                compact ? "pack-art-plate-compact" : ""
+              }`}
+            >
+              {label && (
+                <span className="pack-art-plate-name">{label}</span>
+              )}
+              {(rarity || valueLabel) && (
+                <span className="pack-art-plate-meta">
+                  {rarity}
+                  {rarity && valueLabel ? " · " : ""}
+                  {valueLabel}
+                </span>
+              )}
+            </span>
+          )}
+        </>
+      )}
+    </span>
   );
 }
 
@@ -1247,6 +1298,18 @@ function OpenInner() {
                               <PullArt
                                 imageUrl={pull.imageUrl}
                                 imgClassName="h-full w-full object-cover"
+                                packOnly={
+                                  artStatus !== "complete" ||
+                                  isBrandedCardBack(pull.imageUrl)
+                                }
+                                compact
+                                label={stripTitle}
+                                rarity={pull.slotName}
+                                valueLabel={
+                                  soft || pullValue(pull) > 0
+                                    ? fmtMoney(pullValue(pull))
+                                    : undefined
+                                }
                               />
                             </button>
                           );
@@ -1302,6 +1365,17 @@ function OpenInner() {
                                     <PullArt
                                       imageUrl={pull.imageUrl}
                                       imgClassName="h-14 w-10 object-cover"
+                                      packOnly={
+                                        artStatus !== "complete" ||
+                                        isBrandedCardBack(pull.imageUrl)
+                                      }
+                                      label={title}
+                                      rarity={pull.slotName}
+                                      valueLabel={
+                                        isFiller
+                                          ? undefined
+                                          : fmtMoney(value)
+                                      }
                                     />
                                   </div>
                                   <div className="min-w-0 flex-1">
@@ -1334,21 +1408,21 @@ function OpenInner() {
             </ul>
 
             {allRevealed && (
-              <div className="flex flex-col gap-2.5 pt-1 summary-punch">
-                <div className="text-[10px] uppercase tracking-[0.16em] text-zinc-500">
-                  After this rip
+              <div className="flex flex-col gap-3 pt-2 summary-punch open-after-ctas">
+                <div className="text-[10px] uppercase tracking-[0.16em] text-cyan-300/80 font-semibold">
+                  Next · Check EV · Log · Share
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   <Link
                     href={checkEvHref}
-                    className="text-center text-[12px] px-3 py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-400/45 text-emerald-100 font-semibold hover:bg-emerald-500/25"
+                    className="text-center text-[13px] px-3 py-3.5 rounded-xl bg-emerald-500/25 border-2 border-emerald-400/70 text-emerald-50 font-bold hover:bg-emerald-500/35 shadow-md shadow-emerald-950/40"
                   >
-                    Check this set in EV
+                    Check EV
                   </Link>
                   <button
                     type="button"
                     onClick={saveToLog}
-                    className="text-[12px] px-3 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-400/45 text-cyan-100 font-semibold hover:bg-cyan-500/25"
+                    className="text-[13px] px-3 py-3.5 rounded-xl bg-cyan-500/25 border-2 border-cyan-400/70 text-cyan-50 font-bold hover:bg-cyan-500/35 shadow-md shadow-cyan-950/40"
                   >
                     Save to Log
                   </button>
@@ -1356,9 +1430,9 @@ function OpenInner() {
                     type="button"
                     onClick={() => void shareOpenCard()}
                     disabled={imageShareBusy}
-                    className="text-[12px] px-3 py-2.5 rounded-xl bg-pink-500/20 border border-pink-400/50 text-pink-50 font-semibold hover:bg-pink-500/30 disabled:opacity-50"
+                    className="text-[13px] px-3 py-3.5 rounded-xl bg-pink-500/30 border-2 border-pink-400/70 text-pink-50 font-bold hover:bg-pink-500/40 disabled:opacity-50 shadow-md shadow-pink-950/40"
                   >
-                    {imageShareBusy ? "Building…" : "Share card"}
+                    {imageShareBusy ? "Building…" : "Share"}
                   </button>
                 </div>
                 {showSaveFallback && (
