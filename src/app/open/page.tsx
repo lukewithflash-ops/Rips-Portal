@@ -15,11 +15,17 @@ import {
   products,
   calculateEV,
   productDisplayName,
+  pricesUpdated,
   type ArtStatus,
   type Category,
   type Product,
 } from "@/lib/products";
-import { findProduct } from "@/lib/riplog";
+import {
+  buildSession,
+  encodeSession,
+  findProduct,
+  saveSessionLocal,
+} from "@/lib/riplog";
 import {
   getArtStatus,
   isFeaturedOpenProduct,
@@ -43,6 +49,16 @@ import {
   downloadOpenShareImage,
   shareOrDownloadOpenImage,
 } from "@/lib/openShareImage";
+
+function pricesUpdatedLabel(raw: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  if (!m) return raw;
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  return `${Number(m[3])} ${months[Number(m[2]) - 1]}`;
+}
 import BrandLogo from "@/components/BrandLogo";
 import { markPackInteracted } from "@/lib/pwa-install";
 
@@ -384,6 +400,9 @@ function OpenInner() {
     vsEV: 0,
   });
   const [sessionXp, setSessionXp] = useState(0);
+  const [logNote, setLogNote] = useState<string | null>(null);
+  const [logSavedPath, setLogSavedPath] = useState<string | null>(null);
+  const slotCountsAccumRef = useRef<number[]>([]);
   const timersRef = useRef<Array<{ id: number; kind: "t" | "i" }>>([]);
 
   const clearTimers = useCallback(() => {
@@ -462,6 +481,9 @@ function OpenInner() {
       setShowSetSheet(false);
       setSessionChip({ packs: 0, spent: 0, hits: 0, vsEV: 0 });
       setSessionXp(0);
+      slotCountsAccumRef.current = [];
+      setLogNote(null);
+      setLogSavedPath(null);
       const params = new URLSearchParams();
       params.set("pack", p.id);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -513,6 +535,11 @@ function OpenInner() {
       hits: prev.hits + countHits(next),
       vsEV: prev.vsEV + next.vsExpected,
     }));
+    slotCountsAccumRef.current = next.slotCounts.map(
+      (c, i) => (slotCountsAccumRef.current[i] ?? 0) + c
+    );
+    setLogNote(null);
+    setLogSavedPath(null);
     setSessionXp((x) => x + next.quantity);
     playWhoosh(reducedMotion);
     playSfx("tear", sfxEnabled, reducedMotion);
@@ -620,21 +647,25 @@ function OpenInner() {
     sfxEnabled,
   ]);
 
-  const shareToInstagram = useCallback(async () => {
+  const shareDateLabel = pricesUpdatedLabel(pricesUpdated);
+
+  const shareOpenCard = useCallback(async () => {
     if (!session || imageShareBusy) return;
     setImageShareBusy(true);
-    setShareNote("Building story image…");
+    setShareNote("Building share card…");
     setShowSaveFallback(false);
     try {
-      const result = await shareOrDownloadOpenImage(session, "story");
+      const result = await shareOrDownloadOpenImage(session, "story", {
+        dateLabel: shareDateLabel,
+      });
       if (result === "shared") {
         setShareNote("Pick Instagram Stories in the share sheet");
       } else if (result === "downloaded") {
         setShowSaveFallback(true);
-        setShareNote("Saved image — open IG → add to Story");
+        setShareNote("Saved card — open IG → add to Story");
       } else if (result === "unsupported") {
         setShowSaveFallback(true);
-        setShareNote("Share not available here — save the image instead");
+        setShareNote("Share not available here — save the card instead");
       } else {
         // cancelled
         setShowSaveFallback(true);
@@ -642,19 +673,21 @@ function OpenInner() {
       }
     } catch {
       setShowSaveFallback(true);
-      setShareNote("Couldn’t share — try Save image");
+      setShareNote("Couldn’t share — try Save card");
     } finally {
       setImageShareBusy(false);
       window.setTimeout(() => setShareNote(null), 3200);
     }
-  }, [session, imageShareBusy]);
+  }, [session, imageShareBusy, shareDateLabel]);
 
   const saveStoryImage = useCallback(async () => {
     if (!session || imageShareBusy) return;
     setImageShareBusy(true);
     setShareNote("Saving…");
     try {
-      await downloadOpenShareImage(session, "story");
+      await downloadOpenShareImage(session, "story", {
+        dateLabel: shareDateLabel,
+      });
       setShareNote("Saved — open IG and add to Story");
     } catch {
       setShareNote("Couldn’t save image — try again");
@@ -662,7 +695,33 @@ function OpenInner() {
       setImageShareBusy(false);
       window.setTimeout(() => setShareNote(null), 2800);
     }
-  }, [session, imageShareBusy]);
+  }, [session, imageShareBusy, shareDateLabel]);
+
+  /** One-tap: write session chip into on-device Rip Log (no retype). */
+  const saveToLog = useCallback(() => {
+    if (!session) return;
+    const counts =
+      slotCountsAccumRef.current.length === session.product.slots.length
+        ? slotCountsAccumRef.current
+        : session.slotCounts;
+    const qty = Math.max(1, sessionChip.packs || session.quantity);
+    const pricePer = session.pricePerUnit;
+    const note = `Open · ${sessionChip.hits} hits · ${fmtMoney(sessionChip.vsEV)} vs EV`;
+    const built = buildSession(session.product, qty, pricePer, counts, note);
+    const encoded = encodeSession(built);
+    const label = `${session.product.name} ×${qty}`;
+    saveSessionLocal(encoded, label);
+    const path = `/log?s=${encoded}`;
+    setLogSavedPath(path);
+    setLogNote("Saved to Rip Log — packs · spent · hits · vs EV");
+    window.setTimeout(() => setLogNote(null), 4000);
+  }, [session, sessionChip]);
+
+  const checkEvHref = session
+    ? `/?pack=${encodeURIComponent(session.product.id)}&price=${encodeURIComponent(
+        String(Math.round(session.pricePerUnit * 100) / 100)
+      )}`
+    : "/";
 
   const shownPacks =
     session && phase === "reveal"
@@ -741,7 +800,13 @@ function OpenInner() {
               ⓘ
             </button>
             <Link
-              href={product ? `/?pack=${product.id}` : "/"}
+              href={
+                product
+                  ? `/?pack=${encodeURIComponent(product.id)}&price=${encodeURIComponent(
+                      String(Math.round(price * 100) / 100)
+                    )}`
+                  : "/"
+              }
               className="text-[11px] text-green-400/90 hover:text-green-300 underline-offset-2 hover:underline"
             >
               ← Calc
@@ -1269,48 +1334,68 @@ function OpenInner() {
             </ul>
 
             {allRevealed && (
-              <div className="flex flex-col gap-2 pt-1 summary-punch">
-                <div className="flex flex-wrap gap-2 items-center">
+              <div className="flex flex-col gap-2.5 pt-1 summary-punch">
+                <div className="text-[10px] uppercase tracking-[0.16em] text-zinc-500">
+                  After this rip
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <Link
+                    href={checkEvHref}
+                    className="text-center text-[12px] px-3 py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-400/45 text-emerald-100 font-semibold hover:bg-emerald-500/25"
+                  >
+                    Check this set in EV
+                  </Link>
                   <button
                     type="button"
-                    onClick={() => void shareToInstagram()}
-                    disabled={imageShareBusy}
-                    className="text-[12px] px-3.5 py-2 rounded-xl bg-pink-500/20 border border-pink-400/50 text-pink-50 font-semibold hover:bg-pink-500/30 disabled:opacity-50"
+                    onClick={saveToLog}
+                    className="text-[12px] px-3 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-400/45 text-cyan-100 font-semibold hover:bg-cyan-500/25"
                   >
-                    {imageShareBusy ? "Building…" : "Share to Instagram"}
+                    Save to Log
                   </button>
-                  {showSaveFallback && (
-                    <button
-                      type="button"
-                      onClick={() => void saveStoryImage()}
-                      disabled={imageShareBusy}
-                      className="text-[11px] px-2.5 py-1.5 rounded-lg text-zinc-400 border border-zinc-700/80 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-50"
-                    >
-                      Save image
-                    </button>
-                  )}
-                  <Link
-                    href={`/log?pack=${session.product.id}&qty=${session.quantity}`}
-                    className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20"
+                  <button
+                    type="button"
+                    onClick={() => void shareOpenCard()}
+                    disabled={imageShareBusy}
+                    className="text-[12px] px-3 py-2.5 rounded-xl bg-pink-500/20 border border-pink-400/50 text-pink-50 font-semibold hover:bg-pink-500/30 disabled:opacity-50"
                   >
-                    Log this rip →
-                  </Link>
-                  <Link
-                    href={`/?pack=${session.product.id}`}
-                    className="text-[12px] px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/25"
-                  >
-                    Verdict / Calculator →
-                  </Link>
+                    {imageShareBusy ? "Building…" : "Share card"}
+                  </button>
                 </div>
+                {showSaveFallback && (
+                  <button
+                    type="button"
+                    onClick={() => void saveStoryImage()}
+                    disabled={imageShareBusy}
+                    className="self-start text-[11px] px-2.5 py-1.5 rounded-lg text-zinc-400 border border-zinc-700/80 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-50"
+                  >
+                    Save card image
+                  </button>
+                )}
+                {logNote && (
+                  <p className="text-[11px] text-cyan-200/90 share-toast">
+                    {logNote}
+                    {logSavedPath && (
+                      <>
+                        {" · "}
+                        <Link
+                          href={logSavedPath}
+                          className="underline underline-offset-2 hover:text-cyan-100"
+                        >
+                          Open Rip Log
+                        </Link>
+                      </>
+                    )}
+                  </p>
+                )}
                 {shareNote && (
                   <p className="text-[11px] text-pink-200/80 share-toast">
                     {shareNote}
                   </p>
                 )}
                 <p className="text-[10px] text-zinc-600 leading-snug">
-                  Opens your device share sheet with a Stories-sized image —
-                  pick Instagram if it appears. Web can&apos;t force the IG
-                  Stories camera.
+                  EV opens the calculator with this set + the price you used.
+                  Log writes packs · spent · hits · vs EV on-device. Share card
+                  shows hits $, EV $, date, and chase tax when ROI is negative.
                 </p>
               </div>
             )}

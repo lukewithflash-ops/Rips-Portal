@@ -44,15 +44,21 @@ function HomeInner() {
   const router = useRouter();
   const pathname = usePathname();
   const packFromUrl = searchParams.get("pack");
+  const priceFromUrl = searchParams.get("price");
 
-  // Deep link: ?pack=<productId>
+  // Deep link: ?pack=<productId>[&price=<paid>] — matches Open / Rip Log prefill patterns
   useEffect(() => {
     if (!packFromUrl) return;
     const match = findProduct(packFromUrl);
     if (!match) return;
     setActiveCategory(match.category);
     setSelectedId(match.id);
-    setCustomPrice("");
+    const pr = priceFromUrl != null ? parseFloat(priceFromUrl) : NaN;
+    if (Number.isFinite(pr) && pr >= 0) {
+      setCustomPrice(String(Math.round(pr * 100) / 100));
+    } else {
+      setCustomPrice("");
+    }
     setView("calculator");
     setPackQuery("");
     setVerdictHighlight(true);
@@ -65,7 +71,7 @@ function HomeInner() {
       window.clearTimeout(t);
       window.clearTimeout(clear);
     };
-  }, [packFromUrl]);
+  }, [packFromUrl, priceFromUrl]);
 
   const syncPackToUrl = (id: string) => {
     const params = new URLSearchParams(searchParams.toString());
