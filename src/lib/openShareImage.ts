@@ -658,6 +658,8 @@ export interface ProductShareMeta {
   roi: number;
   /** Optional quantity (shows scaled totals when > 1) */
   quantity?: number;
+  /** Prices sheet stamp, e.g. "22 Sep" */
+  dateLabel?: string;
 }
 
 function drawPortalMark(
@@ -777,7 +779,10 @@ export async function renderProductShareImage(
 
   ctx.fillStyle = "#a7f3d0";
   ctx.font = "500 28px system-ui, sans-serif";
-  ctx.fillText(truncate(ctx, meta.productFormat, titleMax), pad, y + 28);
+  const formatLine = meta.dateLabel
+    ? meta.productFormat + " · Updated " + meta.dateLabel
+    : meta.productFormat;
+  ctx.fillText(truncate(ctx, formatLine, titleMax), pad, y + 28);
   y += 64;
 
   ctx.strokeStyle = "rgba(57,255,20,0.28)";
@@ -792,10 +797,11 @@ export async function renderProductShareImage(
   const positive = meta.roi >= 0;
 
   const stats = [
-    { label: "PACK PRICE", value: fmtMoney(meta.price), color: "#e2e8f0" },
-    { label: "EXPECTED VALUE", value: fmtMoney(meta.ev), color: "#6ee7b7" },
+    { label: "YOUR PRICE", value: fmtMoney(meta.price), color: "#e2e8f0" },
+    { label: "EV", value: fmtMoney(meta.ev), color: "#6ee7b7" },
     {
-      label: "ROI",
+      // Negative ROI = chase tax (fun premium), not "Value"
+      label: positive ? "ROI" : "CHASE TAX",
       value: (meta.roi >= 0 ? "+" : "") + meta.roi.toFixed(1) + "%",
       color: positive ? "#4ade80" : "#f87171",
     },

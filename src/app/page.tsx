@@ -32,10 +32,6 @@ function HomeInner() {
   const [customPrice, setCustomPrice] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [view, setView] = useState<"calculator" | "insider" | "cards">("calculator");
-  const [claimEmail, setClaimEmail] = useState("");
-  const [claimName, setClaimName] = useState("");
-  const [claimDone, setClaimDone] = useState(false);
-  const [claimLoading, setClaimLoading] = useState(false);
   const [cardQuery, setCardQuery] = useState("");
   const [selectedCard, setSelectedCard] = useState<ChaseCard | null>(null);
   const [packQuery, setPackQuery] = useState("");
@@ -175,28 +171,6 @@ function HomeInner() {
     });
   }, [rankedByRoi]);
 
-  const handleClaim = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!claimEmail.trim() || claimDone) return;
-    setClaimLoading(true);
-    try {
-      await fetch("https://formspree.io/f/xkjwzryd", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          email: claimEmail.trim(),
-          name: claimName.trim() || "—",
-          promo: "Founding Member — 3 months free VIP",
-          source: "ripsportal.com/insider",
-        }),
-      });
-      setClaimDone(true);
-    } catch {
-      setClaimDone(true);
-    } finally {
-      setClaimLoading(false);
-    }
-  };
 
   const categoryProducts = useMemo(() => {
     const q = packQuery.trim().toLowerCase();
@@ -274,6 +248,7 @@ function HomeInner() {
           ev: result.totalEV,
           roi,
           quantity,
+          dateLabel: pricesUpdatedLabel,
         }
       : null;
 
@@ -333,10 +308,8 @@ function HomeInner() {
             },
             {
               icon: "👑",
-              label: "Insider VIP",
-              id: "insider" as const,
-              active: view === "insider",
-              pro: true,
+              label: "VIP — alerts soon",
+              href: "/waitlist" as const,
             },
             {
               icon: "🃏",
@@ -578,16 +551,13 @@ function HomeInner() {
             >
               ⚡ EV
             </button>
-            <button
-              onClick={() => setView("insider")}
-              className={`flex-1 min-w-[3.5rem] py-2 rounded-xl text-sm font-medium border ${
-                view === "insider"
-                  ? "bg-amber-500/15 border-amber-400/60 text-amber-300"
-                  : "border-zinc-800 text-zinc-400"
-              }`}
+            <Link
+              href="/waitlist"
+              className="flex-1 min-w-[3.5rem] py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-amber-500/40 hover:text-amber-300"
+              title="Alerts + custom fees — soon"
             >
-              👑 VIP
-            </button>
+              👑 Soon
+            </Link>
             <button
               onClick={() => setView("cards")}
               className={`flex-1 py-2 rounded-xl text-sm font-medium border ${
@@ -750,151 +720,23 @@ function HomeInner() {
               </div>
             </div>
           ) : view === "insider" ? (
-            <div className="space-y-5 max-w-4xl">
-              <div className="panel rounded-2xl p-5 border border-amber-500/30 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 via-transparent to-purple-500/10 pointer-events-none" />
-                <div className="relative">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] uppercase tracking-widest text-amber-400/80">
-                      Founding Members
-                    </span>
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                      3 MONTHS FREE
-                    </span>
+            <div className="max-w-xl">
+              <Link
+                href="/waitlist"
+                className="panel rounded-2xl p-5 border border-amber-500/30 flex items-start gap-3 hover:border-amber-400/50 transition"
+              >
+                <span className="text-2xl" aria-hidden>
+                  👑
+                </span>
+                <div>
+                  <div className="text-sm font-semibold text-amber-100">
+                    VIP
                   </div>
-                  <h2 className="text-2xl font-bold text-white mb-2">
-                    Claim Insider VIP
-                  </h2>
-                  <p className="text-sm text-zinc-400 max-w-xl mb-1">
-                    Founding waitlist for under-EV deal alerts, custom fee
-                    presets, and extra sealed sets — honest roadmap, not a
-                    locked empty room.
+                  <p className="text-sm text-zinc-400 mt-0.5">
+                    Alerts + custom fees — soon. Join the waitlist →
                   </p>
-                  <p className="text-xs text-amber-300/80 mb-4">
-                    First 50: 3 months free when VIP ships → then $4.99/mo.
-                    Free calculator stays free. Or{" "}
-                    <Link href="/waitlist" className="underline hover:text-amber-200">
-                      join the Portal waitlist
-                    </Link>
-                    .
-                  </p>
-                  {claimDone ? (
-                    <div className="rounded-xl border border-green-500/40 bg-green-500/10 p-4">
-                      <div className="text-green-300 font-semibold text-sm mb-1">
-                        You&apos;re in 🌀
-                      </div>
-                      <div className="text-xs text-zinc-400">
-                        Spot locked for{" "}
-                        <span className="text-zinc-200">{claimEmail}</span>.
-                      </div>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleClaim} className="space-y-3 max-w-md">
-                      <div>
-                        <label className="block text-[10px] uppercase tracking-wider text-zinc-500 mb-1">
-                          Name (optional)
-                        </label>
-                        <input
-                          type="text"
-                          value={claimName}
-                          onChange={(e) => setClaimName(e.target.value)}
-                          placeholder="Collector name"
-                          className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-amber-400/60"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase tracking-wider text-zinc-500 mb-1">
-                          Email *
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={claimEmail}
-                          onChange={(e) => setClaimEmail(e.target.value)}
-                          placeholder="you@email.com"
-                          className="w-full bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-amber-400/60"
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        disabled={claimLoading || !claimEmail.trim()}
-                        className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-medium bg-amber-500/25 border border-amber-400/50 text-amber-100 disabled:opacity-50"
-                      >
-                        {claimLoading ? "Claiming..." : "Claim 3 Months Free"}
-                      </button>
-                    </form>
-                  )}
                 </div>
-              </div>
-
-                            <div className="panel rounded-2xl p-5">
-                <h3 className="text-sm font-semibold text-white mb-4">
-                  Best EV Packs (from catalog math)
-                </h3>
-                <div className="space-y-2">
-                  {bestEvPacks.map(({ product: p, totalEV, roi }, idx) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80"
-                    >
-                      <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-xs font-bold text-emerald-300">
-                        {idx + 1}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-zinc-100 font-medium truncate">
-                          {p.name} {p.format}
-                        </div>
-                        <div className="text-[11px] text-zinc-500 truncate">
-                          Live from default price × slot EV
-                        </div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className={`text-sm font-mono ${roi >= 0 ? "text-green-400" : "text-amber-300"}`}>
-                          {roi >= 0 ? "+" : ""}
-                          {roi.toFixed(0)}%
-                        </div>
-                        <div className="text-[10px] text-zinc-500">
-                          ${p.defaultPrice.toFixed(2)} → ${totalEV.toFixed(2)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-                            <div className="panel rounded-2xl p-5">
-                <h3 className="text-sm font-semibold text-white mb-4">
-                  Avoid These (Worst ROI in catalog)
-                </h3>
-                <div className="space-y-2">
-                  {avoidPacks.map(({ product: p, totalEV, roi }) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center gap-3 p-3 rounded-xl bg-red-500/5 border border-red-500/20"
-                    >
-                      <div className="w-7 h-7 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center text-xs text-red-300">
-                        ✕
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm text-zinc-100 font-medium truncate">
-                          {p.name} {p.format}
-                        </div>
-                        <div className="text-[11px] text-zinc-500 truncate">
-                          Chase tax / inflated sealed — fun, not +EV
-                        </div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-sm font-mono text-red-400">
-                          {roi.toFixed(0)}%
-                        </div>
-                        <div className="text-[10px] text-zinc-500">
-                          ${p.defaultPrice.toFixed(2)} → ${totalEV.toFixed(2)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              </Link>
             </div>
           ) : effectiveProduct ? (
             <div className="flex flex-col gap-5">
@@ -977,7 +819,7 @@ function HomeInner() {
                             {p.format}
                           </div>
                           <div className="text-[11px] text-green-400/80 mt-1 font-mono">
-                            ~${p.defaultPrice.toFixed(2)}
+                            Catalog ${p.defaultPrice.toFixed(2)}
                           </div>
                         </div>
                       </button>
@@ -1016,6 +858,10 @@ function HomeInner() {
                         </h2>
                         <p className="text-sm text-zinc-400 mt-0.5">
                           {effectiveProduct.format}
+                        </p>
+                        <p className="text-[11px] text-zinc-500 mt-1">
+                          Updated {pricesUpdatedLabel} · Catalog $
+                          {effectiveProduct.defaultPrice.toFixed(2)}
                         </p>
                         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                           <button
@@ -1063,8 +909,12 @@ function HomeInner() {
                         <div className="flex flex-wrap items-end gap-3 mt-3">
                           <div>
                             <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
-                              Your Price ($)
+                              Your price ($)
                             </label>
+                            <div className="text-[9px] text-zinc-600 mb-1">
+                              ROI source · Catalog $
+                              {effectiveProduct.defaultPrice.toFixed(2)}
+                            </div>
                             <input
                               type="number"
                               inputMode="decimal"
@@ -1227,16 +1077,6 @@ function HomeInner() {
                     )}
 
 
-                    {result && (
-                      <div className="mb-4">
-                        <KeeperEvPanel
-                          grossEV={result.totalEV}
-                          price={price}
-                          quantity={quantity}
-                        />
-                      </div>
-                    )}
-
                     {verdict && (
                       <div
                         ref={verdictRef}
@@ -1309,7 +1149,7 @@ function HomeInner() {
                               {k.netEV.toFixed(2)} · net ROI{" "}
                               {k.netRoi >= 0 ? "+" : ""}
                               {k.netRoi.toFixed(1)}% — fees vary; see Keeper EV
-                              above.
+                              below.
                             </p>
                           );
                         })()}
@@ -1372,6 +1212,17 @@ function HomeInner() {
                           </div>
                           <BuyLinks query={effectiveProduct.name} />
                         </div>
+                      </div>
+                    )}
+
+
+                    {result && (
+                      <div className="mb-4">
+                        <KeeperEvPanel
+                          grossEV={result.totalEV}
+                          price={price}
+                          quantity={quantity}
+                        />
                       </div>
                     )}
 

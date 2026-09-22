@@ -36,6 +36,13 @@ export default function DealsPage() {
   const [notifyStatus, setNotifyStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [notifyMsg, setNotifyMsg] = useState<string | null>(null);
 
+  const pricesUpdatedLabel = (() => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(pricesUpdated);
+    if (!m) return pricesUpdated;
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return `${Number(m[3])} ${months[Number(m[2]) - 1]}`;
+  })();
+
   const copyShareLink = async () => {
     const url =
       typeof window !== "undefined"
@@ -158,7 +165,7 @@ export default function DealsPage() {
               ranked by ROI% or $ edge. Multi-hobby. Same math as the calculator.
             </p>
             <p className="text-[11px] text-zinc-500 mt-2">
-              Prices sheet: {pricesUpdated} · {underEv.length} under-EV right now
+              Updated {pricesUpdatedLabel} · {underEv.length} under-EV right now
               {categoryFilter !== "all"
                 ? ` · ${filtered.length} in filter`
                 : ""}
@@ -186,7 +193,7 @@ export default function DealsPage() {
             Under-EV alerts
           </div>
           <h2 className="text-sm font-semibold text-white mb-1">
-            Notify me when packs flip under-EV
+            Notify when it flips under-EV
           </h2>
           <p className="text-[12px] text-zinc-500 mb-3 leading-relaxed">
             One-field signup via the existing Portal waitlist. Browser push
