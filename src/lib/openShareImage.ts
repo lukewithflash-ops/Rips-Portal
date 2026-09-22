@@ -6,6 +6,8 @@ export interface ShareImageOptions {
   format?: ShareImageFormat;
   /** Max cards to draw in the grid (top hits first). */
   maxCards?: number;
+  /** Prices sheet stamp, e.g. "22 Sep" — shown on Open session cards. */
+  dateLabel?: string;
 }
 
 const SIZES: Record<ShareImageFormat, { w: number; h: number }> = {
@@ -180,16 +182,27 @@ export async function renderOpenShareImage(
   const pad = 56;
   let y = pad;
 
+  const dateLabel = options.dateLabel;
+  const roiPct =
+    session.costPaid > 0
+      ? ((session.totalSimValue - session.costPaid) / session.costPaid) * 100
+      : 0;
+  const roiPositive = roiPct >= 0;
+
   // Branding
   ctx.fillStyle = "#4ade80";
   ctx.font = "750 42px system-ui, sans-serif";
   ctx.fillText("🌀 Rip Portal", pad, y + 42);
   ctx.fillStyle = "#94a3b8";
   ctx.font = "600 22px system-ui, sans-serif";
-  ctx.fillText("FREE PACK SIM", pad, y + 78);
+  ctx.fillText(
+    dateLabel ? `OPEN SESSION · ${dateLabel}` : "OPEN SESSION",
+    pad,
+    y + 78
+  );
   y += 110;
 
-  // Product
+  // Product / set name + packs opened
   const productLine = `${session.quantity}× ${session.product.name}`;
   ctx.fillStyle = "#f1f5f9";
   ctx.font = "700 48px system-ui, sans-serif";
@@ -199,9 +212,48 @@ export async function renderOpenShareImage(
 
   ctx.fillStyle = "#a7f3d0";
   ctx.font = "500 26px system-ui, sans-serif";
-  const meta = `${session.product.format} · Sim ${fmtMoney(session.totalSimValue)} · EV ${fmtMoney(session.expectedEV)}`;
-  ctx.fillText(truncate(ctx, meta, productMax), pad, y + 28);
-  y += 56;
+  const packsLine = `${session.quantity} pack${session.quantity === 1 ? "" : "s"} opened · ${session.product.format}`;
+  ctx.fillText(truncate(ctx, packsLine, productMax), pad, y + 28);
+  y += 48;
+
+  // Stats strip: hits $ · EV $ · ROI / chase tax (never "VALUE" for −ROI)
+  const stripH = 118;
+  const stripGap = 16;
+  const stripW = (productMax - stripGap * 2) / 3;
+  const stripStats: { label: string; value: string; color: string }[] = [
+    {
+      label: "HITS $",
+      value: fmtMoney(session.totalSimValue),
+      color: "#f5d0fe",
+    },
+    {
+      label: "EV $",
+      value: fmtMoney(session.expectedEV),
+      color: "#6ee7b7",
+    },
+    {
+      label: roiPositive ? "ROI" : "CHASE TAX",
+      value: `${roiPct >= 0 ? "+" : ""}${roiPct.toFixed(1)}%`,
+      color: roiPositive ? "#4ade80" : "#f87171",
+    },
+  ];
+  stripStats.forEach((s, i) => {
+    const x = pad + i * (stripW + stripGap);
+    ctx.fillStyle = "#0c0c16";
+    roundRect(ctx, x, y, stripW, stripH, 20);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(57,255,20,0.22)";
+    ctx.lineWidth = 2;
+    roundRect(ctx, x, y, stripW, stripH, 20);
+    ctx.stroke();
+    ctx.fillStyle = "#64748b";
+    ctx.font = "700 18px system-ui, sans-serif";
+    ctx.fillText(s.label, x + 16, y + 36);
+    ctx.fillStyle = s.color;
+    ctx.font = "750 32px ui-monospace, SFMono-Regular, Menlo, monospace";
+    ctx.fillText(truncate(ctx, s.value, stripW - 28), x + 16, y + 84);
+  });
+  y += stripH + 28;
 
   // Divider
   ctx.strokeStyle = "rgba(57,255,20,0.28)";
@@ -231,7 +283,7 @@ export async function renderOpenShareImage(
 
   const gridTop = y;
   const availableBottom =
-    format === "story" ? h - 160 : h - 120; // leave room for watermark
+    format === "story" ? h - 200 : h - 140; // leave room for ripsportal.com watermark
   const maxGridH = availableBottom - gridTop;
   let scale = 1;
   if (rows * cellH + (rows - 1) * gap > maxGridH && maxGridH > 200) {
@@ -325,11 +377,14 @@ export async function renderOpenShareImage(
     }
   });
 
-  // Soft watermark (not a giant URL CTA)
-  ctx.fillStyle = "rgba(148,163,184,0.55)";
-  ctx.font = "500 24px system-ui, sans-serif";
+  // Soft watermark — ripsportal.com required on share cards
+  ctx.fillStyle = "rgba(148,163,184,0.7)";
+  ctx.font = "600 28px system-ui, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("Simulated · ripsportal.com", w / 2, h - 48);
+  ctx.fillText("ripsportal.com", w / 2, h - 72);
+  ctx.fillStyle = "rgba(148,163,184,0.45)";
+  ctx.font = "500 20px system-ui, sans-serif";
+  ctx.fillText("Simulated open · entertainment math · not financial advice", w / 2, h - 40);
   ctx.textAlign = "left";
 
   const blob = await new Promise<Blob>((resolve, reject) => {
@@ -584,9 +639,10 @@ async function shareBlobAsPng(
 
 export async function shareOrDownloadOpenImage(
   session: SimSession,
-  format: ShareImageFormat = "story"
+  format: ShareImageFormat = "story",
+  options: Pick<ShareImageOptions, "dateLabel" | "maxCards"> = {}
 ): Promise<"shared" | "downloaded" | "cancelled" | "unsupported"> {
-  const blob = await renderOpenShareImage(session, { format });
+  const blob = await renderOpenShareImage(session, { format, ...options });
   const filename =
     format === "story"
       ? `rip-portal-${session.product.id}-story.png`
@@ -632,9 +688,10 @@ export async function downloadSingleCardShareImage(
 
 export async function downloadOpenShareImage(
   session: SimSession,
-  format: ShareImageFormat = "story"
+  format: ShareImageFormat = "story",
+  options: Pick<ShareImageOptions, "dateLabel" | "maxCards"> = {}
 ): Promise<void> {
-  const blob = await renderOpenShareImage(session, { format });
+  const blob = await renderOpenShareImage(session, { format, ...options });
   const filename =
     format === "story"
       ? `rip-portal-${session.product.id}-story.png`
