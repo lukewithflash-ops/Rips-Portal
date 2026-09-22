@@ -1,4 +1,11 @@
-import { calculateEV, products, type Product } from "@/lib/products";
+import {
+  calculateEV,
+  products,
+  findProduct,
+  type Product,
+} from "@/lib/products";
+
+export { findProduct };
 
 export const RIP_LOG_DISCLAIMER =
   "Rip Log is a personal math notebook for entertainment — not financial, investment, or collecting advice. Values use catalog slot averages, not live market quotes. Variance is huge; a single session proves nothing about +EV.";
@@ -93,10 +100,6 @@ export function decodeSession(encoded: string): RipLogSessionV1 | null {
   } catch {
     return null;
   }
-}
-
-export function findProduct(id: string): Product | undefined {
-  return products.find((p) => p.id === id);
 }
 
 export function buildSession(

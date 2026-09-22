@@ -853,6 +853,30 @@ export const products: Product[] = rawProducts.map((p) => {
   return override != null ? { ...p, defaultPrice: override } : p;
 });
 
+/**
+ * Legacy / misspelling aliases → canonical product ids.
+ * Keeps deep links working if anyone bookmarked "Suraina" / suraina-* slugs.
+ * Display names stay "Surging Sparks" on the canonical products.
+ */
+export const PRODUCT_ID_ALIASES: Record<string, string> = {
+  suraina: "poke-surging-pack",
+  "suraina-sparks": "poke-surging-pack",
+  "surgina-sparks": "poke-surging-pack",
+  "poke-suraina-pack": "poke-surging-pack",
+  "poke-suraina-bb": "poke-surging-bb",
+};
+
+export function resolveProductId(id: string): string {
+  const key = id.trim().toLowerCase();
+  return PRODUCT_ID_ALIASES[key] ?? id.trim();
+}
+
+/** Single catalog lookup — EV, /open, Rip Log, /pack all should use this. */
+export function findProduct(id: string): Product | undefined {
+  const resolved = resolveProductId(id);
+  return products.find((p) => p.id === resolved);
+}
+
 export function calculateEV(product: Product, price: number) {
   const totalEV = product.slots.reduce(
     (sum, slot) => sum + slot.oddsNum * slot.avgValue,

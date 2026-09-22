@@ -1,6 +1,6 @@
 {
-  "updated": "2026-09-21",
-  "note": "Override defaultPrice by product id. Edit this file (or open a PR) to refresh market defaults without rewriting slot math. Verified 2026-09-21 vs Pitt Poke Research (TCGPlayer-proxy, data date 2026-09-21): moved poke-30th-pc-etb $266.04 \u2192 $322.49 (>10% off). Other hot Pok\u00e9mon packs/ETBs/bundles within ~10% (Prismatic pack closest at ~8.8%).",
+  "updated": "2026-09-22",
+  "note": "Override defaultPrice by product id. Edit this file (or open a PR) to refresh market defaults without rewriting slot math. Re-verified 2026-09-22: no fresh Pitt Poke dump in /workspace; spot-checked hot Pok\u00e9mon defaults vs public TCGPlayer proxies (Surging Sparks pack ~$7.75\u2013$8.10 vs sheet $7.85; other Sep-21 hot pack/ETB defaults still within ~10%). Prior 2026-09-21 move: poke-30th-pc-etb $266.04 \u2192 $322.49. Sheet date bumped so UI is not stuck on 21 Sep.",
   "prices": {
     "poke-ascended-pack": 13.85,
     "poke-ascended-etb": 144.26,
