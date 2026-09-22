@@ -17,6 +17,7 @@ import { computeKeeperEV } from "@/lib/keeper";
 import KeeperEvPanel from "@/components/KeeperEvPanel";
 import DealAlertsBanner from "@/components/DealAlertsBanner";
 import BuyLinks, { AffiliateDisclosure } from "@/components/BuyLinks";
+import { markPackInteracted } from "@/lib/pwa-install";
 
 function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
@@ -50,6 +51,7 @@ function HomeInner() {
     setView("calculator");
     setPackQuery("");
     setVerdictHighlight(true);
+    markPackInteracted();
     const t = window.setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 120);
@@ -77,12 +79,56 @@ function HomeInner() {
       .sort((a, b) => b.roi - a.roi);
   }, []);
 
-  const bestValuePicks = useMemo(() => rankedByRoi.slice(0, 3), [rankedByRoi]);
   const bestEvPacks = useMemo(() => rankedByRoi.slice(0, 5), [rankedByRoi]);
   const avoidPacks = useMemo(
     () => [...rankedByRoi].reverse().slice(0, 3),
     [rankedByRoi]
   );
+
+  /** Best catalog under-EV (price under modeled EV) — teaches the buy-signal mode. */
+  const bestUnderEv = useMemo(() => {
+    return rankedByRoi.filter((row) => row.profit > 0)[0] ?? null;
+  }, [rankedByRoi]);
+
+  const underEvCount = useMemo(
+    () => rankedByRoi.filter((row) => row.profit > 0).length,
+    [rankedByRoi]
+  );
+
+  /**
+   * Chase-tax example: popular/hot pack with a deep −ROI so the hero teaches
+   * both modes instead of looking like VALUE vs −ROI are random.
+   */
+  const chaseTaxExample = useMemo(() => {
+    const preferredIds = [
+      "poke-ascended-pack",
+      "poke-prismatic-pack",
+      "poke-destined-pack",
+      "poke-surging-pack",
+    ];
+    for (const id of preferredIds) {
+      const row = rankedByRoi.find((r) => r.product.id === id);
+      if (row && row.roi < -20) return row;
+    }
+    // Fallback: worst ROI among tagged hot/chase packs
+    const tagged = rankedByRoi.filter(
+      (r) =>
+        r.roi < -20 &&
+        (r.product.tag === "hot" || r.product.tag === "chase")
+    );
+    if (tagged.length) return tagged[tagged.length - 1];
+    return rankedByRoi[rankedByRoi.length - 1] ?? null;
+  }, [rankedByRoi]);
+
+  const pricesUpdatedLabel = useMemo(() => {
+    // pricesUpdated is YYYY-MM-DD from the sheet
+    const raw = pricesUpdated;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+    if (!m) return raw;
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const day = String(Number(m[3]));
+    return `${day} ${months[Number(m[2]) - 1]}`;
+  }, []);
 
   const marketPulse = useMemo(() => {
     if (!rankedByRoi.length) {
@@ -185,6 +231,7 @@ function HomeInner() {
     setSelectedId(id);
     setCustomPrice("");
     syncPackToUrl(id);
+    markPackInteracted();
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 80);
@@ -226,13 +273,7 @@ function HomeInner() {
               id: "calculator" as const,
               active: view === "calculator",
             },
-            {
-              icon: "🔐",
-              label: "Insider Pro",
-              id: "insider" as const,
-              active: view === "insider",
-              pro: true,
-            },
+            /* VIP / Insider Pro hidden until a real product ships */
             {
               icon: "🃏",
               label: "Card Values",
@@ -241,7 +282,7 @@ function HomeInner() {
             },
             { icon: "🎁", label: "Open", href: "/open" as const },
             { icon: "📝", label: "Rip Log", href: "/log" as const },
-            { icon: "💎", label: "Deals", href: "/deals" as const },
+            { icon: "💎", label: "Under-EV Watch", href: "/deals" as const },
             { icon: "📦", label: "Packs & Sets", soon: true },
             { icon: "📊", label: "Market Tracker", soon: true },
             { icon: "⭐", label: "Watchlist", soon: true },
@@ -352,51 +393,95 @@ function HomeInner() {
           {view === "calculator" && (
             <div className="mb-5 panel rounded-2xl p-4 border border-emerald-500/35 relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-green-500/5 pointer-events-none" />
-              <div className="relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
-                <div className="shrink-0">
-                  <div className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-0.5">
-                    Best EV this week
+              <div className="relative space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-0.5">
+                      Under-EV Watch
+                    </div>
+                    <div className="text-sm font-bold text-white">
+                      Today&apos;s best under-EV + a chase-tax example
+                    </div>
+                    <p className="text-[11px] text-zinc-500 mt-1 max-w-xl leading-relaxed">
+                      Under-EV = catalog price below modeled EV (math leans buy/rip).
+                      Chase tax = popular sealed you still open for fun despite deep −ROI.
+                    </p>
                   </div>
-                  <div className="text-sm font-bold text-white">
-                    VALUE picks right now
+                  <div className="shrink-0 text-[11px] text-zinc-500 sm:text-right">
+                    Updated {pricesUpdatedLabel} · {underEvCount} under-EV
                   </div>
                 </div>
-                <div className="flex-1 flex flex-wrap gap-2">
-                  {bestValuePicks.map(({ product: p, totalEV, roi }) => (
+                <div className="flex flex-wrap gap-2">
+                  {bestUnderEv ? (
                     <button
-                      key={p.id}
                       type="button"
                       onClick={() => {
-                        setActiveCategory(p.category);
-                        setSelectedId(p.id);
+                        setActiveCategory(bestUnderEv.product.category);
+                        setSelectedId(bestUnderEv.product.id);
                         setCustomPrice("");
                         setView("calculator");
-                        syncPackToUrl(p.id);
+                        syncPackToUrl(bestUnderEv.product.id);
+                        markPackInteracted();
                       }}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/25 text-left hover:border-emerald-400/50 transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/35 text-left hover:border-emerald-400/60 transition-colors max-w-full"
                     >
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                        {roi >= 0 ? "VALUE" : "LEAST −EV"}
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
+                        UNDER-EV
                       </span>
-                      <div>
-                        <div className="text-xs font-medium text-zinc-100">
-                          {p.name}
+                      <div className="min-w-0">
+                        <div className="text-xs font-medium text-zinc-100 truncate">
+                          {bestUnderEv.product.name}
                         </div>
                         <div className="text-[10px] text-zinc-500">
-                          {roi >= 0 ? "+" : ""}
-                          {roi.toFixed(0)}% ROI · ~${p.defaultPrice.toFixed(2)} → $
-                          {totalEV.toFixed(2)}
+                          +{bestUnderEv.roi.toFixed(0)}% ROI · ~$
+                          {bestUnderEv.product.defaultPrice.toFixed(2)} → $
+                          {bestUnderEv.totalEV.toFixed(2)}
                         </div>
                       </div>
                     </button>
-                  ))}
+                  ) : (
+                    <Link
+                      href="/deals"
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/25 text-[11px] text-emerald-300"
+                    >
+                      No under-EV right now — open Under-EV Watch →
+                    </Link>
+                  )}
+                  {chaseTaxExample && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveCategory(chaseTaxExample.product.category);
+                        setSelectedId(chaseTaxExample.product.id);
+                        setCustomPrice("");
+                        setView("calculator");
+                        syncPackToUrl(chaseTaxExample.product.id);
+                        markPackInteracted();
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-red-500/30 text-left hover:border-red-400/50 transition-colors max-w-full"
+                    >
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/40 shrink-0">
+                        CHASE TAX
+                      </span>
+                      <div className="min-w-0">
+                        <div className="text-xs font-medium text-zinc-100 truncate">
+                          {chaseTaxExample.product.name}
+                        </div>
+                        <div className="text-[10px] text-zinc-500">
+                          {chaseTaxExample.roi.toFixed(0)}% ROI · fun, not +EV · ~$
+                          {chaseTaxExample.product.defaultPrice.toFixed(2)} → $
+                          {chaseTaxExample.totalEV.toFixed(2)}
+                        </div>
+                      </div>
+                    </button>
+                  )}
                 </div>
-                <div className="shrink-0 sm:ml-auto">
+                <div>
                   <Link
                     href="/deals"
                     className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline whitespace-nowrap"
                   >
-                    See all under-EV →
+                    Open Under-EV Watch →
                   </Link>
                 </div>
               </div>
@@ -443,16 +528,6 @@ function HomeInner() {
             >
               🃏 Cards
             </button>
-            <button
-              onClick={() => setView("insider")}
-              className={`flex-1 py-2 rounded-xl text-sm font-medium border ${
-                view === "insider"
-                  ? "bg-amber-500/15 border-amber-400/60 text-amber-300"
-                  : "border-zinc-800 text-zinc-400"
-              }`}
-            >
-              🔐 VIP
-            </button>
             <Link
               href="/open"
               className="flex-1 py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-cyan-500/40 hover:text-cyan-300"
@@ -469,7 +544,7 @@ function HomeInner() {
               href="/deals"
               className="flex-1 py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-emerald-500/40 hover:text-emerald-300"
             >
-              💎 Deals
+              💎 Under-EV
             </Link>
           </div>
 
@@ -1067,6 +1142,36 @@ function HomeInner() {
                             : "border-green-500/25 bg-black/40"
                         }`}
                       >
+
+                        <div className="mb-3 flex flex-wrap items-center gap-1.5" aria-label="Portal Verdict stamp">
+                          {([
+                            { key: "rip" as const, label: "RIP" },
+                            { key: "singles" as const, label: "BUY SINGLES" },
+                            { key: "hold" as const, label: "HOLD SEALED" },
+                          ]).map((opt) => {
+                            const on = verdict.primary === opt.key;
+                            const color =
+                              opt.key === "rip"
+                                ? on
+                                  ? "bg-green-500/25 text-green-200 border-green-400/50"
+                                  : "bg-zinc-900/60 text-zinc-500 border-zinc-700/80"
+                                : opt.key === "singles"
+                                  ? on
+                                    ? "bg-cyan-500/25 text-cyan-200 border-cyan-400/50"
+                                    : "bg-zinc-900/60 text-zinc-500 border-zinc-700/80"
+                                  : on
+                                    ? "bg-amber-500/25 text-amber-200 border-amber-400/50"
+                                    : "bg-zinc-900/60 text-zinc-500 border-zinc-700/80";
+                            return (
+                              <span
+                                key={opt.key}
+                                className={`text-[10px] font-bold tracking-wider px-2 py-1 rounded-md border ${color}`}
+                              >
+                                {opt.label}
+                              </span>
+                            );
+                          })}
+                        </div>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                           <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
                             Portal Verdict

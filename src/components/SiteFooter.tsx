@@ -42,7 +42,7 @@ export default function SiteFooter() {
             Open
           </Link>
           <Link href="/deals" className="hover:text-emerald-300 transition-colors">
-            Deals
+            Under-EV Watch
           </Link>
           <Link href="/log" className="hover:text-cyan-300 transition-colors">
             Rip Log

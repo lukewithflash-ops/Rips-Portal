@@ -31,6 +31,9 @@ export default function DealsPage() {
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
   const [sortKey, setSortKey] = useState<SortKey>("roi");
   const [copiedShare, setCopiedShare] = useState(false);
+  const [notifyEmail, setNotifyEmail] = useState("");
+  const [notifyStatus, setNotifyStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [notifyMsg, setNotifyMsg] = useState<string | null>(null);
 
   const copyShareLink = async () => {
     const url =
@@ -45,6 +48,42 @@ export default function DealsPage() {
       /* ignore */
     }
   };
+
+  const submitNotify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = notifyEmail.trim().toLowerCase();
+    if (!email || !email.includes("@")) return;
+    setNotifyStatus("loading");
+    setNotifyMsg(null);
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          interests: ["deals"],
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        message?: string;
+      };
+      if (res.ok && data.ok) {
+        setNotifyStatus("done");
+        setNotifyMsg("You\u2019re on the list — we\u2019ll note under-EV alert interest.");
+      } else {
+        setNotifyStatus("error");
+        setNotifyMsg(
+          data.message ||
+            "Could not reach the waitlist. Try /waitlist or email lukewithflash@gmail.com."
+        );
+      }
+    } catch {
+      setNotifyStatus("error");
+      setNotifyMsg("Network error — try again or use /waitlist.");
+    }
+  };
+
 
   const underEv = useMemo(() => {
     const rows = products
@@ -113,7 +152,7 @@ export default function DealsPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-green-500/5 pointer-events-none" />
           <div className="relative">
             <div className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-1">
-              Deals
+              Under-EV Watch
             </div>
             <h1 className="text-xl font-bold text-white tracking-tight">
               Price under expected EV
@@ -144,6 +183,51 @@ export default function DealsPage() {
         >
           {DISCLAIMER}
         </div>
+
+
+        <section className="panel rounded-2xl p-4 border border-purple-500/25">
+          <div className="text-[10px] uppercase tracking-widest text-purple-300/90 font-semibold mb-1">
+            Under-EV alerts
+          </div>
+          <h2 className="text-sm font-semibold text-white mb-1">
+            Notify me when packs flip under-EV
+          </h2>
+          <p className="text-[12px] text-zinc-500 mb-3 leading-relaxed">
+            One-field signup via the existing Portal waitlist. Browser push
+            toggles are below if you want alerts on this device too.
+          </p>
+          {notifyStatus === "done" ? (
+            <p className="text-[12px] text-emerald-300">{notifyMsg}</p>
+          ) : (
+            <form onSubmit={submitNotify} className="flex flex-col sm:flex-row gap-2">
+              <input
+                type="email"
+                required
+                value={notifyEmail}
+                onChange={(e) => setNotifyEmail(e.target.value)}
+                placeholder="you@email.com"
+                className="flex-1 bg-black/60 border border-zinc-700 rounded-xl px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-purple-400/60"
+              />
+              <button
+                type="submit"
+                disabled={notifyStatus === "loading" || !notifyEmail.trim()}
+                className="shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium bg-purple-500/20 border border-purple-400/40 text-purple-100 disabled:opacity-50"
+              >
+                {notifyStatus === "loading" ? "Saving…" : "Notify me"}
+              </button>
+            </form>
+          )}
+          {notifyStatus === "error" && notifyMsg && (
+            <p className="mt-2 text-[11px] text-amber-300/90">{notifyMsg}</p>
+          )}
+          <p className="mt-2 text-[10px] text-zinc-600">
+            Or open the full{" "}
+            <Link href="/waitlist" className="text-purple-300 hover:underline">
+              waitlist
+            </Link>
+            .
+          </p>
+        </section>
 
         <DealAlertsBanner variant="banner" />
         <DealAlertsBanner variant="settings" />

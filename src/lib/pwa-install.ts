@@ -143,3 +143,37 @@ export async function promptInstall(): Promise<"accepted" | "dismissed" | "unava
     return "dismissed";
   }
 }
+
+/** Set after the user opens/calculates a pack once — gates the install toast. */
+const PACK_INTERACT_KEY = "rip-portal-pack-interacted";
+
+export function hasPackInteracted(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(PACK_INTERACT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function markPackInteracted(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(PACK_INTERACT_KEY, "1");
+    window.dispatchEvent(new Event("rip-portal-pack-interacted"));
+  } catch {
+    /* private mode */
+  }
+}
+
+export function subscribePackInteracted(listener: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const handler = () => listener();
+  window.addEventListener("rip-portal-pack-interacted", handler);
+  window.addEventListener("storage", handler);
+  return () => {
+    window.removeEventListener("rip-portal-pack-interacted", handler);
+    window.removeEventListener("storage", handler);
+  };
+}
+

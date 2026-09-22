@@ -10,6 +10,8 @@ import {
   promptInstall,
   subscribeInstallPrompt,
   wasInstallDismissedRecently,
+  hasPackInteracted,
+  subscribePackInteracted,
 } from "@/lib/pwa-install";
 
 function useDeferredPrompt() {
@@ -29,6 +31,11 @@ export default function InstallPrompt() {
   const [visible, setVisible] = useState(false);
   const [mode, setMode] = useState<"android" | "ios" | null>(null);
   const [showIosHowTo, setShowIosHowTo] = useState(false);
+  const packReady = useSyncExternalStore(
+    subscribePackInteracted,
+    hasPackInteracted,
+    () => false
+  );
 
   const hideForRoute =
     !!pathname &&
@@ -45,6 +52,11 @@ export default function InstallPrompt() {
       setVisible(false);
       return;
     }
+    // Prefer: wait until the user has opened/calculated one pack
+    if (!packReady) {
+      setVisible(false);
+      return;
+    }
 
     if (isIosDevice()) {
       setMode("ios");
@@ -57,7 +69,7 @@ export default function InstallPrompt() {
       setMode("android");
       setVisible(true);
     }
-  }, [deferred, hideForRoute]);
+  }, [deferred, hideForRoute, packReady]);
 
   const dismiss = useCallback(() => {
     markInstallDismissed();

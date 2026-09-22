@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s · Rip Portal",
   },
   description:
-    "Expected value for Pokémon, Topps Baseball, Basketball & One Piece packs. Free EV calculator, Verdict, Rip Log, Deals, and pack sim — estimates, not guarantees.",
+    "Expected value for Pokémon, Topps Baseball, Basketball & One Piece packs. Free EV calculator, Verdict, Rip Log, Under-EV Watch, and pack sim — estimates, not guarantees.",
   applicationName: "Rip Portal",
   keywords: [
     "pack EV",

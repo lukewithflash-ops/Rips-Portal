@@ -4,12 +4,12 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Portal — Rip Portal, Portal Verdict, Rip Log, Free Pack Opener, and more. Multi-hobby pack EV tools for collectors.",
+    "Portal — Rip Portal, Portal Verdict, Rip Log, Under-EV Watch, Free Pack Opener, and more. Multi-hobby pack EV tools for collectors.",
   alternates: { canonical: "https://ripsportal.com/about" },
   openGraph: {
     title: "About Portal · Rip Portal",
     description:
-      "Math-first collector tools: EV calculator, Verdict, Rip Log, Deals, and free pack simulation.",
+      "Math-first collector tools: EV calculator, Verdict, Rip Log, Under-EV Watch, and free pack simulation.",
     url: "https://ripsportal.com/about",
     siteName: "Rip Portal",
     type: "website",
@@ -112,8 +112,15 @@ export default function AboutPage() {
         </div>
 
         <p className="mt-8 text-[12px] text-zinc-500">
-          Questions or pack tips? Reach out via the Insider form on the home
-          page when available.
+          Questions or pack tips? Use the{" "}
+          <Link href="/waitlist" className="text-purple-300 hover:underline">
+            waitlist
+          </Link>{" "}
+          or the email capture on{" "}
+          <Link href="/deals" className="text-emerald-300 hover:underline">
+            Under-EV Watch
+          </Link>
+          .
         </p>
       </main>
     </div>
