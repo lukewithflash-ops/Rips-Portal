@@ -10,8 +10,8 @@ type BrandLogoProps = {
 };
 
 /**
- * Wide "PORTAL RIPS" lockup (logo B) for site chrome.
- * PWA icons use logo A separately under /public/icons/.
+ * Wide RIP PORTAL lockup for site chrome.
+ * Visible title / aria = "Rip Portal". PWA icons use the square mark under /public/icons/.
  */
 export default function BrandLogo({
   height = 36,
@@ -26,8 +26,8 @@ export default function BrandLogo({
   const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/brand/portal-rips-header.png"
-      alt="Portal Rips"
+      src="/brand/rip-portal-header.png"
+      alt="Rip Portal"
       width={w}
       height={h}
       className={`object-contain object-left select-none ${className}`}
@@ -44,14 +44,14 @@ export default function BrandLogo({
     <Link
       href={href}
       className="inline-flex items-center shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-400/70 rounded-sm"
-      aria-label="Portal Rips home"
+      aria-label="Rip Portal home"
     >
       {img}
     </Link>
   );
 }
 
-/** Small square app mark (logo A) for install toast / favicon-sized chrome. */
+/** Small square app mark for install toast / favicon-sized chrome. */
 export function BrandAppIcon({
   size = 28,
   className = "",
