@@ -315,7 +315,10 @@ function usePrefersReducedMotion(): boolean {
 
 /** Rarity-weighted intensity from EV model inputs (does not change odds math). */
 function pullValue(pull: SimPull): number {
-  return pull.estValue ?? pull.avgValue;
+  if (pull.odds === "filler") return 0;
+  const est = pull.estValue;
+  if (typeof est === "number" && est > 0) return est;
+  return pull.avgValue ?? 0;
 }
 
 function rarityTier(pull: SimPull, unitPrice: number): RarityTier {
@@ -850,6 +853,21 @@ function OpenInner() {
             >
               ⓘ
             </button>
+            {onStage && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowSetSheet(true);
+                }}
+                className="text-[11px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:text-cyan-200 hover:border-cyan-500/40"
+                aria-haspopup="dialog"
+                aria-label="Change set"
+              >
+                Set
+              </button>
+            )}
             <Link
               href={
                 product
@@ -969,8 +987,8 @@ function OpenInner() {
 
         {onStage && product && (
           <>
-            {/* Compact set chip — sheet to change set (keeps stage; no full-page reset) */}
-            <div className="flex items-center gap-2.5 rounded-xl border border-zinc-800/90 bg-black/35 px-3 py-2">
+            {/* Compact set chip — sticky so Set stays tappable on stage AND after reveal */}
+            <div className="sticky top-[3.25rem] z-30 flex items-center gap-2.5 rounded-xl border border-zinc-800/90 bg-zinc-950/95 backdrop-blur-md px-3 py-2 shadow-lg shadow-black/40">
               <ProductRowIcon product={product} />
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold text-zinc-100 leading-snug break-words">
@@ -986,9 +1004,14 @@ function OpenInner() {
               </div>
               <button
                 type="button"
-                onClick={() => setShowSetSheet(true)}
-                className="shrink-0 text-[11px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:text-cyan-200 hover:border-cyan-500/40"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowSetSheet(true);
+                }}
+                className="shrink-0 relative z-20 text-[11px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:text-cyan-200 hover:border-cyan-500/40 active:scale-95"
                 aria-haspopup="dialog"
+                aria-label="Change set"
               >
                 Set
               </button>
@@ -1492,11 +1515,24 @@ function OpenInner() {
       {/* Sticky Open another — same set, no bounce to product step */}
       {onResults && allRevealed && session && (
         <div className="fixed bottom-14 lg:bottom-0 inset-x-0 z-40 px-3 pb-2 pointer-events-none">
-          <div className="max-w-3xl mx-auto pointer-events-auto">
+          <div className="max-w-3xl mx-auto pointer-events-auto flex gap-2">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowSetSheet(true);
+              }}
+              className="shrink-0 px-3.5 py-3.5 rounded-2xl text-sm font-semibold bg-zinc-900/90 border border-zinc-600 text-zinc-100 hover:border-cyan-500/50 hover:text-cyan-100 backdrop-blur-md"
+              aria-haspopup="dialog"
+              aria-label="Change set"
+            >
+              Set
+            </button>
             <button
               type="button"
               onClick={runOpen}
-              className="w-full py-3.5 rounded-2xl text-sm font-semibold bg-cyan-500/25 border border-cyan-400/60 text-cyan-50 hover:bg-cyan-500/35 portal-glow open-cta-pulse shadow-lg shadow-cyan-950/50 backdrop-blur-md"
+              className="flex-1 py-3.5 rounded-2xl text-sm font-semibold bg-cyan-500/25 border border-cyan-400/60 text-cyan-50 hover:bg-cyan-500/35 portal-glow open-cta-pulse shadow-lg shadow-cyan-950/50 backdrop-blur-md"
             >
               Open another · {productDisplayName(session.product)}
             </button>
