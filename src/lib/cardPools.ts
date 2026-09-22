@@ -8,7 +8,7 @@
  * Names/art are public/example pools — not a guarantee of that exact pull.
  */
 
-import type { Category, Product, RaritySlot } from "@/lib/products";
+import type { ArtStatus, Category, Product, RaritySlot } from "@/lib/products";
 
 export interface PoolCard {
   name: string;
@@ -1022,18 +1022,45 @@ export function scalePoolToSlotAvg(cards: PoolCard[], target: number): PoolCard[
   }));
 }
 
+
+/** Conservative art readiness for /open. Explicit product.artStatus wins. */
+export function getArtStatus(product: Product): ArtStatus {
+  if (product.artStatus) return product.artStatus;
+  const pools = cardPoolsByProduct[product.id];
+  if (!pools) return "none";
+  // Has any curated slot pool → partial (name/rarity/$ only until marked complete).
+  const hasPool = Object.values(pools).some((slot) => slot && slot.length > 0);
+  return hasPool ? "partial" : "none";
+}
+
+export function isFeaturedOpenProduct(product: Product): boolean {
+  return getArtStatus(product) === "complete";
+}
+
 export function resolveSlotCard(
   product: Product,
   slotIndex: number,
   slot: RaritySlot,
   rng: () => number = Math.random
 ): PoolCard {
+  const status = getArtStatus(product);
+  // Partial / none: rarity + slot $ only — no invented card names, no wrong art.
+  if (status !== "complete") {
+    return {
+      name: slot.name,
+      estValue: slot.avgValue,
+    };
+  }
   const pool = cardPoolsByProduct[product.id]?.[slotIndex];
   if (pool && pool.length > 0) {
     const scaled = scalePoolToSlotAvg(pool, slot.avgValue);
     return pickWeightedCard(scaled, rng);
   }
-  return synthesizeDisplayCard(product, slot, slotIndex);
+  // Complete but missing a slot pool: still avoid inventing names/art.
+  return {
+    name: slot.name,
+    estValue: slot.avgValue,
+  };
 }
 
 /** Illustrative zero-$ fillers so empty/miss packs still feel like a pack open. */
@@ -1041,8 +1068,18 @@ export function emptyPackFillers(
   product: Product,
   rng: () => number = Math.random
 ): PoolCard[] {
-  const pool0 = cardPoolsByProduct[product.id]?.[0];
+  const status = getArtStatus(product);
   const count = 2 + (rng() < 0.5 ? 1 : 0);
+  const bulkName = product.slots[0]?.name ?? "Bulk";
+  // Partial/none: generic bulk labels only — no invented names or art.
+  if (status !== "complete") {
+    return Array.from({ length: count }, () => ({
+      name: bulkName,
+      estValue: 0,
+      weight: 1,
+    }));
+  }
+  const pool0 = cardPoolsByProduct[product.id]?.[0];
   const out: PoolCard[] = [];
   for (let i = 0; i < count; i++) {
     if (pool0 && pool0.length > 0) {
@@ -1054,17 +1091,7 @@ export function emptyPackFillers(
         weight: 1,
       });
     } else {
-      const syn = synthesizeDisplayCard(
-        product,
-        product.slots[0] ?? {
-          name: "Bulk",
-          odds: "~",
-          oddsNum: 1,
-          avgValue: 0,
-        },
-        0
-      );
-      out.push({ ...syn, estValue: 0 });
+      out.push({ name: bulkName, estValue: 0, weight: 1 });
     }
   }
   return out;

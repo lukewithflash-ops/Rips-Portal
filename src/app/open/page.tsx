@@ -19,6 +19,10 @@ import {
 } from "@/lib/products";
 import { findProduct } from "@/lib/riplog";
 import {
+  getArtStatus,
+  isFeaturedOpenProduct,
+} from "@/lib/cardPools";
+import {
   OPEN_SIM_DISCLAIMER,
   OPEN_CARD_ART_DISCLAIMER,
   buildDropTable,
@@ -41,6 +45,97 @@ import BrandLogo from "@/components/BrandLogo";
 type Phase = "idle" | "tearing" | "reveal";
 
 type RarityTier = "common" | "uncommon" | "rare" | "chase";
+
+/** Open v2 screens — pick product, stage the rip, then results (no bounce to Product). */
+type OpenScreen = "pick" | "stage" | "results";
+
+type SessionChip = {
+  packs: number;
+  spent: number;
+  hits: number;
+  vsEV: number;
+};
+
+/** Soft hit frame for IR / SIR / MHR (and sports parallel / auto equiv). */
+function isSoftHitPull(pull: SimPull): boolean {
+  const blob = `${pull.slotName} ${pull.cardName} ${pull.name}`.toLowerCase();
+  return /\b(ir|sir|mhr|illustration rare|special illustration|mega hyper|hyper rare|manga|sec\b|parallel|refractor|auto)\b/.test(
+    blob
+  );
+}
+
+function countHits(session: SimSession): number {
+  let n = 0;
+  for (const pack of session.packs) {
+    for (const pull of pack.pulls) {
+      if (isSoftHitPull(pull) || rarityTier(pull, session.pricePerUnit) === "chase") {
+        n += 1;
+      }
+    }
+  }
+  return n;
+}
+
+function playWhoosh(reduced: boolean) {
+  if (reduced || typeof window === "undefined") return;
+  try {
+    const AC =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(420, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 0.22);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.24);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.26);
+    window.setTimeout(() => void ctx.close(), 400);
+  } catch {
+    /* ignore audio failures */
+  }
+}
+
+function hapticPulse(pattern: number | number[], reduced: boolean) {
+  if (reduced || typeof navigator === "undefined" || !navigator.vibrate) return;
+  try {
+    navigator.vibrate(pattern);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Set-art thumb or generic pack silhouette — never a huge emoji crowding the title. */
+function ProductRowIcon({ product }: { product: Product }) {
+  if (product.image) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={product.image}
+        alt=""
+        width={40}
+        height={56}
+        className="h-14 w-10 shrink-0 rounded-md object-cover border border-zinc-700/80 bg-black/40"
+        loading="lazy"
+        decoding="async"
+      />
+    );
+  }
+  return (
+    <span
+      className="pack-silhouette h-14 w-10 shrink-0 rounded-md border border-zinc-700/70 bg-gradient-to-b from-zinc-800/80 to-zinc-950/90"
+      aria-hidden
+    />
+  );
+}
+
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);
@@ -181,6 +276,16 @@ function OpenInner() {
     pull: SimPull;
     tier: CardZoomTier;
   } | null>(null);
+  const [screen, setScreen] = useState<OpenScreen>("pick");
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [showOdds, setShowOdds] = useState(false);
+  const [sessionChip, setSessionChip] = useState<SessionChip>({
+    packs: 0,
+    spent: 0,
+    hits: 0,
+    vsEV: 0,
+  });
+  const [sessionXp, setSessionXp] = useState(0);
   const timersRef = useRef<Array<{ id: number; kind: "t" | "i" }>>([]);
 
   const clearTimers = useCallback(() => {
@@ -240,6 +345,7 @@ function OpenInner() {
       setSummaryReady(false);
       setShowConfetti(false);
       setZoomCard(null);
+      setScreen("stage");
     }
   }, [packFromUrl]);
 
@@ -253,6 +359,10 @@ function OpenInner() {
       setSummaryReady(false);
       setShowConfetti(false);
       setZoomCard(null);
+      setScreen("stage");
+      setShowOdds(false);
+      setSessionChip({ packs: 0, spent: 0, hits: 0, vsEV: 0 });
+      setSessionXp(0);
       const params = new URLSearchParams();
       params.set("pack", p.id);
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -260,10 +370,15 @@ function OpenInner() {
     [pathname, router]
   );
 
-  const categoryProducts = useMemo(
-    () => products.filter((p) => p.category === category),
-    [category]
-  );
+  const categoryProducts = useMemo(() => {
+    const list = products.filter((p) => p.category === category);
+    return [...list].sort((a, b) => {
+      const af = isFeaturedOpenProduct(a) ? 0 : 1;
+      const bf = isFeaturedOpenProduct(b) ? 0 : 1;
+      if (af !== bf) return af - bf;
+      return 0;
+    });
+  }, [category]);
 
   /** Cap multi-open reveal total ~2–3s for 10 packs. */
   const revealStepMs = useCallback(
@@ -288,19 +403,34 @@ function OpenInner() {
     setSummaryReady(false);
     setShowConfetti(false);
     setZoomCard(null);
+    setScreen("results");
+    setSessionChip((prev) => ({
+      packs: prev.packs + next.quantity,
+      spent: prev.spent + next.costPaid,
+      hits: prev.hits + countHits(next),
+      vsEV: prev.vsEV + next.vsExpected,
+    }));
+    setSessionXp((x) => x + next.quantity);
+    playWhoosh(reducedMotion);
+    hapticPulse([18, 40, 28], reducedMotion);
 
     const labels = product.slots.map((s) => s.name);
     const hi = next.packs[0]?.highlight?.cardName ?? next.packs[0]?.highlight?.name ?? labels[0] ?? "Pull";
 
-    if (reducedMotion) {
-      setReelLabel(hi);
+    const finishReveal = (sess: SimSession) => {
       setPhase("reveal");
-      setRevealIdx(Math.max(0, next.packs.length - 1));
+      setRevealIdx(Math.max(0, sess.packs.length - 1));
       setSummaryReady(true);
-      const hasChase = next.packs.some(
+      const hasChase = sess.packs.some(
         (pk) => packRarity(pk, price) === "chase"
       );
       setShowConfetti(hasChase);
+      if (hasChase) hapticPulse([12, 30, 12, 30, 40], reducedMotion);
+    };
+
+    if (reducedMotion) {
+      setReelLabel(hi);
+      finishReveal(next);
       return;
     }
 
@@ -326,6 +456,7 @@ function OpenInner() {
         );
         if (hasChase) {
           setShowConfetti(true);
+          hapticPulse([12, 30, 12, 30, 40], reducedMotion);
           trackTimeout(
             window.setTimeout(() => setShowConfetti(false), 1100)
           );
@@ -337,8 +468,8 @@ function OpenInner() {
           return;
         }
 
-        // Sequential reveal capped ~2–3s total for 10 packs
-        const step = revealStepMs(next.packs.length);
+        // Sequential reveal — rares linger a beat longer than bulk
+        const base = revealStepMs(next.packs.length);
         let i = 0;
         const advance = () => {
           i += 1;
@@ -349,15 +480,21 @@ function OpenInner() {
           }
           setRevealIdx(i);
           const pk = next.packs[i];
-          if (pk && packRarity(pk, price) === "chase") {
+          const tier = pk ? packRarity(pk, price) : "common";
+          if (pk && tier === "chase") {
             setShowConfetti(true);
+            hapticPulse(30, reducedMotion);
             trackTimeout(
               window.setTimeout(() => setShowConfetti(false), 900)
             );
           }
+          const step =
+            tier === "chase" ? Math.round(base * 1.85) :
+            tier === "rare" ? Math.round(base * 1.35) :
+            Math.max(90, Math.round(base * 0.75));
           trackTimeout(window.setTimeout(advance, step));
         };
-        trackTimeout(window.setTimeout(advance, step));
+        trackTimeout(window.setTimeout(advance, base));
       }, tearDurationMs)
     );
   }, [
@@ -463,6 +600,11 @@ function OpenInner() {
           ? "pack-flip-reveal"
           : "";
 
+  const artStatus = product ? getArtStatus(product) : "none";
+  const onResults = screen === "results" && !!session;
+  const onStage = screen === "stage" || onResults;
+  const showPicker = screen === "pick";
+
   return (
     <div className="flex min-h-screen portal-bg flex-col">
       <header className="border-b border-purple-500/20 bg-black/40 backdrop-blur-md sticky top-0 z-40 site-chrome">
@@ -473,279 +615,341 @@ function OpenInner() {
               <div className="font-bold text-cyan-300 neon-text text-sm leading-tight">
                 Free Pack Opener
               </div>
-              <div className="text-[10px] text-zinc-500 tracking-wider truncate">
-                SIMULATION · EV MODEL ODDS
+              <div className="text-[10px] text-zinc-500 tracking-wider">
+                SIM · Know before you rip
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <Link
-              href="/deals"
-              className="text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline hidden sm:inline"
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => setShowDisclaimer(true)}
+              className="h-8 w-8 rounded-full border border-zinc-700 text-zinc-400 hover:text-cyan-300 hover:border-cyan-500/40 text-sm"
+              aria-label="Simulation info"
+              title="Info"
             >
-              Under-EV Watch
-            </Link>
-            <Link
-              href="/log"
-              className="text-[11px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline hidden sm:inline"
-            >
-              Rip Log
-            </Link>
+              ⓘ
+            </button>
             <Link
               href={product ? `/?pack=${product.id}` : "/"}
               className="text-[11px] text-green-400/90 hover:text-green-300 underline-offset-2 hover:underline"
             >
-              ← Calculator
+              ← Calc
             </Link>
           </div>
         </div>
-      </header>
-
-      <main className="flex-1 px-4 md:px-6 py-5 max-w-3xl mx-auto w-full space-y-4 pb-28">
-        <p
-          className="text-[12px] sm:text-[13px] text-zinc-400 leading-snug"
-          role="note"
-        >
-          <span className="font-semibold text-cyan-300/90">Open</span>
-          {" — "}
-          free educational pack sim. Math estimates only — not real packs, not
-          gambling.
-        </p>
-
-        <section className="panel rounded-2xl p-4 portal-border space-y-3">
-          <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-            1 · Product
-          </h2>
-          <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
-            {categories.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setCategory(c.id);
-                  const first = products.find((p) => p.category === c.id);
-                  if (first) selectProduct(first);
-                }}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] border ${
-                  category === c.id
-                    ? "bg-cyan-500/15 border-cyan-400/50 text-cyan-300"
-                    : "bg-black/40 border-zinc-700 text-zinc-400"
-                }`}
-              >
-                {c.emoji} {c.label}
-              </button>
-            ))}
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto">
-            {categoryProducts.map((p) => {
-              const active = product?.id === p.id;
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => selectProduct(p)}
-                  className={`text-left rounded-xl border px-3 py-2.5 flex gap-2.5 items-center card-hover ${
-                    active
-                      ? "border-cyan-400/50 bg-cyan-500/10"
-                      : "border-zinc-800 bg-black/30"
+        {/* Session chip — always visible once any opens this sitting */}
+        {(sessionChip.packs > 0 || onStage) && (
+          <div className="px-4 md:px-6 pb-2 max-w-3xl mx-auto w-full">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-purple-500/25 bg-purple-950/30 px-3 py-1.5 text-[11px] text-zinc-300">
+              <span className="font-semibold text-purple-200/90">Session</span>
+              <span>
+                <span className="text-zinc-500">packs</span>{" "}
+                <span className="font-mono text-cyan-200">{sessionChip.packs}</span>
+              </span>
+              <span>
+                <span className="text-zinc-500">spent</span>{" "}
+                <span className="font-mono">{fmtMoney(sessionChip.spent)}</span>
+              </span>
+              <span>
+                <span className="text-zinc-500">hits</span>{" "}
+                <span className="font-mono text-amber-200">{sessionChip.hits}</span>
+              </span>
+              <span>
+                <span className="text-zinc-500">vs EV</span>{" "}
+                <span
+                  className={`font-mono ${
+                    sessionChip.vsEV >= 0 ? "text-emerald-300" : "text-amber-300"
                   }`}
                 >
-                  <span className="text-xl shrink-0">{p.emoji ?? "📦"}</span>
-                  <span className="min-w-0">
-                    <span className="block text-sm text-zinc-100 font-medium truncate">
-                      {p.name}
-                    </span>
-                    <span className="block text-[11px] text-zinc-500 truncate">
-                      {p.format} · {fmtMoney(p.defaultPrice)}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
+                  {fmtMoney(sessionChip.vsEV)}
+                </span>
+              </span>
+              {sessionXp > 0 && (
+                <span className="ml-auto text-[10px] text-zinc-500" title="Sticker XP — not currency">
+                  ✦ {sessionXp} rip XP
+                </span>
+              )}
+            </div>
           </div>
-        </section>
+        )}
+      </header>
 
-        {product && (
-          <>
-            <section className="panel rounded-2xl p-4 space-y-4">
+      <main
+        className={`flex-1 px-4 md:px-6 py-4 max-w-3xl mx-auto w-full space-y-3 ${
+          onResults ? "pb-36" : "pb-28"
+        }`}
+      >
+        {showPicker && (
+          <section className="panel rounded-2xl p-3.5 portal-border space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
               <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                2 · Open
+                Pick a set
               </h2>
-              <div className="flex flex-wrap gap-2">
-                {(["1", "5", "10", "custom"] as const).map((m) => (
+              <p className="text-[10px] text-zinc-600 truncate">
+                Featured = solid card art
+              </p>
+            </div>
+            <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+              {categories.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => {
+                    setCategory(c.id);
+                    setProductId(null);
+                  }}
+                  className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] border ${
+                    category === c.id
+                      ? "bg-cyan-500/15 border-cyan-400/50 text-cyan-300"
+                      : "bg-black/40 border-zinc-700 text-zinc-400"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[60vh] overflow-y-auto">
+              {categoryProducts.map((p) => {
+                const active = product?.id === p.id;
+                const featured = isFeaturedOpenProduct(p);
+                return (
                   <button
-                    key={m}
+                    key={p.id}
                     type="button"
-                    onClick={() => setQtyMode(m)}
-                    className={`rounded-xl px-3 py-2 text-[12px] border ${
-                      qtyMode === m
-                        ? "bg-cyan-500/15 border-cyan-400/50 text-cyan-200"
-                        : "border-zinc-800 text-zinc-400"
+                    onClick={() => selectProduct(p)}
+                    className={`text-left rounded-xl border px-3 py-2.5 flex gap-3 items-start card-hover ${
+                      active
+                        ? "border-cyan-400/50 bg-cyan-500/10"
+                        : "border-zinc-800 bg-black/30"
                     }`}
                   >
-                    {m === "custom"
-                      ? "Custom"
-                      : `${m} pack${m === "1" ? "" : "s"}`}
+                    <ProductRowIcon product={p} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm text-zinc-100 font-medium leading-snug break-words whitespace-normal">
+                        {p.name}
+                        {featured && (
+                          <span className="ml-1.5 align-middle text-[9px] uppercase tracking-wider text-fuchsia-300/90 border border-fuchsia-500/40 rounded px-1 py-0.5">
+                            Art
+                          </span>
+                        )}
+                      </span>
+                      <span className="block text-[11px] text-zinc-500 leading-snug mt-0.5 break-words whitespace-normal">
+                        {p.format} · {fmtMoney(p.defaultPrice)}
+                      </span>
+                    </span>
                   </button>
-                ))}
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {onStage && product && (
+          <>
+            {/* Compact product chrome — change set without bouncing to full "1 · Product" */}
+            <div className="flex items-center gap-2.5 rounded-xl border border-zinc-800/90 bg-black/35 px-3 py-2">
+              <ProductRowIcon product={product} />
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-zinc-100 leading-snug break-words">
+                  {product.name}
+                </div>
+                <div className="text-[11px] text-zinc-500 leading-snug break-words">
+                  {product.format} · {fmtMoney(price)}
+                  {artStatus === "complete" ? " · full art" : " · rarity view"}
+                </div>
               </div>
-              {qtyMode === "custom" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setScreen("pick");
+                  setPhase("idle");
+                  setSession(null);
+                  setSummaryReady(false);
+                }}
+                className="shrink-0 text-[11px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-400 hover:text-zinc-200"
+              >
+                Change
+              </button>
+            </div>
+
+            {!onResults && (
+              <section className="panel rounded-2xl p-4 space-y-4 flex flex-col min-h-[52vh]">
+                <div className="flex flex-wrap gap-2">
+                  {(["1", "5", "10", "custom"] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => setQtyMode(m)}
+                      className={`rounded-xl px-3 py-2 text-[12px] border ${
+                        qtyMode === m
+                          ? "bg-cyan-500/15 border-cyan-400/50 text-cyan-200"
+                          : "border-zinc-800 text-zinc-400"
+                      }`}
+                    >
+                      {m === "custom"
+                        ? "Custom"
+                        : `${m} pack${m === "1" ? "" : "s"}`}
+                    </button>
+                  ))}
+                </div>
+                {qtyMode === "custom" && (
+                  <div>
+                    <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+                      Quantity (1–100)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={customQty}
+                      onChange={(e) =>
+                        setCustomQty(
+                          Math.max(
+                            1,
+                            Math.min(100, parseInt(e.target.value, 10) || 1)
+                          )
+                        )
+                      }
+                      className="w-28 bg-black/60 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-cyan-400/60"
+                    />
+                  </div>
+                )}
                 <div>
                   <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
-                    Quantity (1–100)
+                    Price per unit ($)
                   </label>
                   <input
                     type="number"
-                    min={1}
-                    max={100}
-                    value={customQty}
-                    onChange={(e) =>
-                      setCustomQty(
-                        Math.max(
-                          1,
-                          Math.min(100, parseInt(e.target.value, 10) || 1)
-                        )
-                      )
-                    }
-                    className="w-28 bg-black/60 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-cyan-400/60"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="0"
+                    value={priceStr !== "" ? priceStr : price}
+                    onChange={(e) => setPriceStr(e.target.value)}
+                    className="w-36 bg-black/60 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-cyan-400/60"
                   />
                 </div>
-              )}
-              <div>
-                <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
-                  Price per unit ($)
-                </label>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  step="0.01"
-                  min="0"
-                  value={priceStr !== "" ? priceStr : price}
-                  onChange={(e) => setPriceStr(e.target.value)}
-                  className="w-36 bg-black/60 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-cyan-400/60"
-                />
-              </div>
 
-              <div
-                className={`pack-stage relative mx-auto w-full max-w-sm h-32 rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-black to-emerald-950/30 flex items-center justify-center overflow-hidden ${packStageClass}`}
-              >
-                <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.35),transparent_70%)]" />
-                {phase === "tearing" && (
-                  <div className="pack-tear-flash" aria-hidden />
-                )}
-                <ConfettiBurst show={showConfetti && !reducedMotion} />
-                <div className="relative z-10 text-center px-4">
-                  <div className="text-[10px] uppercase tracking-widest text-cyan-500/80 mb-1">
-                    {phase === "tearing"
-                      ? "Opening…"
-                      : phase === "reveal"
-                        ? "Reveal"
-                        : "Ready"}
-                  </div>
-                  <div className="text-lg sm:text-xl font-bold text-white truncate max-w-[280px]">
-                    {phase === "idle"
-                      ? `${product.emoji ?? "📦"} ${product.name}`
-                      : reelLabel}
-                  </div>
-                  {phase === "idle" && (
-                    <div className="mt-1.5 text-[10px] text-zinc-500 tracking-wide">
-                      Tap Open · free sim
-                    </div>
+                <div
+                  className={`pack-stage relative mx-auto w-full flex-1 min-h-[220px] max-w-md rounded-2xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 via-black to-emerald-950/30 flex items-center justify-center overflow-hidden ${packStageClass}`}
+                >
+                  <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.35),transparent_70%)]" />
+                  {phase === "tearing" && (
+                    <div className="pack-tear-flash" aria-hidden />
                   )}
+                  <ConfettiBurst show={showConfetti && !reducedMotion} />
+                  <div className="relative z-10 text-center px-4">
+                    <div className="text-[10px] uppercase tracking-widest text-cyan-500/80 mb-1">
+                      {phase === "tearing"
+                        ? "Opening…"
+                        : phase === "reveal"
+                          ? "Reveal"
+                          : "Ready"}
+                    </div>
+                    <div className="text-lg sm:text-xl font-bold text-white leading-snug break-words max-w-[300px] mx-auto">
+                      {phase === "idle" ? product.name : reelLabel}
+                    </div>
+                    {phase === "idle" && (
+                      <div className="mt-1.5 text-[10px] text-zinc-500 tracking-wide">
+                        Tap Open · free educational sim
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <button
-                type="button"
-                onClick={runOpen}
-                disabled={phase === "tearing"}
-                className={`w-full py-3 rounded-xl text-sm font-semibold bg-cyan-500/20 border border-cyan-400/50 text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-50 portal-glow transition-colors ${
-                  phase === "idle" ? "open-cta-pulse" : ""
-                }`}
-              >
-                {phase === "tearing"
-                  ? "Opening…"
-                  : `Open ${quantity} simulated pack${quantity === 1 ? "" : "s"}`}
-              </button>
+                <button
+                  type="button"
+                  onClick={runOpen}
+                  disabled={phase === "tearing"}
+                  className={`w-full py-3.5 rounded-xl text-sm font-semibold bg-cyan-500/20 border border-cyan-400/50 text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-50 portal-glow transition-colors ${
+                    phase === "idle" ? "open-cta-pulse" : ""
+                  }`}
+                >
+                  {phase === "tearing"
+                    ? "Opening…"
+                    : `Open ${quantity} simulated pack${quantity === 1 ? "" : "s"}`}
+                </button>
 
-              <details className="group rounded-xl border border-zinc-800/80 bg-black/25 px-3 py-2">
-                <summary className="cursor-pointer list-none text-[11px] font-medium text-zinc-500 hover:text-zinc-300 [&::-webkit-details-marker]:hidden flex items-center justify-between gap-2">
-                  <span>Details — odds, art & disclaimers</span>
-                  <span className="text-zinc-600 group-open:rotate-180 transition-transform">
-                    ▾
-                  </span>
-                </summary>
-                <div className="mt-2 space-y-2 border-t border-zinc-800/80 pt-2">
-                  <p className="text-[11px] leading-relaxed text-zinc-400">
-                    {OPEN_SIM_DISCLAIMER}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowOdds((v) => !v)}
+                    className="text-[11px] px-3 py-1.5 rounded-lg border border-zinc-700 text-zinc-400 hover:text-cyan-200 hover:border-cyan-500/40"
+                    aria-expanded={showOdds}
+                  >
+                    Odds {showOdds ? "▾" : "▸"}
+                  </button>
+                  <p className="text-[11px] text-zinc-600 flex-1 truncate">
+                    Unit EV {fmtMoney(unitEV)} · not gambling
                   </p>
-                  <p className="text-[11px] leading-relaxed text-zinc-500">
-                    <span className="text-cyan-400/80 font-medium">
-                      Card art ·{" "}
-                    </span>
-                    {OPEN_CARD_ART_DISCLAIMER}
-                  </p>
                 </div>
-              </details>
-            </section>
-            <section className="panel rounded-2xl p-4 space-y-3">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                  3 · Drop table
-                </h2>
-                <div className="text-[11px] text-zinc-500">
-                  Unit EV {fmtMoney(unitEV)} · cost {fmtMoney(price)}
-                </div>
-              </div>
-              <div className="overflow-x-auto -mx-1">
-                <table className="w-full text-left text-[12px] min-w-[320px]">
-                  <thead>
-                    <tr className="text-[10px] uppercase tracking-wider text-zinc-600 border-b border-zinc-800">
-                      <th className="py-2 px-1 font-medium">Tier</th>
-                      <th className="py-2 px-1 font-medium">Odds</th>
-                      <th className="py-2 px-1 font-medium text-right">
-                        Avg $
-                      </th>
-                      <th className="py-2 px-1 font-medium text-right">EV $</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dropTable.map((row) => (
-                      <tr
-                        key={row.name}
-                        className="border-b border-zinc-900/80 text-zinc-300"
-                      >
-                        <td className="py-2 px-1 pr-2">{row.name}</td>
-                        <td className="py-2 px-1 font-mono text-cyan-300/90">
-                          {row.odds}
-                        </td>
-                        <td className="py-2 px-1 text-right font-mono">
-                          {fmtMoney(row.avgValue)}
-                        </td>
-                        <td className="py-2 px-1 text-right font-mono text-emerald-300/90">
-                          {fmtMoney(row.evContribution)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <p className="text-[11px] text-zinc-600 leading-relaxed">
-                Simulated odds = catalog{" "}
-                <span className="font-mono text-zinc-500">oddsNum</span> per
-                slot (independent draws, same as calculator EV). Not official
-                published rates.
-              </p>
-            </section>
 
+                {showOdds && (
+                  <div className="rounded-xl border border-zinc-800 bg-black/30 p-3 space-y-2">
+                    <div className="overflow-x-auto -mx-1">
+                      <table className="w-full text-left text-[12px] min-w-[320px]">
+                        <thead>
+                          <tr className="text-[10px] uppercase tracking-wider text-zinc-600 border-b border-zinc-800">
+                            <th className="py-2 px-1 font-medium">Tier</th>
+                            <th className="py-2 px-1 font-medium">Odds</th>
+                            <th className="py-2 px-1 font-medium text-right">
+                              Avg $
+                            </th>
+                            <th className="py-2 px-1 font-medium text-right">
+                              EV $
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dropTable.map((row) => (
+                            <tr
+                              key={row.name}
+                              className="border-b border-zinc-900/80 text-zinc-300"
+                            >
+                              <td className="py-2 px-1 pr-2">{row.name}</td>
+                              <td className="py-2 px-1 font-mono text-cyan-300/90">
+                                {row.odds}
+                              </td>
+                              <td className="py-2 px-1 text-right font-mono">
+                                {fmtMoney(row.avgValue)}
+                              </td>
+                              <td className="py-2 px-1 text-right font-mono text-emerald-300/90">
+                                {fmtMoney(row.evContribution)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="text-[11px] text-zinc-600 leading-relaxed">
+                      Simulated odds = catalog oddsNum (same as calculator EV).
+                      Not official published rates.
+                    </p>
+                  </div>
+                )}
+              </section>
+            )}
           </>
         )}
 
-        {session && phase === "reveal" && (
+        {session && onResults && (phase === "reveal" || phase === "tearing") && (
           <section className="panel rounded-2xl p-4 space-y-4 border border-emerald-500/25">
-            <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-              Results
-            </h2>
+            <div
+              className={`pack-stage relative mx-auto w-full max-w-sm h-24 rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/30 via-black to-emerald-950/20 flex items-center justify-center overflow-hidden ${packStageClass}`}
+            >
+              {phase === "tearing" && (
+                <div className="pack-tear-flash" aria-hidden />
+              )}
+              <ConfettiBurst show={showConfetti && !reducedMotion} />
+              <div className="relative z-10 text-center px-3">
+                <div className="text-[10px] uppercase tracking-widest text-cyan-500/80">
+                  {summaryReady ? "Pulled" : "Revealing…"}
+                </div>
+                <div className="text-base font-bold text-white leading-snug break-words">
+                  {reelLabel}
+                </div>
+              </div>
+            </div>
 
             {allRevealed && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 summary-punch">
@@ -811,7 +1015,7 @@ function OpenInner() {
               </p>
             )}
 
-            <ul className="space-y-2 max-h-80 overflow-y-auto">
+            <ul className="space-y-2 max-h-[50vh] overflow-y-auto">
               {shownPacks.map((pack, listIdx) => {
                 const tier = packRarity(pack, session.pricePerUnit);
                 const isLatest = listIdx === shownPacks.length - 1;
@@ -846,23 +1050,25 @@ function OpenInner() {
                       </span>
                     </div>
                     {pack.pulls.length > 0 && (
-                      <div className="pack-strip" aria-label={`Pack ${pack.packIndex} cards`}>
+                      <div
+                        className="pack-strip"
+                        aria-label={`Pack ${pack.packIndex} cards`}
+                      >
                         {pack.pulls.map((pull, i) => {
                           const pt = rarityTier(pull, session.pricePerUnit);
                           const stripTitle =
                             pull.cardName || pull.name || pull.slotName;
+                          const soft = isSoftHitPull(pull);
                           return (
                             <button
                               type="button"
                               key={`strip-${pack.packIndex}-${i}`}
                               className={`pack-strip-card ${
                                 pt === "chase" ? "pack-strip-card-chase" : ""
-                              }`}
+                              } ${soft ? "soft-hit-frame" : ""}`}
                               title={stripTitle}
                               aria-label={`View details for ${stripTitle}`}
-                              onClick={() =>
-                                setZoomCard({ pull, tier: pt })
-                              }
+                              onClick={() => setZoomCard({ pull, tier: pt })}
                             >
                               {pull.imageUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
@@ -887,7 +1093,7 @@ function OpenInner() {
                                 }}
                                 aria-hidden
                               >
-                                {session.product.emoji ?? "🃏"}
+                                ◆
                               </span>
                             </button>
                           );
@@ -907,12 +1113,15 @@ function OpenInner() {
                             pull.cardName || pull.name || pull.slotName;
                           const isFiller =
                             pull.odds === "filler" || value <= 0;
+                          const soft = isSoftHitPull(pull);
                           return (
                             <li
                               key={`${pack.packIndex}-${i}`}
                               className={`pull-chip pull-card-row rounded-xl border pull-chip-${pt} ${
-                                pt === "chase" ? "pull-card-chase-frame" : ""
-                              }`}
+                                pt === "chase" || soft
+                                  ? "pull-card-chase-frame"
+                                  : ""
+                              } ${soft && pt !== "chase" ? "soft-hit-row" : ""}`}
                               style={
                                 reducedMotion
                                   ? undefined
@@ -929,62 +1138,64 @@ function OpenInner() {
                                   setZoomCard({ pull, tier: pt })
                                 }
                               >
-                              <div className="flex items-center gap-2.5 min-w-0">
-                                <div
-                                  className={`pull-card-thumb shrink-0 overflow-hidden rounded-md bg-black/50 ${
-                                    pt === "chase"
-                                      ? "pull-card-thumb-chase"
-                                      : ""
-                                  }`}
-                                >
-                                  {pull.imageUrl ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
-                                    <img
-                                      src={pull.imageUrl}
-                                      alt=""
-                                      width={40}
-                                      height={56}
-                                      loading="lazy"
-                                      decoding="async"
-                                      className="h-14 w-10 object-cover"
-                                      onError={(e) => {
-                                        const el = e.currentTarget;
-                                        el.style.display = "none";
-                                        const fallback =
-                                          el.nextElementSibling as HTMLElement | null;
-                                        if (fallback)
-                                          fallback.style.display = "flex";
-                                      }}
-                                    />
-                                  ) : null}
-                                  <span
-                                    className="h-14 w-10 items-center justify-center text-base"
-                                    style={{
-                                      display: pull.imageUrl ? "none" : "flex",
-                                    }}
-                                    aria-hidden
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <div
+                                    className={`pull-card-thumb shrink-0 overflow-hidden rounded-md bg-black/50 ${
+                                      pt === "chase" || soft
+                                        ? "pull-card-thumb-chase"
+                                        : ""
+                                    }`}
                                   >
-                                    {session.product.emoji ?? "🃏"}
-                                  </span>
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="text-[12px] sm:text-[13px] font-semibold text-white leading-snug truncate">
-                                    {title}
+                                    {pull.imageUrl ? (
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      <img
+                                        src={pull.imageUrl}
+                                        alt=""
+                                        width={40}
+                                        height={56}
+                                        loading="lazy"
+                                        decoding="async"
+                                        className="h-14 w-10 object-cover"
+                                        onError={(e) => {
+                                          const el = e.currentTarget;
+                                          el.style.display = "none";
+                                          const fallback =
+                                            el.nextElementSibling as HTMLElement | null;
+                                          if (fallback)
+                                            fallback.style.display = "flex";
+                                        }}
+                                      />
+                                    ) : null}
+                                    <span
+                                      className="h-14 w-10 items-center justify-center text-[10px] text-zinc-500"
+                                      style={{
+                                        display: pull.imageUrl
+                                          ? "none"
+                                          : "flex",
+                                      }}
+                                      aria-hidden
+                                    >
+                                      ◆
+                                    </span>
                                   </div>
-                                  <div className="text-[10px] text-zinc-500 truncate mt-0.5">
-                                    {isFiller
-                                      ? "Pack filler · illustrative"
-                                      : `${pull.slotName}${
-                                          pull.odds ? ` · ${pull.odds}` : ""
-                                        }`}
+                                  <div className="min-w-0 flex-1">
+                                    <div className="text-[12px] sm:text-[13px] font-semibold text-white leading-snug break-words whitespace-normal">
+                                      {title}
+                                    </div>
+                                    <div className="text-[10px] text-zinc-500 break-words whitespace-normal mt-0.5">
+                                      {isFiller
+                                        ? "Pack filler · illustrative"
+                                        : `${pull.slotName}${
+                                            pull.odds ? ` · ${pull.odds}` : ""
+                                          }`}
+                                    </div>
+                                  </div>
+                                  <div className="shrink-0 text-right">
+                                    <div className="text-[12px] font-mono font-semibold text-emerald-300">
+                                      {isFiller ? "—" : fmtMoney(value)}
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="shrink-0 text-right">
-                                  <div className="text-[12px] font-mono font-semibold text-emerald-300">
-                                    {isFiller ? "—" : fmtMoney(value)}
-                                  </div>
-                                </div>
-                              </div>
                               </button>
                             </li>
                           );
@@ -999,13 +1210,6 @@ function OpenInner() {
             {allRevealed && (
               <div className="flex flex-col gap-2 pt-1 summary-punch">
                 <div className="flex flex-wrap gap-2 items-center">
-                  <button
-                    type="button"
-                    onClick={runOpen}
-                    className="text-[12px] px-3 py-2 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-100 hover:bg-cyan-500/25 open-cta-pulse"
-                  >
-                    Open again
-                  </button>
                   <button
                     type="button"
                     onClick={() => void shareToInstagram()}
@@ -1043,15 +1247,81 @@ function OpenInner() {
                   </p>
                 )}
                 <p className="text-[10px] text-zinc-600 leading-snug">
-                  Opens your device share sheet with a Stories-sized image — pick
-                  Instagram if it appears. Web can&apos;t force the IG Stories
-                  camera.
+                  Opens your device share sheet with a Stories-sized image —
+                  pick Instagram if it appears. Web can&apos;t force the IG
+                  Stories camera.
                 </p>
               </div>
             )}
           </section>
         )}
+
+        {/* 1-line footer disclaimer */}
+        <p className="text-[11px] text-zinc-600 text-center leading-snug pt-1">
+          Free educational sim · not gambling · no real-money opens.{" "}
+          <button
+            type="button"
+            className="text-cyan-500/80 hover:text-cyan-300 underline-offset-2 hover:underline"
+            onClick={() => setShowDisclaimer(true)}
+          >
+            Details
+          </button>
+        </p>
       </main>
+
+      {/* Sticky Open another — same set, no bounce to product step */}
+      {onResults && allRevealed && session && (
+        <div className="fixed bottom-14 lg:bottom-0 inset-x-0 z-40 px-3 pb-2 pointer-events-none">
+          <div className="max-w-3xl mx-auto pointer-events-auto">
+            <button
+              type="button"
+              onClick={runOpen}
+              className="w-full py-3.5 rounded-2xl text-sm font-semibold bg-cyan-500/25 border border-cyan-400/60 text-cyan-50 hover:bg-cyan-500/35 portal-glow open-cta-pulse shadow-lg shadow-cyan-950/50 backdrop-blur-md"
+            >
+              Open another · {session.product.name}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showDisclaimer && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Simulation disclaimer"
+          onClick={() => setShowDisclaimer(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-purple-500/30 bg-zinc-950 p-4 space-y-3 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold text-cyan-200">
+                About this sim
+              </h2>
+              <button
+                type="button"
+                className="text-zinc-500 hover:text-zinc-300 text-sm"
+                onClick={() => setShowDisclaimer(false)}
+              >
+                Close
+              </button>
+            </div>
+            <p className="text-[12px] leading-relaxed text-zinc-400">
+              {OPEN_SIM_DISCLAIMER}
+            </p>
+            <p className="text-[12px] leading-relaxed text-zinc-500">
+              <span className="text-cyan-400/80 font-medium">Card art · </span>
+              {OPEN_CARD_ART_DISCLAIMER}
+            </p>
+            <p className="text-[11px] text-zinc-600 leading-relaxed">
+              No IAP for packs. Future VIP (if any) is data/alerts only — never
+              paid pack opens.
+            </p>
+          </div>
+        </div>
+      )}
 
       {zoomCard && session && (
         <CardZoomModal
@@ -1070,25 +1340,25 @@ function OpenInner() {
             href="/"
             className="flex-1 py-2 rounded-xl text-[11px] font-medium border border-zinc-800 text-zinc-400 text-center"
           >
-            ⚡ EV
+            EV
           </Link>
           <Link
             href="/open"
             className="flex-1 py-2 rounded-xl text-[11px] font-medium border border-cyan-400/50 bg-cyan-500/15 text-cyan-200 text-center"
           >
-            🎁 Open
+            Open
           </Link>
           <Link
             href="/deals"
             className="flex-1 py-2 rounded-xl text-[11px] font-medium border border-zinc-800 text-zinc-400 text-center"
           >
-            💎 Under-EV
+            Under-EV
           </Link>
           <Link
             href="/log"
             className="flex-1 py-2 rounded-xl text-[11px] font-medium border border-zinc-800 text-zinc-400 text-center"
           >
-            📝 Log
+            Log
           </Link>
         </div>
       </nav>

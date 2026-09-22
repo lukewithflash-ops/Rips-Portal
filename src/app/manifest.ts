@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Rip Portal",
     short_name: "Rip Portal",
     description:
-      "Know before you rip. Pack EV calculator for Pokémon, sports cards, and One Piece.",
+      "Know before you rip. Free educational pack sim + EV calculator for Pokémon, sports cards, and One Piece. Not gambling. No real-money opens.",
     start_url: "/",
     scope: "/",
     display: "standalone",

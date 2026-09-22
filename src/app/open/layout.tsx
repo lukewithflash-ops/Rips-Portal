@@ -6,7 +6,7 @@ export const revalidate = 0;
 export const metadata: Metadata = {
   title: "Free Pack Opener",
   description:
-    "Educational pack-opening simulation with drop tables from Rip Portal EV math. No gems, no paid opens, no gambling — entertainment estimates only.",
+    "Know before you rip. Free educational pack sim + EV math. Not gambling. No real-money opens. No IAP for packs.",
   alternates: {
     canonical: "https://ripsportal.com/open",
   },
