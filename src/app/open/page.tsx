@@ -487,7 +487,7 @@ function OpenInner() {
               href="/deals"
               className="text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline hidden sm:inline"
             >
-              Deals
+              Under-EV Watch
             </Link>
             <Link
               href="/log"
@@ -1086,7 +1086,7 @@ function OpenInner() {
             href="/deals"
             className="flex-1 py-2 rounded-xl text-[11px] font-medium border border-zinc-800 text-zinc-400 text-center"
           >
-            💎 Deals
+            💎 Under-EV
           </Link>
           <Link
             href="/log"
