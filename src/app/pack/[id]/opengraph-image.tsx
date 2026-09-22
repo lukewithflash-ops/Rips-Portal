@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { products, calculateEV } from "@/lib/products";
+import { products, calculateEV, findProduct } from "@/lib/products";
 
 export const runtime = "edge";
 export const alt = "Rip Portal pack share card";
@@ -16,7 +16,7 @@ function fmtMoney(n: number): string {
 
 export default async function PackOpenGraphImage({ params }: Props) {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
+  const product = findProduct(id);
   const name = product?.name ?? "Unknown pack";
   const format = product?.format ?? "";
   const emoji = product?.emoji ?? "📦";

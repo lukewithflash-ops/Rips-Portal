@@ -6,3 +6,5 @@
   3. Commit / PR (or ask Trader’s Monday routine)
 
 Slot odds and `avgValue` still live in `src/lib/products.ts`.
+
+Catalog source of truth is `src/lib/products.ts` (EV, `/open`, Rip Log, Cards pack picker). `findProduct()` resolves legacy aliases (e.g. Suraina → Surging Sparks).

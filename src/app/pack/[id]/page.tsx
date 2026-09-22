@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { products, calculateEV, categories } from "@/lib/products";
+import { products, calculateEV, categories, findProduct } from "@/lib/products";
 import PackRedirect from "./PackRedirect";
 import BuyLinks, { AffiliateDisclosure } from "@/components/BuyLinks";
 
@@ -13,7 +13,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
+  const product = findProduct(id);
   if (!product) {
     return { title: "Pack not found" };
   }
@@ -50,7 +50,7 @@ function fmtMoney(n: number): string {
 
 export default async function PackSharePage({ params }: Props) {
   const { id } = await params;
-  const product = products.find((p) => p.id === id);
+  const product = findProduct(id);
   if (!product) notFound();
 
   const { totalEV, roi, profit } = calculateEV(product, product.defaultPrice);

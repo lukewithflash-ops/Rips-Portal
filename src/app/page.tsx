@@ -8,6 +8,8 @@ import {
   products,
   calculateEV,
   pricesUpdated,
+  findProduct,
+  PRODUCT_ID_ALIASES,
   type Category,
   type Product,
 } from "@/lib/products";
@@ -50,7 +52,7 @@ function HomeInner() {
   // Deep link: ?pack=<productId>
   useEffect(() => {
     if (!packFromUrl) return;
-    const match = products.find((p) => p.id === packFromUrl);
+    const match = findProduct(packFromUrl);
     if (!match) return;
     setActiveCategory(match.category);
     setSelectedId(match.id);
@@ -201,7 +203,12 @@ function HomeInner() {
     return products.filter((p) => {
       if (p.category !== activeCategory) return false;
       if (!q) return true;
-      return `${p.name} ${p.format}`.toLowerCase().includes(q);
+      const hay = `${p.name} ${p.format}`.toLowerCase();
+      if (hay.includes(q)) return true;
+      // Misspellings like "Suraina" resolve to Surging Sparks via aliases
+      return Object.entries(PRODUCT_ID_ALIASES).some(
+        ([alias, pid]) => alias.includes(q) && pid === p.id
+      );
     });
   }, [activeCategory, packQuery]);
 
@@ -324,7 +331,13 @@ function HomeInner() {
               id: "calculator" as const,
               active: view === "calculator",
             },
-            /* VIP / Insider Pro hidden until a real product ships */
+            {
+              icon: "👑",
+              label: "Insider VIP",
+              id: "insider" as const,
+              active: view === "insider",
+              pro: true,
+            },
             {
               icon: "🃏",
               label: "Card Values",
@@ -554,16 +567,26 @@ function HomeInner() {
             </div>
           )}
 
-          <div className="flex gap-2 mb-4 lg:hidden">
+          <div className="flex gap-2 mb-4 lg:hidden overflow-x-auto">
             <button
               onClick={() => setView("calculator")}
-              className={`flex-1 py-2 rounded-xl text-sm font-medium border ${
+              className={`flex-1 min-w-[3.5rem] py-2 rounded-xl text-sm font-medium border ${
                 view === "calculator"
                   ? "bg-green-500/15 border-green-400/60 text-green-300"
                   : "border-zinc-800 text-zinc-400"
               }`}
             >
               ⚡ EV
+            </button>
+            <button
+              onClick={() => setView("insider")}
+              className={`flex-1 min-w-[3.5rem] py-2 rounded-xl text-sm font-medium border ${
+                view === "insider"
+                  ? "bg-amber-500/15 border-amber-400/60 text-amber-300"
+                  : "border-zinc-800 text-zinc-400"
+              }`}
+            >
+              👑 VIP
             </button>
             <button
               onClick={() => setView("cards")}
@@ -743,12 +766,17 @@ function HomeInner() {
                     Claim Insider VIP
                   </h2>
                   <p className="text-sm text-zinc-400 max-w-xl mb-1">
-                    First 50 only. Best EV ranks, avoid list, early set data,
-                    deeper odds.
+                    Founding waitlist for under-EV deal alerts, custom fee
+                    presets, and extra sealed sets — honest roadmap, not a
+                    locked empty room.
                   </p>
                   <p className="text-xs text-amber-300/80 mb-4">
-                    $0 for 3 months → then $4.99/mo. Free calculator stays free
-                    forever.
+                    First 50: 3 months free when VIP ships → then $4.99/mo.
+                    Free calculator stays free. Or{" "}
+                    <Link href="/waitlist" className="underline hover:text-amber-200">
+                      join the Portal waitlist
+                    </Link>
+                    .
                   </p>
                   {claimDone ? (
                     <div className="rounded-xl border border-green-500/40 bg-green-500/10 p-4">
