@@ -41,6 +41,7 @@ import {
   shareOrDownloadOpenImage,
 } from "@/lib/openShareImage";
 import BrandLogo from "@/components/BrandLogo";
+import { markPackInteracted } from "@/lib/pwa-install";
 
 type Phase = "idle" | "tearing" | "reveal";
 
@@ -398,6 +399,7 @@ function OpenInner() {
     clearTimers();
     const next = simulateOpen(product, quantity, price);
     setSession(next);
+    markPackInteracted(); // successful pack open — gates install toast (hidden on /open CTA)
     setPhase("tearing");
     setRevealIdx(0);
     setSummaryReady(false);

@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import SiteFooter from "@/components/SiteFooter";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import InstallPrompt from "@/components/InstallPrompt";
+import OfflineBanner from "@/components/OfflineBanner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,6 +43,36 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Rip Portal",
+    startupImage: [
+      {
+        url: "/icons/splash-swirl-1024.png",
+        media:
+          "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      {
+        url: "/icons/splash-swirl-1024.png",
+        media:
+          "(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      {
+        url: "/icons/splash-swirl-1024.png",
+        media:
+          "(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)",
+      },
+      {
+        url: "/icons/splash-swirl-1024.png",
+        media:
+          "(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      {
+        url: "/icons/splash-swirl-1024.png",
+        media:
+          "(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)",
+      },
+      {
+        url: "/icons/splash-swirl-1024.png",
+      },
+    ],
   },
   formatDetection: {
     telephone: false,
@@ -99,6 +130,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col portal-bg">
+        <OfflineBanner />
         {children}
         <SiteFooter />
         <InstallPrompt />

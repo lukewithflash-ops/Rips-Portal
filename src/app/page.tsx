@@ -56,7 +56,7 @@ function HomeInner() {
     setView("calculator");
     setPackQuery("");
     setVerdictHighlight(true);
-    markPackInteracted();
+    // Install prompt: wait for explicit EV select / calc — not passive deep-link paint
     const t = window.setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 120);
@@ -219,6 +219,7 @@ function HomeInner() {
     setSelectedId(id);
     setCustomPrice("");
     syncPackToUrl(id);
+    // Successful EV calc path (results panel for this pack) — gates install toast
     markPackInteracted();
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
