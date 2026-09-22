@@ -67,7 +67,8 @@ export default function AboutPage() {
             </h2>
             <p>
               Educational simulation only — drop tables from our EV model, no
-              gems, no paid opens, no gambling.{" "}
+              gems, no paid opens, no gambling. No in-app purchases for packs;
+              any future VIP is data/alerts only.{" "}
               <Link href="/open" className="text-cyan-300 hover:underline">
                 Try /open
               </Link>

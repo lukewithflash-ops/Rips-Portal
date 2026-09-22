@@ -9,6 +9,8 @@ export interface RaritySlot {
   avgValue: number;
 }
 
+export type ArtStatus = "complete" | "partial" | "none";
+
 export interface Product {
   id: string;
   category: Category;
@@ -21,6 +23,13 @@ export interface Product {
   emoji?: string;
   image?: string;
   tag?: "hot" | "value" | "chase";
+  /**
+   * Card-art readiness for /open reveals.
+   * complete = curated named cards + matching thumbs (featured).
+   * partial / none = rarity + slot $ only — no invented names or wrong art.
+   * Prefer marking few completes over fake art.
+   */
+  artStatus?: ArtStatus;
 }
 
 export const categories: { id: Category; label: string; emoji: string; color: string }[] = [
@@ -42,6 +51,7 @@ const rawProducts: Product[] = [
     emoji: "🦸",
     tag: "hot",
     image: "/products/poke-ascended-pack.webp",
+    artStatus: "complete",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 1.87 },
       { name: "Double Rare (RR)", odds: "1:5", oddsNum: 0.2, avgValue: 1.3 },
@@ -798,6 +808,7 @@ const rawProducts: Product[] = [
     emoji: "🏴‍☠️",
     image: "/products/op-16-pack.webp",
     tag: "value",
+    artStatus: "complete",
     slots: [
       { name: "Common / Uncommon", odds: "~60%", oddsNum: 0.6, avgValue: 0.25 },
       { name: "Rare", odds: "1:4", oddsNum: 0.25, avgValue: 1.8 },
@@ -835,6 +846,7 @@ const rawProducts: Product[] = [
     emoji: "👑",
     image: "/products/op-09-pack.webp",
     tag: "chase",
+    artStatus: "complete",
     slots: [
       { name: "Common / Uncommon", odds: "~60%", oddsNum: 0.6, avgValue: 0.25 },
       { name: "Rare", odds: "1:4", oddsNum: 0.25, avgValue: 1.8 },
