@@ -276,8 +276,18 @@ function PullArt({
 }
 
 /** Set-art thumb or generic pack silhouette — never a huge emoji crowding the title. */
+function PackSilhouette({ className }: { className?: string }) {
+  return (
+    <span
+      className={`pack-silhouette rounded-md border border-zinc-700/70 bg-gradient-to-b from-zinc-800/80 to-zinc-950/90 ${className ?? ""}`}
+      aria-hidden
+    />
+  );
+}
+
 function ProductRowIcon({ product }: { product: Product }) {
-  if (product.image) {
+  const [broken, setBroken] = useState(false);
+  if (product.image && !broken) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -285,17 +295,51 @@ function ProductRowIcon({ product }: { product: Product }) {
         alt=""
         width={40}
         height={56}
-        className="h-14 w-10 shrink-0 rounded-md object-cover border border-zinc-700/80 bg-black/40"
+        className="h-14 w-10 shrink-0 rounded-md object-cover border border-zinc-700/80 bg-zinc-900"
         loading="lazy"
         decoding="async"
+        onError={() => setBroken(true)}
       />
     );
   }
+  return <PackSilhouette className="h-14 w-10 shrink-0" />;
+}
+
+/**
+ * Pack-stage visual = same product.image as the picker row for that id.
+ * Never an empty black box (Destined Rivals / any set with missing art).
+ */
+function PackStageVisual({
+  product,
+  compact = false,
+}: {
+  product: Product;
+  compact?: boolean;
+}) {
+  const [broken, setBroken] = useState(false);
+  const showImg = !!(product.image && !broken);
   return (
-    <span
-      className="pack-silhouette h-14 w-10 shrink-0 rounded-md border border-zinc-700/70 bg-gradient-to-b from-zinc-800/80 to-zinc-950/90"
+    <div
+      className={`relative mx-auto flex items-center justify-center ${
+        compact ? "h-16 w-12" : "h-36 w-24 sm:h-40 sm:w-28"
+      }`}
       aria-hidden
-    />
+    >
+      {showImg ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={product.image}
+          alt=""
+          className="h-full w-full rounded-lg object-cover border border-cyan-400/30 shadow-lg shadow-cyan-950/40 bg-zinc-900"
+          decoding="async"
+          onError={() => setBroken(true)}
+        />
+      ) : (
+        <PackSilhouette
+          className={`h-full w-full ${compact ? "" : "shadow-lg shadow-black/50"}`}
+        />
+      )}
+    </div>
   );
 }
 
@@ -1086,8 +1130,9 @@ function OpenInner() {
                     <div className="pack-tear-flash" aria-hidden />
                   )}
                   <ConfettiBurst show={showConfetti && !reducedMotion} />
-                  <div className="relative z-10 text-center px-4">
-                    <div className="text-[10px] uppercase tracking-widest text-cyan-500/80 mb-1">
+                  <div className="relative z-10 flex flex-col items-center text-center px-4 gap-2">
+                    <PackStageVisual product={product} />
+                    <div className="text-[10px] uppercase tracking-widest text-cyan-500/80">
                       {phase === "tearing"
                         ? "Opening…"
                         : phase === "reveal"
@@ -1095,10 +1140,10 @@ function OpenInner() {
                           : "Ready"}
                     </div>
                     <div className="text-lg sm:text-xl font-bold text-white leading-snug break-words max-w-[300px] mx-auto">
-                      {phase === "idle" ? product.name : reelLabel}
+                      {phase === "idle" ? productDisplayName(product) : reelLabel}
                     </div>
                     {phase === "idle" && (
-                      <div className="mt-1.5 text-[10px] text-zinc-500 tracking-wide">
+                      <div className="text-[10px] text-zinc-500 tracking-wide">
                         Tap pack to open · free educational sim
                       </div>
                     )}
@@ -1183,18 +1228,21 @@ function OpenInner() {
         {session && onResults && (phase === "reveal" || phase === "tearing") && (
           <section className="panel rounded-2xl p-4 space-y-4 border border-emerald-500/25">
             <div
-              className={`pack-stage relative mx-auto w-full max-w-sm h-24 rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/30 via-black to-emerald-950/20 flex items-center justify-center overflow-hidden ${packStageClass}`}
+              className={`pack-stage relative mx-auto w-full max-w-sm min-h-24 rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-950/30 via-zinc-950 to-emerald-950/20 flex items-center justify-center overflow-hidden ${packStageClass}`}
             >
               {phase === "tearing" && (
                 <div className="pack-tear-flash" aria-hidden />
               )}
               <ConfettiBurst show={showConfetti && !reducedMotion} />
-              <div className="relative z-10 text-center px-3">
-                <div className="text-[10px] uppercase tracking-widest text-cyan-500/80">
-                  {summaryReady ? "Pulled" : "Revealing…"}
-                </div>
-                <div className="text-base font-bold text-white leading-snug break-words">
-                  {reelLabel}
+              <div className="relative z-10 flex items-center gap-3 text-left px-3 py-2 w-full max-w-sm">
+                <PackStageVisual product={session.product} compact />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] uppercase tracking-widest text-cyan-500/80">
+                    {summaryReady ? "Pulled" : "Revealing…"}
+                  </div>
+                  <div className="text-base font-bold text-white leading-snug break-words">
+                    {reelLabel}
+                  </div>
                 </div>
               </div>
             </div>
