@@ -15,6 +15,8 @@ import {
   products,
   calculateEV,
   productDisplayName,
+  buySearchQuery,
+  isSportsCategory,
   pricesUpdated,
   type ArtStatus,
   type Category,
@@ -61,6 +63,7 @@ function pricesUpdatedLabel(raw: string): string {
   return `${Number(m[3])} ${months[Number(m[2]) - 1]}`;
 }
 import BrandLogo from "@/components/BrandLogo";
+import BuyLinks from "@/components/BuyLinks";
 import { markPackInteracted } from "@/lib/pwa-install";
 
 type Phase = "idle" | "tearing" | "reveal";
@@ -1480,6 +1483,20 @@ function OpenInner() {
 
             {allRevealed && (
               <div className="flex flex-col gap-3 pt-2 summary-punch open-after-ctas">
+                <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 px-3.5 py-3 space-y-2">
+                  <div className="text-[10px] uppercase tracking-[0.16em] text-amber-200/90 font-semibold">
+                    Buy this product
+                  </div>
+                  <BuyLinks
+                    query={buySearchQuery(session.product)}
+                    size="md"
+                    preferEbay={isSportsCategory(session.product.category)}
+                    hideTcgplayer={isSportsCategory(session.product.category)}
+                  />
+                  <p className="text-[10px] text-zinc-500 leading-snug">
+                    Free educational sim · not gambling · no real-money opens.
+                  </p>
+                </div>
                 <div className="text-[10px] uppercase tracking-[0.16em] text-cyan-300/80 font-semibold">
                   Next · Check EV · Log · Share
                 </div>
@@ -1542,6 +1559,15 @@ function OpenInner() {
                   Log writes packs · spent · hits · vs EV on-device. Share card
                   shows hits $, EV $, date, and chase tax when ROI is negative.
                 </p>
+                <p className="text-[11px] text-zinc-500 leading-snug">
+                  Want live price alerts later?{" "}
+                  <Link
+                    href="/waitlist"
+                    className="text-purple-300/90 hover:text-purple-200 underline-offset-2 hover:underline"
+                  >
+                    Soft waitlist →
+                  </Link>
+                </p>
               </div>
             )}
           </section>
@@ -1576,6 +1602,17 @@ function OpenInner() {
               aria-label="Change set"
             >
               Set
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const el = document.querySelector(".open-after-ctas");
+                el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+              }}
+              className="shrink-0 px-3.5 py-3.5 rounded-2xl text-sm font-semibold bg-amber-500/20 border border-amber-400/50 text-amber-50 hover:bg-amber-500/30 backdrop-blur-md"
+              aria-label="Buy this product"
+            >
+              Buy
             </button>
             <button
               type="button"

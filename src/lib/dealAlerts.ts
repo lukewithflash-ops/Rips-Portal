@@ -164,7 +164,7 @@ export function fireLocalUnderEvNotification(newDeals: UnderEvDeal[]): void {
       try {
         window.focus();
         // Absolute URL — Notification click handlers are outside React router.
-        window.open("https://ripsportal.com/deals", "_self");
+        window.open("https://www.ripsportal.com/deals", "_self");
       } catch {
         /* ignore */
       }

@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
         Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
         // Some CDNs behave better with a normal browser UA.
         "User-Agent":
-          "Mozilla/5.0 (compatible; RipPortalCardProxy/1.0; +https://ripsportal.com)",
+          "Mozilla/5.0 (compatible; RipPortalCardProxy/1.0; +https://www.ripsportal.com)",
       },
       // Cache at the edge / CDN when possible.
       next: { revalidate: 60 * 60 * 24 * 7 },

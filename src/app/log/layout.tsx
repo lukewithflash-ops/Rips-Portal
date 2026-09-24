@@ -5,13 +5,13 @@ export const metadata: Metadata = {
   description:
     "Log a rip session and compare actual pulls to expected EV. Personal math notebook — not investment advice.",
   alternates: {
-    canonical: "https://ripsportal.com/log",
+    canonical: "https://www.ripsportal.com/log",
   },
   openGraph: {
     title: "Rip Log · Rip Portal",
     description:
       "Log pulls and compare to expected EV. Share a session link — entertainment math only.",
-    url: "https://ripsportal.com/log",
+    url: "https://www.ripsportal.com/log",
     siteName: "Rip Portal",
     type: "website",
   },

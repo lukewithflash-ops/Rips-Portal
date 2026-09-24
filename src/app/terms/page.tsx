@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Terms",
   description:
     "Rip Portal terms stub — entertainment and math estimates only; not financial advice.",
-  alternates: { canonical: "https://ripsportal.com/terms" },
+  alternates: { canonical: "https://www.ripsportal.com/terms" },
 };
 
 export default function TermsPage() {

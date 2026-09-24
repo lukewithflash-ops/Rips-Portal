@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { products, calculateEV, categories, findProduct } from "@/lib/products";
+import { products, calculateEV, categories, findProduct, buySearchQuery, isSportsCategory } from "@/lib/products";
 import PackRedirect from "./PackRedirect";
-import BuyLinks, { AffiliateDisclosure } from "@/components/BuyLinks";
+import BuyLinks from "@/components/BuyLinks";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const roiLabel = `${roi >= 0 ? "+" : ""}${roi.toFixed(1)}% ROI`;
   const title = `${product.name} · ${product.format}`;
   const description = `Price $${product.defaultPrice.toFixed(2)} · EV $${totalEV.toFixed(2)} · ${roiLabel}. Know before you rip — Rip Portal.`;
-  const url = `https://ripsportal.com/pack/${product.id}`;
+  const url = `https://www.ripsportal.com/pack/${product.id}`;
 
   return {
     title,
@@ -107,8 +107,12 @@ export default async function PackSharePage({ params }: Props) {
             <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
               Buy
             </div>
-            <BuyLinks query={product.name} />
-            <AffiliateDisclosure className="mt-1" />
+            <BuyLinks
+              query={buySearchQuery(product)}
+              size="md"
+              preferEbay={isSportsCategory(product.category)}
+              hideTcgplayer={isSportsCategory(product.category)}
+            />
           </div>
           <Link
             href={dest}
