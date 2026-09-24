@@ -8,13 +8,13 @@ export const metadata: Metadata = {
   description:
     "Know before you rip. Free educational pack sim + EV math. Not gambling. No real-money opens. No IAP for packs.",
   alternates: {
-    canonical: "https://ripsportal.com/open",
+    canonical: "https://www.ripsportal.com/open",
   },
   openGraph: {
     title: "Free Pack Opener · Rip Portal",
     description:
       "Simulate pack opens with catalog drop tables. Math estimates only — not official odds, not financial advice.",
-    url: "https://ripsportal.com/open",
+    url: "https://www.ripsportal.com/open",
     siteName: "Rip Portal",
     type: "website",
   },

@@ -45,6 +45,18 @@ export function productDisplayName(product: Product): string {
   return (product.displayName ?? product.name).trim();
 }
 
+
+/** Marketplace search string for Buy links. */
+export function buySearchQuery(product: Product): string {
+  return `${productDisplayName(product)} ${product.format}`.replace(/\s+/g, " ").trim();
+}
+
+/** Baseball / basketball — prefer eBay over TCGPlayer. */
+export function isSportsCategory(category: Category): boolean {
+  return category === "baseball" || category === "basketball";
+}
+
+
 export const categories: { id: Category; label: string; emoji: string; color: string }[] = [
   { id: "pokemon", label: "Pokémon", emoji: "⚡", color: "from-yellow-400 to-amber-500" },
   { id: "baseball", label: "Topps Baseball", emoji: "⚾", color: "from-red-500 to-rose-600" },
@@ -752,6 +764,46 @@ const rawProducts: Product[] = [
     notes: "Mid-tier product — better EV profile than flagship hobby. 2025-26 Select basketball has no retail blaster yet — image is 2024-25 Select blaster stand-in.",
   },
 
+
+  {
+    id: "bball-chrome-blaster",
+    category: "basketball",
+    name: "2025-26 Topps Chrome",
+    format: "Blaster Box",
+    defaultPrice: 75,
+    accent: "from-orange-500 to-amber-300",
+    emoji: "🏀",
+    image: "/products/bball-chrome-blaster.webp",
+    artStatus: "pack-only",
+    tag: "value",
+    slots: [
+      { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 18 },
+      { name: "Parallels / Inserts", odds: "some", oddsNum: 1, avgValue: 20 },
+      { name: "Numbered / Auto chance", odds: "low", oddsNum: 0.05, avgValue: 110 },
+    ],
+    notes: "Retail Chrome (non-Update). Market often $55–$85 — update price before treating as VALUE. Slot averages are estimates.",
+  },
+  {
+    id: "bball-chrome-hobby",
+    category: "basketball",
+    name: "2025-26 Topps Chrome",
+    format: "Hobby Box (1 auto)",
+    defaultPrice: 480,
+    accent: "from-orange-700 to-red-500",
+    emoji: "🏀",
+    image: "/products/bball-chrome-hobby.webp",
+    artStatus: "pack-only",
+    tag: "chase",
+    slots: [
+      { name: "Base + Refractors (box total)", odds: "many", oddsNum: 1, avgValue: 55 },
+      { name: "Numbered parallels", odds: "several", oddsNum: 1, avgValue: 70 },
+      { name: "Inserts / SSPs", odds: "variable", oddsNum: 1, avgValue: 45 },
+      { name: "Autograph (guaranteed)", odds: "1 per box", oddsNum: 1, avgValue: 160 },
+      { name: "High-end / Refractor auto potential", odds: "very rare", oddsNum: 0.04, avgValue: 900 },
+    ],
+    notes: "Flagship Chrome Hobby (not Update). Secondary often $445–$600+. Chase variance — usually −EV at market.",
+  },
+
   // ========== BASEBALL ==========
   {
     id: "base-chrome-mega",
@@ -845,6 +897,44 @@ const rawProducts: Product[] = [
       { name: "Auto / relic chance", odds: "low", oddsNum: 0.04, avgValue: 55 },
     ],
     notes: "Fun format with often reasonable secondary pricing.",
+  },
+
+
+  {
+    id: "base-chrome-blaster",
+    category: "baseball",
+    name: "2026 Topps Chrome",
+    format: "Blaster Box",
+    defaultPrice: 55,
+    accent: "from-rose-500 to-orange-400",
+    emoji: "⚾",
+    image: "/products/base-chrome-blaster.webp",
+    artStatus: "pack-only",
+    tag: "value",
+    slots: [
+      { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 14 },
+      { name: "Parallels / Inserts", odds: "some", oddsNum: 1, avgValue: 16 },
+      { name: "Numbered / Auto chance", odds: "low", oddsNum: 0.05, avgValue: 80 },
+    ],
+    notes: "Retail Chrome blaster (~$50–$58 market band Sep 2026). Often better relative EV than Hobby.",
+  },
+  {
+    id: "base-update-blaster",
+    category: "baseball",
+    name: "2025 Topps Update",
+    format: "Blaster Box",
+    defaultPrice: 28,
+    accent: "from-sky-500 to-indigo-400",
+    emoji: "🏟️",
+    image: "/products/base-update-blaster.webp",
+    artStatus: "pack-only",
+    tag: "value",
+    slots: [
+      { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 10 },
+      { name: "Parallels / rookies", odds: "some", oddsNum: 1, avgValue: 11 },
+      { name: "Numbered / auto chance", odds: "low", oddsNum: 0.03, avgValue: 45 },
+    ],
+    notes: "Cheap Update retail. Soft floors — verify live prices; slot math is approximate.",
   },
 
   // ========== ONE PIECE ==========

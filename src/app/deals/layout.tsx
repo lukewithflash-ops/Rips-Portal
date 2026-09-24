@@ -5,13 +5,13 @@ export const metadata: Metadata = {
   description:
     "Under-EV Watch — catalog products where market/default price sits under expected EV. Positive ROI buy signals. Entertainment math, not financial advice.",
   alternates: {
-    canonical: "https://ripsportal.com/deals",
+    canonical: "https://www.ripsportal.com/deals",
   },
   openGraph: {
     title: "Under-EV Watch · Rip Portal",
     description:
       "Buy signals where catalog price sits under modeled EV. Multi-hobby — entertainment math only.",
-    url: "https://ripsportal.com/deals",
+    url: "https://www.ripsportal.com/deals",
     siteName: "Rip Portal",
     type: "website",
   },

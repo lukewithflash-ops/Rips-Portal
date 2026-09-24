@@ -6,6 +6,7 @@ import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import InstallPrompt from "@/components/InstallPrompt";
 import OfflineBanner from "@/components/OfflineBanner";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,10 +18,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = "https://ripsportal.com";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Rip Portal — Pack EV Calculator",
     template: "%s · Rip Portal",
@@ -86,7 +85,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    url: siteUrl,
+    url: SITE_URL,
     siteName: "Rip Portal",
     title: "Rip Portal — Pack EV Calculator",
     description:
@@ -100,7 +99,7 @@ export const metadata: Metadata = {
       "Know before you rip. Pack EV for Pokémon, sports, and One Piece.",
   },
   alternates: {
-    canonical: siteUrl,
+    canonical: SITE_URL,
   },
   robots: {
     index: true,

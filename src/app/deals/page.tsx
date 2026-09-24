@@ -7,6 +7,8 @@ import {
   products,
   calculateEV,
   pricesUpdated,
+  buySearchQuery,
+  isSportsCategory,
   type Category,
 } from "@/lib/products";
 import BrandLogo from "@/components/BrandLogo";
@@ -47,7 +49,7 @@ export default function DealsPage() {
     const url =
       typeof window !== "undefined"
         ? `${window.location.origin}/deals`
-        : "https://ripsportal.com/deals";
+        : "https://www.ripsportal.com/deals";
     try {
       await navigator.clipboard?.writeText(url);
       setCopiedShare(true);
@@ -371,8 +373,17 @@ export default function DealsPage() {
                         </div>
                       </div>
 
-                      <div className="mt-2.5">
-                        <BuyLinks query={p.name} compact />
+                      <div className="mt-3">
+                        <div className="text-[10px] uppercase tracking-wider text-emerald-400/80 font-semibold mb-1.5">
+                          Buy
+                        </div>
+                        <BuyLinks
+                          query={buySearchQuery(p)}
+                          size="lg"
+                          compact
+                          preferEbay={isSportsCategory(p.category)}
+                          hideTcgplayer={isSportsCategory(p.category)}
+                        />
                       </div>
 
                       <div className="mt-2.5 flex flex-wrap gap-2">

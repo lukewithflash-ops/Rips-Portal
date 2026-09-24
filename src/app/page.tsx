@@ -4,6 +4,8 @@ import { useState, useMemo, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
+  buySearchQuery,
+  isSportsCategory,
   categories,
   products,
   calculateEV,
@@ -18,7 +20,7 @@ import { computeVerdict, VERDICT_DISCLAIMER } from "@/lib/verdict";
 import { computeKeeperEV } from "@/lib/keeper";
 import KeeperEvPanel from "@/components/KeeperEvPanel";
 import DealAlertsBanner from "@/components/DealAlertsBanner";
-import BuyLinks, { AffiliateDisclosure } from "@/components/BuyLinks";
+import BuyLinks from "@/components/BuyLinks";
 import { markPackInteracted } from "@/lib/pwa-install";
 import BrandLogo from "@/components/BrandLogo";
 import {
@@ -906,13 +908,6 @@ function HomeInner() {
                         {shareImageNote && (
                           <p className="mt-1 text-[10px] text-pink-200/80">{shareImageNote}</p>
                         )}
-                        <div className="mt-3">
-                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
-                            Buy
-                          </div>
-                          <BuyLinks query={effectiveProduct.name} />
-                          <AffiliateDisclosure className="mt-1" />
-                        </div>
                         <div className="flex flex-wrap items-end gap-3 mt-3">
                           <div>
                             <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
@@ -1062,22 +1057,33 @@ function HomeInner() {
                             </span>
                           )}
                         </div>
+                        <div className="mt-4 rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-3">
+                          <div className="text-[10px] text-amber-200/90 uppercase tracking-wider mb-1.5 font-semibold">
+                            Buy
+                          </div>
+                          <BuyLinks
+                            query={buySearchQuery(effectiveProduct)}
+                            size="md"
+                            preferEbay={isSportsCategory(effectiveProduct.category)}
+                            hideTcgplayer={isSportsCategory(effectiveProduct.category)}
+                          />
+                        </div>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button
                             type="button"
                             disabled={shareImageBusy}
                             onClick={() => void handleShareProductImage()}
-                            className="inline-flex items-center justify-center rounded-lg border border-pink-500/40 bg-pink-500/10 px-3 py-2 text-[12px] font-medium text-pink-200 hover:bg-pink-500/20 disabled:opacity-40"
+                            className="inline-flex items-center justify-center rounded-lg border border-zinc-700/80 bg-black/30 px-3 py-2 text-[11px] font-medium text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-40"
                           >
                             {shareImageBusy
                               ? "Building share card…"
-                              : "📤 Share EV image (9:16)"}
+                              : "Share EV image"}
                           </button>
                           <Link
                             href={logPrefillHref}
-                            className="inline-flex items-center justify-center rounded-lg border border-cyan-500/35 bg-cyan-500/10 px-3 py-2 text-[12px] font-medium text-cyan-300 hover:bg-cyan-500/20"
+                            className="inline-flex items-center justify-center rounded-lg border border-zinc-700/80 bg-black/30 px-3 py-2 text-[11px] font-medium text-zinc-400 hover:text-zinc-200 hover:border-zinc-500"
                           >
-                            📝 Log this rip
+                            Log this rip
                           </Link>
                         </div>
                       </div>
@@ -1217,7 +1223,21 @@ function HomeInner() {
                           <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
                             Buy near this pick
                           </div>
-                          <BuyLinks query={effectiveProduct.name} />
+                          <BuyLinks
+                            query={buySearchQuery(effectiveProduct)}
+                            size="md"
+                            preferEbay={isSportsCategory(effectiveProduct.category)}
+                            hideTcgplayer={isSportsCategory(effectiveProduct.category)}
+                          />
+                          <p className="mt-2 text-[11px] text-zinc-500">
+                            Live alerts coming —{" "}
+                            <Link
+                              href="/waitlist"
+                              className="text-purple-300/90 hover:text-purple-200 underline-offset-2 hover:underline"
+                            >
+                              join waitlist
+                            </Link>
+                          </p>
                         </div>
                       </div>
                     )}

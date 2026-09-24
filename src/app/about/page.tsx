@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   title: "About",
   description:
     "Portal — Rip Portal, Portal Verdict, Rip Log, Under-EV Watch, Free Pack Opener, and more. Multi-hobby pack EV tools for collectors.",
-  alternates: { canonical: "https://ripsportal.com/about" },
+  alternates: { canonical: "https://www.ripsportal.com/about" },
   openGraph: {
     title: "About Rip Portal",
     description:
       "Math-first collector tools: EV calculator, Verdict, Rip Log, Under-EV Watch, and free pack simulation.",
-    url: "https://ripsportal.com/about",
+    url: "https://www.ripsportal.com/about",
     siteName: "Rip Portal",
     type: "website",
   },

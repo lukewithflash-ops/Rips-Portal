@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Privacy",
   description:
     "Rip Portal privacy stub — localStorage for Rip Log, no account required for MVP.",
-  alternates: { canonical: "https://ripsportal.com/privacy" },
+  alternates: { canonical: "https://www.ripsportal.com/privacy" },
 };
 
 export default function PrivacyPage() {

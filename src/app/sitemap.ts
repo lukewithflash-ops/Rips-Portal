@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { products } from "@/lib/products";
+import { SITE_URL } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://ripsportal.com";
+  const base = SITE_URL;
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
