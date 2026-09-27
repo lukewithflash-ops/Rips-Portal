@@ -379,6 +379,8 @@ export default function DealsPage() {
                         </div>
                         <BuyLinks
                           query={buySearchQuery(p)}
+                          buyUrl={p.buyUrl}
+                          retailer={p.retailer}
                           size="lg"
                           compact
                           preferEbay={isSportsCategory(p.category)}

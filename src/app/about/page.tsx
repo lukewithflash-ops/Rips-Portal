@@ -27,9 +27,9 @@ export default function AboutPage() {
         <h1 className="mt-5 text-2xl md:text-3xl headline-flare">
           About Rip Portal
         </h1>
-        <p className="mt-2 text-sm text-zinc-400 leading-relaxed">
-          Portal is the brand behind collector tools that help you know before
-          you rip — math-first estimates for multi-hobby sealed product.
+        <p className="mt-2 text-sm text-zinc-300 leading-relaxed">
+          I built Rip Portal so collectors can know before they rip — free
+          educational EV math, not a shopfront or paywalled opener.
         </p>
 
         <section className="mt-8 space-y-4 text-sm text-zinc-300 leading-relaxed">
@@ -87,10 +87,10 @@ export default function AboutPage() {
             pretending the chase is risk-free.
           </p>
           <p>
-            Built by Luke. An LLC may be formed under the Portal name as the
-            project grows; this page is a brand overview, not a filing or
-            registered-agent listing. No EIN, street address, or legal entity
-            claims are published here until they exist.
+            An LLC may be formed under the Portal name as the project grows;
+            this page is a brand overview, not a filing or registered-agent
+            listing. No EIN, street address, or legal entity claims are
+            published here until they exist.
           </p>
         </section>
 

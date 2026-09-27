@@ -493,7 +493,6 @@ function OpenInner() {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [showSetSheet, setShowSetSheet] = useState(false);
   const [sfxEnabled, setSfxEnabled] = useState(false);
-  const [showOdds, setShowOdds] = useState(false);
   const [sessionChip, setSessionChip] = useState<SessionChip>({
     packs: 0,
     spent: 0,
@@ -578,7 +577,6 @@ function OpenInner() {
       setShowConfetti(false);
       setZoomCard(null);
       setScreen("stage");
-      setShowOdds(false);
       setShowSetSheet(false);
       setSessionChip({ packs: 0, spent: 0, hits: 0, vsEV: 0 });
       setSessionXp(0);
@@ -1166,63 +1164,9 @@ function OpenInner() {
                     : `Open ${quantity} simulated pack${quantity === 1 ? "" : "s"}`}
                 </button>
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowOdds((v) => !v)}
-                    className="text-[11px] px-3 py-1.5 rounded-lg border border-zinc-700 text-zinc-400 hover:text-cyan-200 hover:border-cyan-500/40"
-                    aria-expanded={showOdds}
-                  >
-                    Odds {showOdds ? "▾" : "▸"}
-                  </button>
-                  <p className="text-[11px] text-zinc-600 flex-1 truncate">
-                    Unit EV {fmtMoney(unitEV)} · not gambling
-                  </p>
-                </div>
-
-                {showOdds && (
-                  <div className="rounded-xl border border-zinc-800 bg-black/30 p-3 space-y-2">
-                    <div className="overflow-x-auto -mx-1">
-                      <table className="w-full text-left text-[12px] min-w-[320px]">
-                        <thead>
-                          <tr className="text-[10px] uppercase tracking-wider text-zinc-600 border-b border-zinc-800">
-                            <th className="py-2 px-1 font-medium">Tier</th>
-                            <th className="py-2 px-1 font-medium">Odds</th>
-                            <th className="py-2 px-1 font-medium text-right">
-                              Avg $
-                            </th>
-                            <th className="py-2 px-1 font-medium text-right">
-                              EV $
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {dropTable.map((row) => (
-                            <tr
-                              key={row.name}
-                              className="border-b border-zinc-900/80 text-zinc-300"
-                            >
-                              <td className="py-2 px-1 pr-2">{row.name}</td>
-                              <td className="py-2 px-1 font-mono text-cyan-300/90">
-                                {row.odds}
-                              </td>
-                              <td className="py-2 px-1 text-right font-mono">
-                                {fmtMoney(row.avgValue)}
-                              </td>
-                              <td className="py-2 px-1 text-right font-mono text-emerald-300/90">
-                                {fmtMoney(row.evContribution)}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    <p className="text-[11px] text-zinc-600 leading-relaxed">
-                      Simulated odds = catalog oddsNum (same as calculator EV).
-                      Not official published rates.
-                    </p>
-                  </div>
-                )}
+                <p className="text-[11px] text-zinc-600 leading-snug">
+                  Unit EV {fmtMoney(unitEV)} · odds + legal in ⓘ
+                </p>
               </section>
             )}
           </>
@@ -1489,6 +1433,8 @@ function OpenInner() {
                   </div>
                   <BuyLinks
                     query={buySearchQuery(session.product)}
+                    buyUrl={session.product.buyUrl}
+                    retailer={session.product.retailer}
                     size="md"
                     preferEbay={isSportsCategory(session.product.category)}
                     hideTcgplayer={isSportsCategory(session.product.category)}
@@ -1505,7 +1451,7 @@ function OpenInner() {
                     href={checkEvHref}
                     className="text-center text-[13px] px-3 py-3.5 rounded-xl bg-emerald-500/25 border-2 border-emerald-400/70 text-emerald-50 font-bold hover:bg-emerald-500/35 shadow-md shadow-emerald-950/40"
                   >
-                    Check EV
+                    Check this set in EV
                   </Link>
                   <button
                     type="button"
@@ -1555,18 +1501,7 @@ function OpenInner() {
                   </p>
                 )}
                 <p className="text-[10px] text-zinc-600 leading-snug">
-                  EV opens the calculator with this set + the price you used.
-                  Log writes packs · spent · hits · vs EV on-device. Share card
-                  shows hits $, EV $, date, and chase tax when ROI is negative.
-                </p>
-                <p className="text-[11px] text-zinc-500 leading-snug">
-                  Want live price alerts later?{" "}
-                  <Link
-                    href="/waitlist"
-                    className="text-purple-300/90 hover:text-purple-200 underline-offset-2 hover:underline"
-                  >
-                    Soft waitlist →
-                  </Link>
+                  Same product id + price in EV · Log stays on-device.
                 </p>
               </div>
             )}
@@ -1634,12 +1569,12 @@ function OpenInner() {
           onClick={() => setShowDisclaimer(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl border border-purple-500/30 bg-zinc-950 p-4 space-y-3 shadow-xl"
+            className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl border border-purple-500/30 bg-zinc-950 p-4 space-y-3 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-sm font-semibold text-cyan-200">
-                About this sim
+                Odds + legal
               </h2>
               <button
                 type="button"
@@ -1660,6 +1595,51 @@ function OpenInner() {
               No IAP for packs. Future VIP (if any) is data/alerts only — never
               paid pack opens.
             </p>
+            {dropTable.length > 0 && (
+              <div className="rounded-xl border border-zinc-800 bg-black/30 p-3 space-y-2">
+                <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
+                  Odds · {product ? productDisplayName(product) : "set"}
+                </div>
+                <div className="overflow-x-auto -mx-1 max-h-48 overflow-y-auto">
+                  <table className="w-full text-left text-[12px] min-w-[280px]">
+                    <thead>
+                      <tr className="text-[10px] uppercase tracking-wider text-zinc-600 border-b border-zinc-800">
+                        <th className="py-1.5 px-1 font-medium">Tier</th>
+                        <th className="py-1.5 px-1 font-medium">Odds</th>
+                        <th className="py-1.5 px-1 font-medium text-right">
+                          Avg $
+                        </th>
+                        <th className="py-1.5 px-1 font-medium text-right">
+                          EV $
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {dropTable.map((row) => (
+                        <tr
+                          key={row.name}
+                          className="border-b border-zinc-900/80 text-zinc-300"
+                        >
+                          <td className="py-1.5 px-1 pr-2">{row.name}</td>
+                          <td className="py-1.5 px-1 font-mono text-cyan-300/90">
+                            {row.odds}
+                          </td>
+                          <td className="py-1.5 px-1 text-right font-mono">
+                            {fmtMoney(row.avgValue)}
+                          </td>
+                          <td className="py-1.5 px-1 text-right font-mono text-emerald-300/90">
+                            {fmtMoney(row.evContribution)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[10px] text-zinc-600 leading-relaxed">
+                  Catalog oddsNum (same as calculator). Not official TPC rates.
+                </p>
+              </div>
+            )}
             <label className="flex items-center justify-between gap-3 rounded-xl border border-zinc-800 bg-black/40 px-3 py-2.5 text-[12px] text-zinc-300">
               <span>
                 Sound effects{" "}

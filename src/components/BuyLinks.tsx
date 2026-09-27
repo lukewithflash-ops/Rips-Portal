@@ -11,6 +11,13 @@ const FTC_SHORT =
 export type BuyLinksProps = {
   /** Search / product query sent to marketplaces */
   query: string;
+  /**
+   * Optional deep product URL from catalog (buyUrl). When set, shown as a
+   * primary retailer button — never invent listings; leave unset for search-only.
+   */
+  buyUrl?: string;
+  /** Retailer label for buyUrl (e.g. TCGPlayer / eBay). */
+  retailer?: string;
   /** Compact = smaller buttons; disclosure still shown unless hideDisclosure */
   compact?: boolean;
   /** Show optional Amazon button when associate tag is configured */
@@ -49,6 +56,8 @@ function sizeClasses(size: "sm" | "md" | "lg"): string {
 
 export default function BuyLinks({
   query,
+  buyUrl,
+  retailer,
   compact = false,
   showAmazon = false,
   preferEbay = false,
@@ -58,19 +67,32 @@ export default function BuyLinks({
   className = "",
 }: BuyLinksProps) {
   const q = query.trim();
-  if (!q) return null;
+  const deep = (buyUrl || "").trim();
+  if (!q && !deep) return null;
 
   const cfg = getAffiliateConfig();
-  const tcg = tcgplayerSearchUrl(q);
-  const ebay = ebaySearchUrl(q);
+  const tcg = q ? tcgplayerSearchUrl(q) : null;
+  const ebay = q ? ebaySearchUrl(q) : null;
   const amazon =
-    showAmazon || cfg.amazonAssociateTag ? amazonSearchUrl(q) : null;
+    q && (showAmazon || cfg.amazonAssociateTag) ? amazonSearchUrl(q) : null;
 
   const base =
     "inline-flex items-center justify-center gap-1.5 border transition-colors";
   const sz = sizeClasses(size);
 
-  const ebayBtn = (
+  const deepBtn = deep ? (
+    <a
+      key="deep"
+      href={deep}
+      target="_blank"
+      rel="sponsored noopener noreferrer"
+      className={`${base} ${sz} bg-emerald-500/20 border-emerald-400/55 text-emerald-50 hover:bg-emerald-500/30 shadow-sm shadow-emerald-950/30`}
+    >
+      Buy on {retailer?.trim() || "retailer"}
+    </a>
+  ) : null;
+
+  const ebayBtn = ebay ? (
     <a
       key="ebay"
       href={ebay}
@@ -84,10 +106,10 @@ export default function BuyLinks({
     >
       {preferEbay ? "Buy on eBay" : "eBay"}
     </a>
-  );
+  ) : null;
 
   const tcgBtn =
-    hideTcgplayer ? null : (
+    hideTcgplayer || !tcg ? null : (
       <a
         key="tcg"
         href={tcg}
@@ -99,7 +121,7 @@ export default function BuyLinks({
             : "bg-amber-500/10 border-amber-500/35 text-amber-100/95 hover:bg-amber-500/20"
         }`}
       >
-        {preferEbay ? "TCGPlayer" : "TCGPlayer"}
+        TCGPlayer
       </a>
     );
 
@@ -115,9 +137,10 @@ export default function BuyLinks({
     </a>
   ) : null;
 
-  const buttons = preferEbay
+  const searchButtons = preferEbay
     ? [ebayBtn, tcgBtn, amazonBtn]
     : [tcgBtn, ebayBtn, amazonBtn];
+  const buttons = [deepBtn, ...searchButtons];
 
   return (
     <div className={`space-y-1.5 ${className}`}>
