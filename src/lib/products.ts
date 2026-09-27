@@ -38,6 +38,13 @@ export interface Product {
    * Prefer none over shipping guessed thumbs or emoji-as-art.
    */
   artStatus?: ArtStatus;
+  /**
+   * Optional deep affiliate product URL (TCGPlayer product page, eBay listing, etc.).
+   * Never invent stock or fake listings — leave unset and use BuyLinks search.
+   */
+  buyUrl?: string;
+  /** Retailer label for buyUrl when set (e.g. "TCGPlayer", "eBay"). */
+  retailer?: string;
 }
 
 /** Official display name for EV / Open / Log / Cards. */
@@ -396,7 +403,7 @@ const rawProducts: Product[] = [
     category: "pokemon",
     name: "30th Celebration Pokémon Center Elite Trainer Box",
     format: "Pokémon Center Elite Trainer Box",
-    defaultPrice: 266.04,
+    defaultPrice: 322.49,
     accent: "from-amber-500 to-orange-400",
     emoji: "🎉",
     tag: "chase",
@@ -412,7 +419,7 @@ const rawProducts: Product[] = [
       { name: "Futuristic Rare (FR)", odds: "~0.12", oddsNum: 1, avgValue: 15.6 },
       { name: "Promo / accessories (soft)", odds: "included", oddsNum: 1, avgValue: 25 },
     ],
-    notes: "11 packs; two Nidorina promos (one with PC stamp); PC exclusive. MSRP $59.99; default uses secondary ~$266.04. Pack EV slots from post-launch EN consensus (Wargamer/Tommy13 4063 packs Sep 17; TCGTalk via Anderson 652 Sep 16; DigitalTQ 420 Sep 16) + HobbyBin price guide / Pitt Poke Research sealed Sep 17; implied pack EV ~$12.15. RGB Mew omitted (unknown). Day-1 rates/prices are volatile — not financial advice.",
+    notes: "11 packs; two Nidorina promos (one with PC stamp); PC exclusive. MSRP $59.99; default uses secondary ~$322.49. Pack EV slots from post-launch EN consensus (Wargamer/Tommy13 4063 packs Sep 17; TCGTalk via Anderson 652 Sep 16; DigitalTQ 420 Sep 16) + HobbyBin price guide / Pitt Poke Research sealed Sep 17; implied pack EV ~$12.15. RGB Mew omitted (unknown). Day-1 rates/prices are volatile — not financial advice.",
   },
   {
     id: "poke-30th-bundle",

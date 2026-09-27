@@ -424,11 +424,11 @@ function HomeInner() {
               Calculate · Rip · Repeat
             </div>
             <h1 className="text-2xl md:text-4xl headline-flare tracking-tight">
-              Pack EV. Perfected.
+              Know before you rip.
             </h1>
             <p className="text-sm text-zinc-400 mt-2 max-w-lg leading-relaxed">
-              Expected value for Pokémon, Sports & One Piece — know before you
-              rip. Purple foil energy, green math accents.
+              Expected value for Pokémon, Sports & One Piece — free educational
+              math. Affiliate buy links when you decide; no paywall on Open.
             </p>
           </div>
 
@@ -827,7 +827,7 @@ function HomeInner() {
                           <div className="text-[10px] text-zinc-500 mt-0.5 truncate">
                             {p.format}
                           </div>
-                          <div className="text-[11px] text-green-400/80 mt-1 font-mono">
+                          <div className="text-[11px] text-green-400/80 mt-1 font-mono tabular-nums whitespace-nowrap">
                             Catalog ${p.defaultPrice.toFixed(2)}
                           </div>
                         </div>
@@ -862,7 +862,7 @@ function HomeInner() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h2 className="text-lg md:text-xl font-bold text-white leading-tight">
+                        <h2 className="text-lg md:text-xl font-bold text-white leading-snug break-words whitespace-normal">
                           {effectiveProduct.name}
                         </h2>
                         <p className="text-sm text-zinc-400 mt-0.5">
@@ -1063,6 +1063,8 @@ function HomeInner() {
                           </div>
                           <BuyLinks
                             query={buySearchQuery(effectiveProduct)}
+                            buyUrl={effectiveProduct.buyUrl}
+                            retailer={effectiveProduct.retailer}
                             size="md"
                             preferEbay={isSportsCategory(effectiveProduct.category)}
                             hideTcgplayer={isSportsCategory(effectiveProduct.category)}
@@ -1225,6 +1227,8 @@ function HomeInner() {
                           </div>
                           <BuyLinks
                             query={buySearchQuery(effectiveProduct)}
+                            buyUrl={effectiveProduct.buyUrl}
+                            retailer={effectiveProduct.retailer}
                             size="md"
                             preferEbay={isSportsCategory(effectiveProduct.category)}
                             hideTcgplayer={isSportsCategory(effectiveProduct.category)}
