@@ -332,7 +332,7 @@ export default function CardZoomModal({
                   <div className="text-[9px] uppercase tracking-wider text-zinc-600 mb-1">
                     Search markets
                   </div>
-                  <BuyLinks query={title} compact />
+                  <BuyLinks query={title} productId={productId} compact />
                 </div>
               )}
               <div className="flex flex-wrap gap-2">

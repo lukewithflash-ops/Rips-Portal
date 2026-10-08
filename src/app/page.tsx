@@ -1068,6 +1068,7 @@ function HomeInner() {
                             size="md"
                             preferEbay={isSportsCategory(effectiveProduct.category)}
                             hideTcgplayer={isSportsCategory(effectiveProduct.category)}
+                            productId={effectiveProduct.id}
                           />
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -1232,6 +1233,7 @@ function HomeInner() {
                             size="md"
                             preferEbay={isSportsCategory(effectiveProduct.category)}
                             hideTcgplayer={isSportsCategory(effectiveProduct.category)}
+                            productId={effectiveProduct.id}
                           />
                           <p className="mt-2 text-[11px] text-zinc-500">
                             Live alerts coming —{" "}
