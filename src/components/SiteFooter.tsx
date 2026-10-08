@@ -46,6 +46,9 @@ export default function SiteFooter() {
           <Link href="/log" className="hover:text-cyan-300 transition-colors">
             Rip Log
           </Link>
+          <Link href="/shop" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+            Shop
+          </Link>
         </nav>
       </div>
     </footer>
