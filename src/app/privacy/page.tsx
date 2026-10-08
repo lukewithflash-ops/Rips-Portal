@@ -44,8 +44,10 @@ export default function PrivacyPage() {
               Recent Rip Log sessions may be saved in your browser&apos;s{" "}
               <code className="text-cyan-300/90 text-[12px]">localStorage</code>{" "}
               on this device so you can reopen them. That data stays local
-              unless you share a session link yourself. Clear site data in your
-              browser to remove it.
+              unless you share a session link yourself. A price you type for a
+              product (“your price”) is saved the same way, keyed by product,
+              so the calculator can prefill it next time. Clear site data in
+              your browser to remove it.
             </p>
           </section>
 
