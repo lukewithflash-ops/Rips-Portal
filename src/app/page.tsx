@@ -10,6 +10,7 @@ import {
   products,
   calculateEV,
   pricesUpdated,
+  formatPriceSheetDate,
   findProduct,
   PRODUCT_ID_ALIASES,
   type Category,
@@ -23,6 +24,7 @@ import DealAlertsBanner from "@/components/DealAlertsBanner";
 import BuyLinks from "@/components/BuyLinks";
 import { markPackInteracted } from "@/lib/pwa-install";
 import BrandLogo from "@/components/BrandLogo";
+import ProductThumb from "@/components/ProductThumb";
 import {
   shareOrDownloadProductImage,
   downloadProductShareImage,
@@ -33,7 +35,7 @@ function HomeInner() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [customPrice, setCustomPrice] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
-  const [view, setView] = useState<"calculator" | "insider" | "cards">("calculator");
+  const [view, setView] = useState<"calculator" | "cards">("calculator");
   const [cardQuery, setCardQuery] = useState("");
   const [selectedCard, setSelectedCard] = useState<ChaseCard | null>(null);
   const [packQuery, setPackQuery] = useState("");
@@ -133,15 +135,7 @@ function HomeInner() {
     return rankedByRoi[rankedByRoi.length - 1] ?? null;
   }, [rankedByRoi]);
 
-  const pricesUpdatedLabel = useMemo(() => {
-    // pricesUpdated is YYYY-MM-DD from the sheet
-    const raw = pricesUpdated;
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
-    if (!m) return raw;
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const day = String(Number(m[3]));
-    return `${day} ${months[Number(m[2]) - 1]}`;
-  }, []);
+  const pricesUpdatedLabel = formatPriceSheetDate(pricesUpdated);
 
   const marketPulse = useMemo(() => {
     if (!rankedByRoi.length) {
@@ -317,7 +311,7 @@ function HomeInner() {
             },
             {
               icon: "👑",
-              label: "VIP — alerts soon",
+              label: "VIP",
               href: "/waitlist" as const,
             },
             {
@@ -329,17 +323,10 @@ function HomeInner() {
             { icon: "🎁", label: "Open", href: "/open" as const },
             { icon: "📝", label: "Rip Log", href: "/log" as const },
             { icon: "💎", label: "Under-EV Watch", href: "/deals" as const },
-            { icon: "📦", label: "Packs & Sets", soon: true },
-            { icon: "📊", label: "Market Tracker", soon: true },
-            { icon: "⭐", label: "Watchlist", soon: true },
           ].map((item) => {
             const className = `sidebar-item w-full rounded-lg px-3 py-2.5 text-sm flex items-center gap-2.5 text-left ${
               "active" in item && item.active ? "active font-medium" : "text-zinc-500"
-            } ${
-              "soon" in item && item.soon
-                ? "cursor-default"
-                : "cursor-pointer hover:text-green-300"
-            }`;
+            } cursor-pointer hover:text-green-300`;
             const inner = (
               <>
                 <span className="text-base w-5 text-center">{item.icon}</span>
@@ -347,11 +334,6 @@ function HomeInner() {
                 {"pro" in item && item.pro && (
                   <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wide">
                     Pro
-                  </span>
-                )}
-                {"soon" in item && item.soon && (
-                  <span className="ml-auto text-[9px] text-zinc-600 uppercase tracking-wide">
-                    Soon
                   </span>
                 )}
               </>
@@ -401,20 +383,8 @@ function HomeInner() {
 
       <div className="flex-1 flex flex-col min-w-0">
         <header className="border-b border-purple-500/20 bg-black/40 backdrop-blur-md sticky top-0 z-40 site-chrome">
-          <div className="px-4 md:px-6 py-3 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="lg:hidden flex items-center">
-                <BrandLogo height={32} compact href={null} />
-              </div>
-              <div className="hidden md:flex items-center gap-2 text-xs text-zinc-500">
-                <span className="text-purple-300/90 font-medium">MULTIVERSE LAB</span>
-                <span className="text-zinc-700">•</span>
-                <span>DASHBOARD</span>
-              </div>
-            </div>
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-full bg-purple-500/15 border border-purple-400/35 text-purple-200">
-              ⚡ Free Access
-            </span>
+          <div className="px-4 md:px-6 py-3 flex items-center gap-3">
+            <BrandLogo height={32} compact href={null} />
           </div>
         </header>
 
@@ -563,9 +533,8 @@ function HomeInner() {
             <Link
               href="/waitlist"
               className="flex-1 min-w-[3.5rem] py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-amber-500/40 hover:text-amber-300"
-              title="Alerts + custom fees — soon"
             >
-              👑 Soon
+              👑 VIP
             </Link>
             <button
               onClick={() => setView("cards")}
@@ -728,25 +697,6 @@ function HomeInner() {
                 )}
               </div>
             </div>
-          ) : view === "insider" ? (
-            <div className="max-w-xl">
-              <Link
-                href="/waitlist"
-                className="panel rounded-2xl p-5 border border-amber-500/30 flex items-start gap-3 hover:border-amber-400/50 transition"
-              >
-                <span className="text-2xl" aria-hidden>
-                  👑
-                </span>
-                <div>
-                  <div className="text-sm font-semibold text-amber-100">
-                    VIP
-                  </div>
-                  <p className="text-sm text-zinc-400 mt-0.5">
-                    Alerts + custom fees — soon. Join the waitlist →
-                  </p>
-                </div>
-              </Link>
-            </div>
           ) : effectiveProduct ? (
             <div className="flex flex-col gap-5">
               <div>
@@ -794,18 +744,10 @@ function HomeInner() {
                             p.accent || "from-zinc-700 to-zinc-800"
                           } flex items-center justify-center relative overflow-hidden`}
                         >
-                          {p.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={p.image}
-                              alt={p.name}
-                              className="h-full w-full object-contain p-1"
-                            />
-                          ) : (
-                            <span className="text-3xl drop-shadow-lg">
-                              {p.emoji || "📦"}
-                            </span>
-                          )}
+                          <ProductThumb
+                            product={p}
+                            className="h-full w-full border-0 bg-transparent p-1"
+                          />
                           {(p.tag === "value" ||
                             p.tag === "hot" ||
                             isTrending) && (
@@ -850,16 +792,10 @@ function HomeInner() {
                           effectiveProduct.accent || "from-zinc-700 to-zinc-800"
                         } flex items-center justify-center text-3xl md:text-4xl shrink-0 shadow-lg border border-white/10 overflow-hidden`}
                       >
-                        {effectiveProduct.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={effectiveProduct.image}
-                            alt={effectiveProduct.name}
-                            className="h-full w-full object-contain p-1"
-                          />
-                        ) : (
-                          effectiveProduct.emoji || "📦"
-                        )}
+                        <ProductThumb
+                          product={effectiveProduct}
+                          className="h-full w-full border-0 bg-transparent"
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h2 className="text-lg md:text-xl font-bold text-white leading-snug break-words whitespace-normal">

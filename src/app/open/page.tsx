@@ -18,6 +18,7 @@ import {
   buySearchQuery,
   isSportsCategory,
   pricesUpdated,
+  formatPriceSheetDate,
   type ArtStatus,
   type Category,
   type Product,
@@ -53,16 +54,8 @@ import {
   shareOrDownloadOpenImage,
 } from "@/lib/openShareImage";
 
-function pricesUpdatedLabel(raw: string): string {
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
-  if (!m) return raw;
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  return `${Number(m[3])} ${months[Number(m[2]) - 1]}`;
-}
 import BrandLogo from "@/components/BrandLogo";
+import ProductThumb from "@/components/ProductThumb";
 import BuyLinks from "@/components/BuyLinks";
 import { markPackInteracted } from "@/lib/pwa-install";
 
@@ -278,34 +271,13 @@ function PullArt({
   );
 }
 
-/** Set-art thumb or generic pack silhouette — never a huge emoji crowding the title. */
-function PackSilhouette({ className }: { className?: string }) {
+function ProductRowIcon({ product }: { product: Product }) {
   return (
-    <span
-      className={`pack-silhouette rounded-md border border-zinc-700/70 bg-gradient-to-b from-zinc-800/80 to-zinc-950/90 ${className ?? ""}`}
-      aria-hidden
+    <ProductThumb
+      product={product}
+      className="h-14 w-10"
     />
   );
-}
-
-function ProductRowIcon({ product }: { product: Product }) {
-  const [broken, setBroken] = useState(false);
-  if (product.image && !broken) {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={product.image}
-        alt=""
-        width={40}
-        height={56}
-        className="h-14 w-10 shrink-0 rounded-md object-cover border border-zinc-700/80 bg-zinc-900"
-        loading="lazy"
-        decoding="async"
-        onError={() => setBroken(true)}
-      />
-    );
-  }
-  return <PackSilhouette className="h-14 w-10 shrink-0" />;
 }
 
 /**
@@ -319,8 +291,6 @@ function PackStageVisual({
   product: Product;
   compact?: boolean;
 }) {
-  const [broken, setBroken] = useState(false);
-  const showImg = !!(product.image && !broken);
   return (
     <div
       className={`relative mx-auto flex items-center justify-center ${
@@ -328,20 +298,7 @@ function PackStageVisual({
       }`}
       aria-hidden
     >
-      {showImg ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={product.image}
-          alt=""
-          className="h-full w-full rounded-lg object-cover border border-cyan-400/30 shadow-lg shadow-cyan-950/40 bg-zinc-900"
-          decoding="async"
-          onError={() => setBroken(true)}
-        />
-      ) : (
-        <PackSilhouette
-          className={`h-full w-full ${compact ? "" : "shadow-lg shadow-black/50"}`}
-        />
-      )}
+      <ProductThumb product={product} className="h-full w-full" />
     </div>
   );
 }
@@ -746,7 +703,7 @@ function OpenInner() {
     sfxEnabled,
   ]);
 
-  const shareDateLabel = pricesUpdatedLabel(pricesUpdated);
+  const shareDateLabel = formatPriceSheetDate(pricesUpdated);
 
   const shareOpenCard = useCallback(async () => {
     if (!session || imageShareBusy) return;

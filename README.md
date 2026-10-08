@@ -1,6 +1,6 @@
 # Rip Portal
 
-**Multiverse Pack EV Calculator**
+**Know before you rip.**
 
 Calculate expected value for Pokémon (Ascended Heroes focus), Topps Chrome Basketball Update, Topps Baseball, and One Piece packs.
 

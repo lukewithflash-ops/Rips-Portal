@@ -5,9 +5,17 @@
 
 export type AffiliateConfig = {
   tcgplayerAffiliateId: string | null;
+  /**
+   * Impact has not approved the TCGPlayer partner. Leave false until approval.
+   * Do not infer this from the affiliate id being present.
+   */
+  tcgplayerApproved: boolean;
   ebayCampaignId: string | null;
   amazonAssociateTag: string | null;
 };
+
+/** Flip to true only after Impact approves TCGPlayer partner tracking. */
+export const TCGPLAYER_AFFILIATE_APPROVED = false;
 
 function trimOrNull(v: string | undefined): string | null {
   const t = (v ?? "").trim();
@@ -19,6 +27,7 @@ export function getAffiliateConfig(): AffiliateConfig {
     tcgplayerAffiliateId: trimOrNull(
       process.env.NEXT_PUBLIC_TCGPLAYER_AFFILIATE_ID
     ),
+    tcgplayerApproved: TCGPLAYER_AFFILIATE_APPROVED,
     ebayCampaignId: trimOrNull(process.env.NEXT_PUBLIC_EBAY_CAMPAIGN_ID),
     amazonAssociateTag: trimOrNull(
       process.env.NEXT_PUBLIC_AMAZON_ASSOCIATE_TAG
@@ -97,4 +106,13 @@ export function amazonSearchUrl(query: string): string {
   const base = `https://www.amazon.com/s?k=${enc(q)}`;
   if (!tag) return base;
   return `${base}&tag=${encodeURIComponent(tag)}`;
+}
+
+/** Under-EV Buy rows: eBay only with a campaign id, TCGPlayer only when approved. */
+export function hasLiveUnderEvAffiliate(): boolean {
+  const cfg = getAffiliateConfig();
+  return (
+    !!cfg.ebayCampaignId ||
+    (cfg.tcgplayerApproved && !!cfg.tcgplayerAffiliateId)
+  );
 }
