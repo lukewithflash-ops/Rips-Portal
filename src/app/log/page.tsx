@@ -19,12 +19,14 @@ import {
   fmtMoney,
   fmtPct,
   loadLocalSessions,
+  localSessionsCsv,
   saveSessionLocal,
   sessionSharePath,
   type RipLogSessionV1,
 } from "@/lib/riplog";
 import { computeKeeperEV } from "@/lib/keeper";
 import BrandLogo from "@/components/BrandLogo";
+import { useVip } from "@/lib/useVip";
 
 function emptyCounts(product: Product | null): number[] {
   return product ? product.slots.map(() => 0) : [];
@@ -51,6 +53,20 @@ function LogInner() {
     { e: string; label: string; at: number }[]
   >([]);
   const [hydratedFromShare, setHydratedFromShare] = useState(false);
+  const vip = useVip();
+
+  const exportCsv = () => {
+    const csv = localSessionsCsv(localSessions, window.location.origin);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `rip-log-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
 
   const product: Product | null = useMemo(() => {
     if (productId) return findProduct(productId) ?? null;
@@ -609,9 +625,27 @@ function LogInner() {
 
         {localSessions.length > 0 && (
           <section className="panel rounded-2xl p-4 space-y-2">
-            <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-              Recent on this device
-            </h2>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                Recent on this device
+              </h2>
+              {vip.vip ? (
+                <button
+                  type="button"
+                  onClick={exportCsv}
+                  className="text-[11px] px-2.5 py-1 rounded-lg border border-amber-500/35 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20"
+                >
+                  👑 Export CSV
+                </button>
+              ) : (
+                <Link
+                  href="/vip"
+                  className="text-[11px] px-2.5 py-1 rounded-lg border border-zinc-700 text-zinc-400 hover:border-amber-500/40 hover:text-amber-200"
+                >
+                  👑 Export CSV · VIP
+                </Link>
+              )}
+            </div>
             <div className="space-y-1.5">
               {localSessions.map((row) => (
                 <button

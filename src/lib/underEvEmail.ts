@@ -22,6 +22,8 @@ import { listUnderEvDeals } from "@/lib/dealAlerts";
 import { findProduct, productDisplayName, calculateEV } from "@/lib/products";
 import { redisConfigured } from "@/lib/pushStore";
 import { SITE_URL } from "@/lib/site";
+import { vipLive } from "@/lib/vip/config";
+import { filterVipEmails } from "@/lib/vip/store";
 
 const SUBS_KEY = "email:under-ev-subs";
 const SNAPSHOT_KEY = "email:under-ev-snapshot";
@@ -262,9 +264,14 @@ export async function runUnderEvFlipEmails(): Promise<FlipRunResult> {
     };
   }
 
-  const subs = (await listSubscribers()).filter((s) =>
+  let subs = (await listSubscribers()).filter((s) =>
     s.interests.includes("deals")
   );
+  // VIP data plan: once checkout is live, flip emails go to VIP accounts only.
+  if (vipLive()) {
+    const vipEmails = await filterVipEmails(subs.map((s) => s.email));
+    subs = subs.filter((s) => vipEmails.has(s.email));
+  }
 
   if (!live) {
     return {

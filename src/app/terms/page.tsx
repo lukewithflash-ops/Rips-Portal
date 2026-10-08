@@ -63,6 +63,19 @@ export default function TermsPage() {
 
           <section className="panel rounded-xl p-4 space-y-2">
             <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
+              VIP data plan
+            </h2>
+            <p>
+              VIP is an optional subscription ($5/month or $40/year) for data
+              features: under-EV flip emails, the full Under-EV list, Rip Log
+              export, and set price history. It renews until you cancel. If a
+              payment fails, the account returns to free. VIP never buys packs,
+              coins, or opens; Open stays free for everyone.
+            </p>
+          </section>
+
+          <section className="panel rounded-xl p-4 space-y-2">
+            <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
               As-is
             </h2>
             <p>
