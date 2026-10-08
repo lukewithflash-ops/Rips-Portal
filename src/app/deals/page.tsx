@@ -17,6 +17,7 @@ import DealAlertsBanner from "@/components/DealAlertsBanner";
 import BuyLinks from "@/components/BuyLinks";
 import ProductThumb from "@/components/ProductThumb";
 import VerdictShareButton from "@/components/VerdictShareButton";
+import { FREE_UNDER_EV_ROWS, useVip } from "@/lib/useVip";
 
 const DISCLAIMER =
   "Under-EV Watch ranks catalog products where default/market price sits below modeled expected value (positive ROI / $ edge). Slot odds and averages are estimates — entertainment and math only, not financial, investment, or collecting advice. Markets move; verify live prices before you buy or rip. No gambling features.";
@@ -42,6 +43,9 @@ export default function DealsPage() {
   const [notifyMsg, setNotifyMsg] = useState<string | null>(null);
 
   const pricesUpdatedLabel = formatPriceSheetDate();
+  const vip = useVip();
+  /** VIP data plan: free sees the top rows only, once checkout is live. */
+  const locked = vip.gatesOn && !vip.vip;
 
   const copyShareLink = async () => {
     const url =
@@ -111,6 +115,23 @@ export default function DealsPage() {
     if (categoryFilter === "all") return underEv;
     return underEv.filter((row) => row.product.category === categoryFilter);
   }, [underEv, categoryFilter]);
+
+  // Free rows = top N by ROI, fixed so sort/filter can't page past them.
+  const freeIds = useMemo(
+    () =>
+      new Set(
+        [...underEv]
+          .sort((a, b) => b.roi - a.roi)
+          .slice(0, FREE_UNDER_EV_ROWS)
+          .map((r) => r.product.id)
+      ),
+    [underEv]
+  );
+  const visible = useMemo(
+    () => (locked ? filtered.filter((r) => freeIds.has(r.product.id)) : filtered),
+    [locked, filtered, freeIds]
+  );
+  const hiddenCount = locked ? underEv.length - freeIds.size : 0;
 
   const catLabel = (id: Category) =>
     categories.find((c) => c.id === id)?.label ?? id;
@@ -193,13 +214,36 @@ export default function DealsPage() {
           <h2 className="text-sm font-semibold text-white mb-1">
             Notify when it flips under-EV
           </h2>
-          <p className="text-[12px] text-zinc-500 mb-3 leading-relaxed">
-            Same waitlist as the rest of Rip Portal. An email goes out only
-            when a product flips into or out of Under-EV — never on a quiet
-            week. Delivery stays off until a mail key is connected; your
-            address is saved for that. Unsubscribe is in every email.
-          </p>
-          {notifyStatus === "done" ? (
+          {vip.gatesOn ? (
+            <p className="text-[12px] text-zinc-500 mb-3 leading-relaxed">
+              An email goes out only when a product flips into or out of
+              Under-EV — never on a quiet week. Unsubscribe is in every email.
+            </p>
+          ) : (
+            <p className="text-[12px] text-zinc-500 mb-3 leading-relaxed">
+              Same waitlist as the rest of Rip Portal. An email goes out only
+              when a product flips into or out of Under-EV — never on a quiet
+              week. Delivery stays off until a mail key is connected; your
+              address is saved for that. Unsubscribe is in every email.
+            </p>
+          )}
+          {vip.vip ? (
+            <p className="text-[12px] text-emerald-300">
+              👑 VIP: flip emails go to {vip.email}.
+            </p>
+          ) : locked ? (
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <p className="text-[12px] text-zinc-400 flex-1">
+                Flip emails are part of VIP.
+              </p>
+              <Link
+                href="/vip"
+                className="shrink-0 text-center px-4 py-2.5 rounded-xl text-sm font-medium bg-amber-500/15 border border-amber-400/40 text-amber-100 hover:bg-amber-500/25"
+              >
+                👑 Get flip emails
+              </Link>
+            </div>
+          ) : notifyStatus === "done" ? (
             <p className="text-[12px] text-emerald-300">{notifyMsg}</p>
           ) : (
             <form onSubmit={submitNotify} className="flex flex-col sm:flex-row gap-2">
@@ -289,7 +333,7 @@ export default function DealsPage() {
           </button>
         </div>
 
-        {filtered.length === 0 ? (
+        {visible.length === 0 && !(locked && hiddenCount > 0) ? (
           <div className="panel rounded-2xl p-8 text-center border border-zinc-800">
             <div className="text-3xl mb-2">📭</div>
             <h2 className="text-sm font-semibold text-zinc-200 mb-1">
@@ -309,7 +353,7 @@ export default function DealsPage() {
           </div>
         ) : (
           <ul className="space-y-2">
-            {filtered.map(({ product: p, totalEV, roi, profit, price }, idx) => (
+            {visible.map(({ product: p, totalEV, roi, profit, price }, idx) => (
               <li key={p.id}>
                 <div className="panel rounded-2xl p-3.5 border border-emerald-500/15 hover:border-emerald-400/35 transition-colors">
                   <div className="flex items-start gap-3">
@@ -420,12 +464,35 @@ export default function DealsPage() {
                           Copy share link
                         </button>
                         <VerdictShareButton productId={p.id} price={price} />
+                        {vip.gatesOn && (
+                          <Link
+                            href={`/vip/history?id=${p.id}`}
+                            className="text-[11px] px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200/90 hover:bg-amber-500/20 transition-colors"
+                          >
+                            👑 Price history
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </div>
                 </div>
               </li>
             ))}
+            {locked && hiddenCount > 0 && (
+              <li>
+                <Link
+                  href="/vip"
+                  className="block panel rounded-2xl p-4 border border-amber-500/30 text-center hover:border-amber-400/60 transition-colors"
+                >
+                  <div className="text-sm font-semibold text-amber-100">
+                    👑 {hiddenCount} more under-EV {hiddenCount === 1 ? "row" : "rows"} with VIP
+                  </div>
+                  <div className="text-[11px] text-zinc-400 mt-1">
+                    $5/month or $40/year · flip emails, Log export, price history
+                  </div>
+                </Link>
+              </li>
+            )}
           </ul>
         )}
 

@@ -1,5 +1,5 @@
 /* Rip Portal — offline shell + Web Push (honest prices: never fake live data) */
-const CACHE_VERSION = "rip-portal-v15-shop";
+const CACHE_VERSION = "rip-portal-v16-vip";
 const SHELL_URLS = [
   "/",
   "/open",

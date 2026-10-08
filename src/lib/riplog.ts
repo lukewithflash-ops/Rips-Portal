@@ -211,3 +211,57 @@ export function fmtMoney(n: number): string {
 export function fmtPct(n: number): string {
   return `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
 }
+
+function csvCell(v: string | number): string {
+  const s = String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/** VIP: CSV of the Rip Log sessions saved on this device. */
+export function localSessionsCsv(
+  rows: { e: string; label: string; at: number }[],
+  origin: string
+): string {
+  const header = [
+    "saved_at",
+    "label",
+    "product_id",
+    "product",
+    "format",
+    "qty",
+    "price_per_unit",
+    "cost_paid",
+    "expected_ev",
+    "logged_value",
+    "vs_expected",
+    "note",
+    "link",
+  ];
+  const lines = [header.join(",")];
+  for (const row of rows) {
+    const session = decodeSession(row.e);
+    const stats = session ? computeRipLogStats(session) : null;
+    if (!session || !stats) continue;
+    const r2 = (n: number) => (Math.round(n * 100) / 100).toFixed(2);
+    lines.push(
+      [
+        new Date(row.at).toISOString(),
+        row.label,
+        stats.product.id,
+        stats.product.name,
+        stats.product.format,
+        stats.quantity,
+        r2(stats.pricePerUnit),
+        r2(stats.costPaid),
+        r2(stats.expectedEV),
+        r2(stats.actualValue),
+        r2(stats.vsExpected),
+        session.n ?? "",
+        `${origin}${sessionSharePath(row.e)}`,
+      ]
+        .map(csvCell)
+        .join(",")
+    );
+  }
+  return lines.join("\n") + "\n";
+}

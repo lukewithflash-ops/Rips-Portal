@@ -78,6 +78,19 @@ export default function PrivacyPage() {
 
           <section className="panel rounded-xl p-4 space-y-2">
             <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
+              VIP accounts
+            </h2>
+            <p>
+              If you subscribe to VIP, Stripe processes the payment; Rip Portal
+              never sees your card. We store your email, your Stripe customer
+              id, and whether VIP is active. Signing in sets one cookie that
+              keeps you signed in for 30 days. Open, the calculator, and the
+              Rip Log on your device work without an account.
+            </p>
+          </section>
+
+          <section className="panel rounded-xl p-4 space-y-2">
+            <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
               Analytics
             </h2>
             <p>

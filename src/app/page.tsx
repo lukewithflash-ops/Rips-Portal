@@ -316,7 +316,7 @@ function HomeInner() {
             {
               icon: "👑",
               label: "VIP",
-              href: "/waitlist" as const,
+              href: "/vip" as const,
             },
             {
               icon: "🃏",
@@ -535,7 +535,7 @@ function HomeInner() {
               ⚡ EV
             </button>
             <Link
-              href="/waitlist"
+              href="/vip"
               className="flex-1 min-w-[3.5rem] py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-amber-500/40 hover:text-amber-300"
             >
               👑 VIP
