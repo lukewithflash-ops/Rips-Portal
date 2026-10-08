@@ -29,6 +29,7 @@ import {
   shareOrDownloadProductImage,
   downloadProductShareImage,
 } from "@/lib/openShareImage";
+import VerdictShareButton from "@/components/VerdictShareButton";
 
 function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
@@ -1069,9 +1070,15 @@ function HomeInner() {
                           })}
                         </div>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                          <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
-                            Portal Verdict
-                          </h3>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                              Portal Verdict
+                            </h3>
+                            <VerdictShareButton
+                              productId={effectiveProduct.id}
+                              price={price}
+                            />
+                          </div>
                           <span
                             className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
                               verdict.primary === "rip"

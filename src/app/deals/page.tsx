@@ -16,6 +16,7 @@ import BrandLogo from "@/components/BrandLogo";
 import DealAlertsBanner from "@/components/DealAlertsBanner";
 import BuyLinks from "@/components/BuyLinks";
 import ProductThumb from "@/components/ProductThumb";
+import VerdictShareButton from "@/components/VerdictShareButton";
 
 const DISCLAIMER =
   "Under-EV Watch ranks catalog products where default/market price sits below modeled expected value (positive ROI / $ edge). Slot odds and averages are estimates — entertainment and math only, not financial, investment, or collecting advice. Markets move; verify live prices before you buy or rip. No gambling features.";
@@ -416,6 +417,7 @@ export default function DealsPage() {
                         >
                           Copy share link
                         </button>
+                        <VerdictShareButton productId={p.id} price={price} />
                       </div>
                     </div>
                   </div>
