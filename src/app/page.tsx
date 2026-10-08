@@ -30,6 +30,7 @@ import {
   downloadProductShareImage,
 } from "@/lib/openShareImage";
 import VerdictShareButton from "@/components/VerdictShareButton";
+import { clearYourPrice, savedPriceInput, saveYourPrice } from "@/lib/yourPrice";
 
 function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
@@ -62,7 +63,7 @@ function HomeInner() {
     if (Number.isFinite(pr) && pr >= 0) {
       setCustomPrice(String(Math.round(pr * 100) / 100));
     } else {
-      setCustomPrice("");
+      setCustomPrice(savedPriceInput(match.id));
     }
     setView("calculator");
     setPackQuery("");
@@ -81,6 +82,7 @@ function HomeInner() {
   const syncPackToUrl = (id: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("pack", id);
+    params.delete("price");
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
@@ -214,13 +216,14 @@ function HomeInner() {
   const handleCategory = (cat: Category) => {
     setActiveCategory(cat);
     setSelectedId(null);
-    setCustomPrice("");
+    const first = products.find((p) => p.category === cat);
+    setCustomPrice(first ? savedPriceInput(first.id) : "");
     setPackQuery("");
   };
 
   const handleSelectProduct = (id: string) => {
     setSelectedId(id);
-    setCustomPrice("");
+    setCustomPrice(savedPriceInput(id));
     syncPackToUrl(id);
     // Successful EV calc path (results panel for this pack) — gates install toast
     markPackInteracted();
@@ -431,7 +434,7 @@ function HomeInner() {
                       onClick={() => {
                         setActiveCategory(bestUnderEv.product.category);
                         setSelectedId(bestUnderEv.product.id);
-                        setCustomPrice("");
+                        setCustomPrice(savedPriceInput(bestUnderEv.product.id));
                         setView("calculator");
                         syncPackToUrl(bestUnderEv.product.id);
                         markPackInteracted();
@@ -466,7 +469,7 @@ function HomeInner() {
                       onClick={() => {
                         setActiveCategory(chaseTaxExample.product.category);
                         setSelectedId(chaseTaxExample.product.id);
-                        setCustomPrice("");
+                        setCustomPrice(savedPriceInput(chaseTaxExample.product.id));
                         setView("calculator");
                         syncPackToUrl(chaseTaxExample.product.id);
                         markPackInteracted();
@@ -860,9 +863,52 @@ function HomeInner() {
                               step="0.01"
                               min="0"
                               value={customPrice !== "" ? customPrice : price}
-                              onChange={(e) => setCustomPrice(e.target.value)}
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                setCustomPrice(raw);
+                                if (raw.trim() === "") {
+                                  clearYourPrice(effectiveProduct.id);
+                                  return;
+                                }
+                                const n = parseFloat(raw);
+                                if (!Number.isFinite(n) || n < 0) return;
+                                const rounded = Math.round(n * 100) / 100;
+                                if (
+                                  Math.abs(rounded - effectiveProduct.defaultPrice) < 0.005
+                                ) {
+                                  clearYourPrice(effectiveProduct.id);
+                                } else {
+                                  saveYourPrice(effectiveProduct.id, rounded);
+                                }
+                              }}
                               className="w-28 bg-black/70 border border-zinc-700 rounded-lg px-3 py-2.5 text-right text-green-300 font-mono text-sm focus:outline-none focus:border-green-400"
                             />
+                            {customPrice !== "" &&
+                              Math.abs(
+                                (parseFloat(customPrice) || 0) -
+                                  effectiveProduct.defaultPrice
+                              ) > 0.009 && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    clearYourPrice(effectiveProduct.id);
+                                    setCustomPrice("");
+                                  }}
+                                  className="mt-1 block text-[10px] text-zinc-500 hover:text-emerald-300 underline-offset-2 hover:underline"
+                                >
+                                  Reset to catalog $
+                                  {effectiveProduct.defaultPrice.toFixed(2)}
+                                </button>
+                              )}
+                            {customPrice !== "" &&
+                              Math.abs(
+                                (parseFloat(customPrice) || 0) -
+                                  effectiveProduct.defaultPrice
+                              ) > 0.009 && (
+                                <p className="mt-0.5 text-[10px] text-zinc-600">
+                                  Saved on this device
+                                </p>
+                              )}
                           </div>
                           <div>
                             <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
