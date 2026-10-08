@@ -67,6 +67,9 @@ export default function PrivacyPage() {
               If you join the Portal waitlist, your email and selected interests
               are sent to the site operator so we can follow up about new tools.
               A copy may also be cached in this browser&apos;s localStorage.
+              Addresses that ask for deal alerts are stored so we can email only
+              when a product flips into or out of Under-EV. Every one of those
+              emails has an unsubscribe link.
             </p>
           </section>
 

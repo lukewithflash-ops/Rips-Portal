@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { saveWaitlistSubscriber } from "@/lib/underEvEmail";
 
 const INBOX = "lukewithflash@gmail.com";
 const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${INBOX}`;
@@ -134,6 +135,14 @@ export async function POST(req: Request) {
   }
 
   const timestamp = new Date().toISOString();
+
+  // Keep deal-alert addresses in Redis for flip emails. Signup still succeeds
+  // if Redis is down — the inbox forward below is unchanged.
+  try {
+    await saveWaitlistSubscriber(email, interests);
+  } catch {
+    /* store is optional until Upstash is reachable */
+  }
 
   // Prefer Resend when key is present; fall back to FormSubmit.
   if (process.env.RESEND_API_KEY) {
