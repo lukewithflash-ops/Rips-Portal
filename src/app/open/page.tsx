@@ -1438,6 +1438,7 @@ function OpenInner() {
                     size="md"
                     preferEbay={isSportsCategory(session.product.category)}
                     hideTcgplayer={isSportsCategory(session.product.category)}
+                    productId={session.product.id}
                   />
                   <p className="text-[10px] text-zinc-500 leading-snug">
                     Free educational sim · not gambling · no real-money opens.

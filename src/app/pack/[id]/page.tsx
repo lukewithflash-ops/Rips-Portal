@@ -112,6 +112,7 @@ export default async function PackSharePage({ params }: Props) {
               size="md"
               preferEbay={isSportsCategory(product.category)}
               hideTcgplayer={isSportsCategory(product.category)}
+              productId={product.id}
             />
           </div>
           <Link

@@ -385,6 +385,7 @@ export default function DealsPage() {
                           compact
                           preferEbay={isSportsCategory(p.category)}
                           hideTcgplayer={isSportsCategory(p.category)}
+                          productId={p.id}
                         />
                       </div>
 

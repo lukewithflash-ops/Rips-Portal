@@ -1,3 +1,6 @@
+"use client";
+
+import { track } from "@vercel/analytics";
 import {
   amazonSearchUrl,
   ebaySearchUrl,
@@ -33,8 +36,30 @@ export type BuyLinksProps = {
   size?: "sm" | "md" | "lg";
   /** Skip the short affiliate line (rare; prefer showing it) */
   hideDisclosure?: boolean;
+  /** Catalog product id when this CTA is for a known pack/product. */
+  productId?: string;
   className?: string;
 };
+
+export type BuyClickRetailer = "tcgplayer" | "ebay" | "other";
+
+/** Classify a Buy href without changing the URL. Amazon and unknown hosts are other. */
+export function buyClickRetailer(href: string, label?: string): BuyClickRetailer {
+  const blob = `${href} ${label ?? ""}`.toLowerCase();
+  if (blob.includes("tcgplayer")) return "tcgplayer";
+  if (blob.includes("ebay")) return "ebay";
+  return "other";
+}
+
+function trackBuyClick(href: string, label: string | undefined, productId?: string) {
+  const id = (productId || "").trim();
+  const path = typeof window !== "undefined" ? window.location.pathname : "";
+  track("buy_click", {
+    retailer: buyClickRetailer(href, label),
+    path,
+    ...(id ? { productId: id } : {}),
+  });
+}
 
 export function AffiliateDisclosure({ className = "" }: { className?: string }) {
   return (
@@ -64,6 +89,7 @@ export default function BuyLinks({
   hideTcgplayer = false,
   size = "sm",
   hideDisclosure = false,
+  productId,
   className = "",
 }: BuyLinksProps) {
   const q = query.trim();
@@ -86,6 +112,7 @@ export default function BuyLinks({
       href={deep}
       target="_blank"
       rel="sponsored noopener noreferrer"
+      onClick={() => trackBuyClick(deep, retailer, productId)}
       className={`${base} ${sz} bg-emerald-500/20 border-emerald-400/55 text-emerald-50 hover:bg-emerald-500/30 shadow-sm shadow-emerald-950/30`}
     >
       Buy on {retailer?.trim() || "retailer"}
@@ -98,6 +125,7 @@ export default function BuyLinks({
       href={ebay}
       target="_blank"
       rel="sponsored noopener noreferrer"
+      onClick={() => trackBuyClick(ebay, "eBay", productId)}
       className={`${base} ${sz} ${
         preferEbay
           ? "bg-blue-500/20 border-blue-400/55 text-blue-50 hover:bg-blue-500/30 shadow-sm shadow-blue-950/30"
@@ -115,6 +143,7 @@ export default function BuyLinks({
         href={tcg}
         target="_blank"
         rel="sponsored noopener noreferrer"
+        onClick={() => trackBuyClick(tcg, "TCGPlayer", productId)}
         className={`${base} ${sz} ${
           preferEbay
             ? "bg-zinc-800/60 border-zinc-700/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 text-[10px] px-2 py-1.5"
@@ -131,6 +160,7 @@ export default function BuyLinks({
       href={amazon}
       target="_blank"
       rel="sponsored noopener noreferrer"
+      onClick={() => trackBuyClick(amazon, "Amazon", productId)}
       className={`${base} ${sz} bg-orange-500/10 border-orange-500/35 text-orange-100/95 hover:bg-orange-500/20`}
     >
       Amazon
