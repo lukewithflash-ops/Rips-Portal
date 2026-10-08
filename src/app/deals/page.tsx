@@ -78,7 +78,7 @@ export default function DealsPage() {
       };
       if (res.ok && data.ok) {
         setNotifyStatus("done");
-        setNotifyMsg("You\u2019re on the list — we\u2019ll note under-EV alert interest.");
+        setNotifyMsg("Saved. Flip emails send only when a row enters or leaves Under-EV, once mail delivery is on.");
       } else {
         setNotifyStatus("error");
         setNotifyMsg(
@@ -194,8 +194,10 @@ export default function DealsPage() {
             Notify when it flips under-EV
           </h2>
           <p className="text-[12px] text-zinc-500 mb-3 leading-relaxed">
-            One-field signup via the existing Portal waitlist. Browser push
-            toggles are below if you want alerts on this device too.
+            Same waitlist as the rest of Rip Portal. An email goes out only
+            when a product flips into or out of Under-EV — never on a quiet
+            week. Delivery stays off until a mail key is connected; your
+            address is saved for that. Unsubscribe is in every email.
           </p>
           {notifyStatus === "done" ? (
             <p className="text-[12px] text-emerald-300">{notifyMsg}</p>

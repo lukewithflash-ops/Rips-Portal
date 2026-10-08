@@ -11,6 +11,7 @@ import {
   sendWebPush,
   vapidServerConfigured,
 } from "@/lib/webPushServer";
+import { runUnderEvFlipEmails } from "@/lib/underEvEmail";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -136,12 +137,22 @@ async function runNotify(): Promise<NextResponse> {
   });
 }
 
+async function runNotifyWithFlipEmail() {
+  const response = await runNotify();
+  try {
+    await runUnderEvFlipEmails();
+  } catch {
+    /* flip email must not fail the push cron */
+  }
+  return response;
+}
+
 export async function POST(req: Request) {
   if (!authorized(req)) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
   try {
-    return await runNotify();
+    return await runNotifyWithFlipEmail();
   } catch (err) {
     return NextResponse.json(
       {
@@ -160,7 +171,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
   try {
-    return await runNotify();
+    return await runNotifyWithFlipEmail();
   } catch (err) {
     return NextResponse.json(
       {
