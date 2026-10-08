@@ -1008,6 +1008,18 @@ const rawProducts: Product[] = [
 
 export const pricesUpdated: string = priceSheet.updated;
 
+/** Sheet date only (prices.json `updated`). Never the build date or today. */
+export function formatPriceSheetDate(raw: string = pricesUpdated): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  if (!m) return raw;
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  return `${Number(m[3])} ${months[Number(m[2]) - 1]} ${m[1]}`;
+}
+
+
 export const products: Product[] = rawProducts.map((p) => {
   const override = (priceSheet.prices as Record<string, number | undefined>)[p.id];
   return override != null ? { ...p, defaultPrice: override } : p;

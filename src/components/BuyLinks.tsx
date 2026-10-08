@@ -38,6 +38,11 @@ export type BuyLinksProps = {
   hideDisclosure?: boolean;
   /** Catalog product id when this CTA is for a known pack/product. */
   productId?: string;
+  /**
+   * Under-EV rows: only a live affiliate. eBay needs NEXT_PUBLIC_EBAY_CAMPAIGN_ID.
+   * TCGPlayer needs TCGPLAYER_AFFILIATE_APPROVED. Plain search links are hidden.
+   */
+  liveOnly?: boolean;
   className?: string;
 };
 
@@ -90,6 +95,7 @@ export default function BuyLinks({
   size = "sm",
   hideDisclosure = false,
   productId,
+  liveOnly = false,
   className = "",
 }: BuyLinksProps) {
   const q = query.trim();
@@ -97,16 +103,25 @@ export default function BuyLinks({
   if (!q && !deep) return null;
 
   const cfg = getAffiliateConfig();
-  const tcg = q ? tcgplayerSearchUrl(q) : null;
-  const ebay = q ? ebaySearchUrl(q) : null;
+  const ebayLive = !!cfg.ebayCampaignId;
+  const tcgLive = cfg.tcgplayerApproved && !!cfg.tcgplayerAffiliateId;
+  const tcg = q && (!liveOnly || tcgLive) ? tcgplayerSearchUrl(q) : null;
+  const ebay = q && (!liveOnly || ebayLive) ? ebaySearchUrl(q) : null;
   const amazon =
-    q && (showAmazon || cfg.amazonAssociateTag) ? amazonSearchUrl(q) : null;
+    !liveOnly && q && (showAmazon || cfg.amazonAssociateTag)
+      ? amazonSearchUrl(q)
+      : null;
 
   const base =
     "inline-flex items-center justify-center gap-1.5 border transition-colors";
   const sz = sizeClasses(size);
 
-  const deepBtn = deep ? (
+  const deepKind = deep ? buyClickRetailer(deep, retailer) : null;
+  const deepLive =
+    !liveOnly ||
+    (deepKind === "ebay" && ebayLive) ||
+    (deepKind === "tcgplayer" && tcgLive);
+  const deepBtn = deep && deepLive ? (
     <a
       key="deep"
       href={deep}
@@ -170,12 +185,13 @@ export default function BuyLinks({
   const searchButtons = preferEbay
     ? [ebayBtn, tcgBtn, amazonBtn]
     : [tcgBtn, ebayBtn, amazonBtn];
-  const buttons = [deepBtn, ...searchButtons];
+  const buttons = [deepBtn, ...searchButtons].filter(Boolean);
+  if (buttons.length === 0) return null;
 
   return (
     <div className={`space-y-1.5 ${className}`}>
       <div className="flex flex-wrap gap-2 items-center">
-        {buttons.filter(Boolean)}
+        {buttons}
       </div>
       {!hideDisclosure && (
         <p className="text-[10px] text-zinc-500 leading-relaxed">

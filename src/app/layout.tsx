@@ -88,8 +88,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: "Rip Portal",
     title: "Rip Portal — Pack EV Calculator",
-    description:
-      "Calculate pack expected value for Pokémon, sports cards, and One Piece. Multiverse-approved math for collectors.",
+    description: "Know before you rip.",
     locale: "en_US",
   },
   twitter: {

@@ -6,14 +6,16 @@ import {
   categories,
   products,
   calculateEV,
-  pricesUpdated,
+  formatPriceSheetDate,
   buySearchQuery,
   isSportsCategory,
   type Category,
 } from "@/lib/products";
+import { hasLiveUnderEvAffiliate } from "@/lib/affiliate";
 import BrandLogo from "@/components/BrandLogo";
 import DealAlertsBanner from "@/components/DealAlertsBanner";
 import BuyLinks from "@/components/BuyLinks";
+import ProductThumb from "@/components/ProductThumb";
 
 const DISCLAIMER =
   "Under-EV Watch ranks catalog products where default/market price sits below modeled expected value (positive ROI / $ edge). Slot odds and averages are estimates — entertainment and math only, not financial, investment, or collecting advice. Markets move; verify live prices before you buy or rip. No gambling features.";
@@ -38,12 +40,7 @@ export default function DealsPage() {
   const [notifyStatus, setNotifyStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [notifyMsg, setNotifyMsg] = useState<string | null>(null);
 
-  const pricesUpdatedLabel = (() => {
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(pricesUpdated);
-    if (!m) return pricesUpdated;
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    return `${Number(m[3])} ${months[Number(m[2]) - 1]}`;
-  })();
+  const pricesUpdatedLabel = formatPriceSheetDate();
 
   const copyShareLink = async () => {
     const url =
@@ -117,8 +114,6 @@ export default function DealsPage() {
   const catLabel = (id: Category) =>
     categories.find((c) => c.id === id)?.label ?? id;
 
-  const catEmoji = (id: Category) =>
-    categories.find((c) => c.id === id)?.emoji ?? "📦";
 
   return (
     <div className="flex min-h-screen portal-bg flex-col">
@@ -321,11 +316,14 @@ export default function DealsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <div className="text-sm font-medium text-zinc-100 truncate">
-                            {p.emoji ?? catEmoji(p.category)} {p.name}
+                          <div className="flex items-center gap-2 min-w-0">
+                            <ProductThumb product={p} className="h-10 w-8" />
+                            <div className="text-sm font-medium text-zinc-100 truncate">
+                              {p.name}
+                            </div>
                           </div>
                           <div className="text-[11px] text-zinc-500 truncate">
-                            {p.format} · {catLabel(p.category)}
+                            {p.format} · {catLabel(p.category)} · Prices {pricesUpdatedLabel}
                           </div>
                         </div>
                         <div className="text-right shrink-0 sm:hidden">
@@ -373,21 +371,27 @@ export default function DealsPage() {
                         </div>
                       </div>
 
-                      <div className="mt-3">
-                        <div className="text-[10px] uppercase tracking-wider text-emerald-400/80 font-semibold mb-1.5">
-                          Buy
+                      {hasLiveUnderEvAffiliate() && (
+                        <div className="mt-3">
+                          <div className="text-[10px] uppercase tracking-wider text-emerald-400/80 font-semibold mb-1.5">
+                            Buy
+                          </div>
+                          <BuyLinks
+                            query={buySearchQuery(p)}
+                            buyUrl={p.buyUrl}
+                            retailer={p.retailer}
+                            size="lg"
+                            compact
+                            preferEbay={isSportsCategory(p.category)}
+                            hideTcgplayer={
+                              isSportsCategory(p.category) ||
+                              !hasLiveUnderEvAffiliate()
+                            }
+                            liveOnly
+                            productId={p.id}
+                          />
                         </div>
-                        <BuyLinks
-                          query={buySearchQuery(p)}
-                          buyUrl={p.buyUrl}
-                          retailer={p.retailer}
-                          size="lg"
-                          compact
-                          preferEbay={isSportsCategory(p.category)}
-                          hideTcgplayer={isSportsCategory(p.category)}
-                          productId={p.id}
-                        />
-                      </div>
+                      )}
 
                       <div className="mt-2.5 flex flex-wrap gap-2">
                         <Link
