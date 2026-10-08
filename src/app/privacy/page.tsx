@@ -46,8 +46,9 @@ export default function PrivacyPage() {
               on this device so you can reopen them. That data stays local
               unless you share a session link yourself. A price you type for a
               product (“your price”) is saved the same way, keyed by product,
-              so the calculator can prefill it next time. Clear site data in
-              your browser to remove it.
+              so the calculator can prefill it next time. Shop inventory
+              (product, quantity, your price) is stored the same way and is
+              not uploaded. Clear site data in your browser to remove it.
             </p>
           </section>
 

@@ -1,10 +1,11 @@
 /* Rip Portal — offline shell + Web Push (honest prices: never fake live data) */
-const CACHE_VERSION = "rip-portal-v14-your-price";
+const CACHE_VERSION = "rip-portal-v15-shop";
 const SHELL_URLS = [
   "/",
   "/open",
   "/deals",
   "/log",
+  "/shop",
   "/privacy",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
