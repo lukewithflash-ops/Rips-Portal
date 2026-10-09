@@ -1,4 +1,4 @@
-import { calculateEV, type Product, type RaritySlot } from "@/lib/products";
+import { calculateEV, unverifiedReason, type Product, type RaritySlot } from "@/lib/products";
 
 export type VerdictKind = "rip" | "singles" | "hold";
 
@@ -22,6 +22,8 @@ export interface PortalVerdict {
   totalEV: number;
   roi: number;
   profit: number;
+  /** Reason the EV is not verified, or null. */
+  unverified: string | null;
 }
 
 const BULKISH = /bulk|common|guaranteed|base \+|pack hits/i;
@@ -132,9 +134,15 @@ export function computeVerdict(product: Product, price: number): PortalVerdict {
         : `ROI is soft (${fmtRoi(roi)}). Holding sealed keeps optionality vs paying the open premium for chase odds.`;
   }
 
+  const unverified = unverifiedReason(product);
+  if (unverified) {
+    rationale = `Unverified estimate: ${unverified} Treat this EV as a rough guide, not a buy signal. ${rationale}`;
+  }
+
   return {
     primary,
     rationale,
+    unverified,
     options,
     chaseSlots,
     singlesEstimate,

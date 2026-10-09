@@ -10,6 +10,7 @@ import {
   buySearchQuery,
   isSportsCategory,
   type Category,
+  isVerified,
 } from "@/lib/products";
 import { hasLiveUnderEvAffiliate } from "@/lib/affiliate";
 import BrandLogo from "@/components/BrandLogo";
@@ -106,7 +107,7 @@ export default function DealsPage() {
         const { totalEV, roi, profit } = calculateEV(p, p.defaultPrice);
         return { product: p, totalEV, roi, profit, price: p.defaultPrice };
       })
-      .filter((row) => row.profit > 0);
+      .filter((row) => row.profit > 0 && isVerified(row.product));
 
     rows.sort((a, b) =>
       sortKey === "edge" ? b.profit - a.profit : b.roi - a.roi

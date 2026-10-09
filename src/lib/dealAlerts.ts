@@ -1,4 +1,4 @@
-import { products, calculateEV } from "@/lib/products";
+import { products, calculateEV, isVerified } from "@/lib/products";
 
 const SEEN_KEY = "rip-portal-deal-alerts-seen-v1";
 const SETTINGS_KEY = "rip-portal-deal-alerts-settings-v1";
@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS: DealAlertsSettings = { notifyUnderEv: false };
 
 export function listUnderEvDeals(): UnderEvDeal[] {
   return products
+    .filter(isVerified)
     .map((p) => {
       const { totalEV, roi, profit } = calculateEV(p, p.defaultPrice);
       return {

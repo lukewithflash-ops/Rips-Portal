@@ -541,7 +541,12 @@ const pitchBlack: ProductPools = {
 };
 
 /** 30th Celebration — Scrydex set code me55. Name↔id pairs from EN checklist. */
-function thirtiethPools(promoName: string, promoId: string): ProductPools {
+/**
+ * promoName/promoId = null when the box extra has no card in the set art pool
+ * (poster promos, mini tin art card). Slot 7 then falls back to the catalog
+ * slot label + branded back, so Open shows the real contents, not a stand-in.
+ */
+function thirtiethPools(promoName: string | null, promoId: string | null): ProductPools {
   const bulk = [
     poke("Exeggcute", "me55-1", 0.25, 4),
     poke("Vulpix", "me55-9", 0.2, 4),
@@ -606,10 +611,9 @@ function thirtiethPools(promoName: string, promoId: string): ProductPools {
     poke("Mew ex — Futuristic Rare", "me55-158", 110, 2),
     poke("Mewtwo ex — Futuristic Rare", "me55-157", 78, 2),
   ];
-  const promo = [
-    poke(promoName, promoId, 12, 3),
-  ];
-  return {
+  const promo =
+    promoName && promoId ? [poke(promoName, promoId, 12, 3)] : null;
+  const pools: ProductPools = {
     0: bulk,
     1: pikachuRares,
     2: doubleRare,
@@ -617,8 +621,9 @@ function thirtiethPools(promoName: string, promoId: string): ProductPools {
     // 4 Classic Collection: intentionally omitted (no verified me55 art)
     5: sirs,
     6: futuristic,
-    7: promo,
   };
+  if (promo) pools[7] = promo;
+  return pools;
 }
 
 
@@ -939,14 +944,14 @@ export const cardPoolsByProduct: Record<string, ProductPools> = {
   "poke-30th-etb": thirtiethPools("Nidorina (promo)", "me55-88"),
   "poke-30th-pc-etb": thirtiethPools("Nidorina (PC promo)", "me55-88"),
   "poke-30th-bundle": thirtiethPools("Pikachu Rare", "me55-40"),
-  "poke-30th-poster": thirtiethPools("Articuno (promo set art)", "me55-132"),
+  "poke-30th-poster": thirtiethPools(null, null),
   "poke-30th-tech-sticker-exeggutor": thirtiethPools("Alolan Exeggutor (promo)", "me55-129"),
   "poke-30th-tech-sticker-lucario": thirtiethPools("Lucario (promo)", "me55-83"),
   "poke-30th-ex-box-sylveon": thirtiethPools("Sylveon ex (promo)", "me55-153"),
   "poke-30th-ex-box-greninja": thirtiethPools("Greninja ex (promo)", "me55-148"),
   "poke-30th-knockout": thirtiethPools("Eevee (promo)", "me55-116"),
   "poke-30th-binder": thirtiethPools("Pikachu Rare", "me55-32"),
-  "poke-30th-mini-tin": thirtiethPools("Pikachu ex", "me55-149"),
+  "poke-30th-mini-tin": thirtiethPools(null, null),
   "poke-30th-upc-day": thirtiethPools("Pikachu ex (day) + Espeon ex", "me55-149"),
   "poke-30th-upc-night": thirtiethPools("Pikachu ex (night) + Umbreon ex", "me55-150"),
   "base-chrome-hobby": baseChromeHobby,

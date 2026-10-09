@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { products, calculateEV, findProduct } from "@/lib/products";
+import { products, calculateEV, findProduct, isVerified } from "@/lib/products";
 
 export const runtime = "edge";
 export const alt = "Rip Portal pack share card";
@@ -24,7 +24,7 @@ export default async function PackOpenGraphImage({ params }: Props) {
   const { totalEV, roi, profit } = product
     ? calculateEV(product, product.defaultPrice)
     : { totalEV: 0, roi: 0, profit: 0 };
-  const underEv = profit > 0;
+  const underEv = profit > 0 && !!product && isVerified(product);
 
   return new ImageResponse(
     (

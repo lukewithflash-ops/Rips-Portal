@@ -15,6 +15,7 @@ import {
   PRODUCT_ID_ALIASES,
   type Category,
   type Product,
+  isVerified,
 } from "@/lib/products";
 import { chaseCards, searchCards, type ChaseCard } from "@/lib/cards";
 import { computeVerdict, VERDICT_DISCLAIMER } from "@/lib/verdict";
@@ -99,7 +100,10 @@ function HomeInner() {
       .sort((a, b) => b.roi - a.roi);
   }, []);
 
-  const bestEvPacks = useMemo(() => rankedByRoi.slice(0, 5), [rankedByRoi]);
+  const bestEvPacks = useMemo(
+    () => rankedByRoi.filter((row) => isVerified(row.product)).slice(0, 5),
+    [rankedByRoi]
+  );
   const avoidPacks = useMemo(
     () => [...rankedByRoi].reverse().slice(0, 3),
     [rankedByRoi]
@@ -107,11 +111,11 @@ function HomeInner() {
 
   /** Best catalog under-EV (price under modeled EV) — teaches the buy-signal mode. */
   const bestUnderEv = useMemo(() => {
-    return rankedByRoi.filter((row) => row.profit > 0)[0] ?? null;
+    return rankedByRoi.filter((row) => row.profit > 0 && isVerified(row.product))[0] ?? null;
   }, [rankedByRoi]);
 
   const underEvCount = useMemo(
-    () => rankedByRoi.filter((row) => row.profit > 0).length,
+    () => rankedByRoi.filter((row) => row.profit > 0 && isVerified(row.product)).length,
     [rankedByRoi]
   );
 
@@ -1157,6 +1161,14 @@ function HomeInner() {
                           </span>
                         </div>
 
+                        {verdict.unverified && (
+                          <div
+                            className="mb-2 inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border border-zinc-600 text-zinc-400"
+                            title={verdict.unverified}
+                          >
+                            Unverified estimate
+                          </div>
+                        )}
                         <p className="text-sm text-zinc-200 leading-relaxed mb-3">
                           {verdict.rationale}
                         </p>
