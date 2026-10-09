@@ -14,6 +14,7 @@ import {
 import { hasLiveUnderEvAffiliate } from "@/lib/affiliate";
 import BrandLogo from "@/components/BrandLogo";
 import DealAlertsBanner from "@/components/DealAlertsBanner";
+import PushAlertsButton from "@/components/PushAlertsButton";
 import BuyLinks from "@/components/BuyLinks";
 import ProductThumb from "@/components/ProductThumb";
 import VerdictShareButton from "@/components/VerdictShareButton";
@@ -277,7 +278,7 @@ export default function DealsPage() {
         </section>
 
         <DealAlertsBanner variant="banner" />
-        <DealAlertsBanner variant="settings" />
+        <PushAlertsButton context="deals" />
 
         <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
           <button

@@ -1,28 +1,49 @@
 import webpush from "web-push";
 import type { PushSubscriptionJSON } from "@/lib/pushStore";
-import { VAPID_PUBLIC_KEY } from "@/lib/vapidPublic";
+import { VAPID_PUBLIC_KEY, vapidPublicConfigured } from "@/lib/vapidPublic";
 
 export type PushPayload = {
   title: string;
   body: string;
   url?: string;
+  tag?: string;
 };
 
+function vapidSubject(): string {
+  return (process.env.VAPID_SUBJECT || process.env.VAPID_CONTACT || "").trim();
+}
+
+/**
+ * Push is live only when the public key, private key and a mailto:/https:
+ * subject are all set. Missing any of them = push stays quietly off.
+ */
 export function vapidServerConfigured(): boolean {
+  const subject = vapidSubject();
   return Boolean(
-    process.env.VAPID_PRIVATE_KEY &&
-      (process.env.VAPID_SUBJECT || process.env.VAPID_CONTACT)
+    vapidPublicConfigured() &&
+      process.env.VAPID_PRIVATE_KEY &&
+      (subject.startsWith("mailto:") || subject.startsWith("https://"))
   );
+}
+
+/** Names only — never values. */
+export function missingVapidEnv(): string[] {
+  const missing: string[] = [];
+  if (!vapidPublicConfigured()) missing.push("NEXT_PUBLIC_VAPID_PUBLIC_KEY");
+  if (!process.env.VAPID_PRIVATE_KEY) missing.push("VAPID_PRIVATE_KEY");
+  const subject = vapidSubject();
+  if (!(subject.startsWith("mailto:") || subject.startsWith("https://"))) {
+    missing.push("VAPID_SUBJECT");
+  }
+  return missing;
 }
 
 function configureVapid(): void {
   const privateKey = process.env.VAPID_PRIVATE_KEY;
-  const subject =
-    process.env.VAPID_SUBJECT ||
-    process.env.VAPID_CONTACT ||
-    "mailto:lukewithflash@gmail.com";
-  if (!privateKey) throw new Error("vapid_private_missing");
-  webpush.setVapidDetails(subject, VAPID_PUBLIC_KEY, privateKey);
+  if (!privateKey || !vapidServerConfigured()) {
+    throw new Error("vapid_not_configured");
+  }
+  webpush.setVapidDetails(vapidSubject(), VAPID_PUBLIC_KEY, privateKey);
 }
 
 export type SendResult =
@@ -50,6 +71,7 @@ export async function sendWebPush(
         title: payload.title,
         body: payload.body,
         url: payload.url || "/deals",
+        tag: payload.tag || "rip-portal-under-ev",
       }),
       {
         TTL: 60 * 60 * 12,

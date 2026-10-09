@@ -7,6 +7,8 @@ export type PushSubscriptionJSON = {
   endpoint: string;
   expirationTime?: number | null;
   keys?: { p256dh?: string; auth?: string };
+  /** Signed-in account email at subscribe time (for VIP-gated alerts). */
+  email?: string | null;
 };
 
 const SUBS_KEY = "push:subscriptions";
@@ -86,6 +88,7 @@ export async function saveSubscription(
     endpoint: sub.endpoint,
     expirationTime: sub.expirationTime ?? null,
     keys: sub.keys ?? {},
+    email: sub.email ?? null,
   });
   await redisCommand(["SADD", SUBS_KEY, json]);
 }
@@ -129,6 +132,29 @@ export async function setLastNotifiedIds(ids: string[]): Promise<void> {
   await redisCommand([
     "SET",
     LAST_NOTIFIED_KEY,
+    JSON.stringify([...ids].sort()),
+  ]);
+}
+
+const FLIP_SNAPSHOT_KEY = "push:under-ev-snapshot";
+
+/** Last Under-EV id set the push flip check saw. null = never seeded. */
+export async function getPushFlipSnapshot(): Promise<string[] | null> {
+  const raw = await redisCommand<string | null>(["GET", FLIP_SNAPSHOT_KEY]);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (Array.isArray(parsed)) return parsed.map(String).sort();
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+export async function setPushFlipSnapshot(ids: string[]): Promise<void> {
+  await redisCommand([
+    "SET",
+    FLIP_SNAPSHOT_KEY,
     JSON.stringify([...ids].sort()),
   ]);
 }
