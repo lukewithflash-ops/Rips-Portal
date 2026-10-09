@@ -988,12 +988,6 @@ export const cardPoolsByProduct: Record<string, ProductPools> = {
     ["Ace Bailey Hoops", "ace-bailey"],
     ["Dylan Harper Hoops", "dylan-harper"],
   ]),
-  "bball-select-blaster": blasterBball([
-    ["Select Courtside — Cooper Flagg", "cooper-flagg"],
-    ["Select Concourse — Ace Bailey", "ace-bailey"],
-    ["Select Premier — Dylan Harper", "dylan-harper"],
-    ["Cooper Flagg Select", "cooper-flagg"],
-  ]),
   "op-16-pack": op16Pack,
   "op-16-box": op16Box,
   "op-09-pack": op09Pack,
