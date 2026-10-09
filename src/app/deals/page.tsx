@@ -199,6 +199,12 @@ export default function DealsPage() {
             >
               {copiedShare ? "Copied!" : "Copy share link"}
             </button>
+            <Link
+              href="/recap"
+              className="mt-3 ml-2 inline-flex text-[11px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-zinc-700 text-zinc-300 hover:border-emerald-500/40 transition-colors"
+            >
+              Weekly recap image
+            </Link>
           </div>
         </section>
 
