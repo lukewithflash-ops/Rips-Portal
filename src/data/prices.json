@@ -1,6 +1,6 @@
 {
   "updated": "2026-10-09",
-  "note": "Override defaultPrice by product id. Edit this file (or open a PR) to refresh market defaults without rewriting slot math. Refresh 2026-10-09 (TCGplayer market via PokeVizInvestor Oct 9 / TickerMint Oct 8 / Mugi TCG Oct 8): 30th ETB $153.83→$142.17; 30th PC ETB $288.23→$287.16; 30th Booster Bundle $72.37→$71.03; 30th Poster $43.63→$37.26; Tech Sticker Exeggutor $36.41→$34.26; Tech Sticker Lucario $37.05→$34.63; Sylveon ex Box $65.28→$55.93; Greninja ex Box $65.08→$55.84; Knock Out $30.74→$26.49; Mini Tin $65.65→$27.64 (now the Day Pikachu tin specifically; $65.65 matched no single product); Binder $104.35→$109.11 (preorder, releases Dec 4); UPC Day $620.73→$564.04 and Night $661.35→$713.41 (preorder, release Nov 6); Temporal Forces pack $9.73→$9.47; Paradox Rift pack $8.15→$8.52; Paldea Evolved pack $16.25→$15.92; OP-16 pack $7.13→$7.24 (Mugi TCG); OP-16 box $224.61→$224.90 (TickerMint). 30th Celebration card values recalibrated to PokeVizInvestor's Oct 9 pack model (~$8.35/pack ex-RGB, was ~$12.15 launch-week). Prior refresh 2026-10-05 (bench.cx / TCGZen / tickermint / Mugi TCG).",
+  "note": "Override defaultPrice by product id. Edit this file (or open a PR) to refresh market defaults without rewriting slot math. Refresh 2026-10-09 (TCGplayer market via PokeVizInvestor Oct 9 / TickerMint Oct 8 / Mugi TCG Oct 8): 30th ETB $153.83\u2192$142.17; 30th PC ETB $288.23\u2192$287.16; 30th Booster Bundle $72.37\u2192$71.03; 30th Poster $43.63\u2192$37.26; Tech Sticker Exeggutor $36.41\u2192$34.26; Tech Sticker Lucario $37.05\u2192$34.63; Sylveon ex Box $65.28\u2192$55.93; Greninja ex Box $65.08\u2192$55.84; Knock Out $30.74\u2192$26.49; Mini Tin $65.65\u2192$27.64 (now the Day Pikachu tin specifically; $65.65 matched no single product); Binder $104.35\u2192$109.11 (preorder, releases Dec 4); UPC Day $620.73\u2192$564.04 and Night $661.35\u2192$713.41 (preorder, release Nov 6); Temporal Forces pack $9.73\u2192$9.47; Paradox Rift pack $8.15\u2192$8.52; Paldea Evolved pack $16.25\u2192$15.92; OP-16 pack $7.13\u2192$7.24 (Mugi TCG); OP-16 box $224.61\u2192$224.90 (TickerMint). 30th Celebration card values recalibrated to PokeVizInvestor's Oct 9 pack model (~$8.35/pack ex-RGB, was ~$12.15 launch-week). Sports refresh 2026-10-09 (SportsCardsPro sealed-box ungraded price, eBay sold, Oct 2026): 2026 Topps Chrome hobby $280\u2192$477.50; Chrome mega $75\u2192$98.09; 2025 Topps Update hobby $240\u2192$159.99; Update value blaster $28\u2192$22.68; 2025-26 Topps Chrome NBA hobby $480\u2192$967.44; Chrome Update NBA hobby $950\u2192$1,277.46, mega $130\u2192$182.50, value $55\u2192$88.00; Hoops value blaster $28\u2192$30.45. Other sports blasters unverified (no recent sold data). Sports slot values remain estimates, so all sports EV is marked unverified. Prior refresh 2026-10-05 (bench.cx / TCGZen / tickermint / Mugi TCG).",
   "prices": {
     "poke-ascended-pack": 10.64,
     "poke-ascended-etb": 158.97,
@@ -30,22 +30,22 @@
     "poke-30th-mini-tin": 27.64,
     "poke-30th-upc-day": 564.04,
     "poke-30th-upc-night": 713.41,
-    "bball-chrome-update-value": 55,
-    "bball-chrome-update-mega": 130,
-    "bball-chrome-update-hobby": 950,
-    "bball-hoops-blaster": 28,
+    "bball-chrome-update-value": 88.0,
+    "bball-chrome-update-mega": 182.5,
+    "bball-chrome-update-hobby": 1277.46,
+    "bball-hoops-blaster": 30.45,
     "bball-select-blaster": 40,
-    "base-chrome-mega": 75,
-    "base-chrome-hobby": 280,
-    "base-update-hobby": 240,
+    "base-chrome-mega": 98.09,
+    "base-chrome-hobby": 477.5,
+    "base-update-hobby": 159.99,
     "base-series1-blaster": 25,
     "base-heritage-blaster": 30,
     "op-16-pack": 7.24,
     "op-16-box": 224.9,
     "op-09-pack": 5.5,
     "bball-chrome-blaster": 75,
-    "bball-chrome-hobby": 480,
+    "bball-chrome-hobby": 967.44,
     "base-chrome-blaster": 55,
-    "base-update-blaster": 28
+    "base-update-blaster": 22.68
   }
 }

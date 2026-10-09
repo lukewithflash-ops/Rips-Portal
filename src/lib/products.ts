@@ -45,6 +45,11 @@ export interface Product {
   buyUrl?: string;
   /** Retailer label for buyUrl when set (e.g. "TCGPlayer", "eBay"). */
   retailer?: string;
+  /**
+   * Set when the price or slot values could not be checked against a real
+   * source. Unverified products never appear in Under-EV and never get VALUE.
+   */
+  unverified?: string;
 }
 
 /** Official display name for EV / Open / Log / Cards. */
@@ -320,7 +325,6 @@ const rawProducts: Product[] = [
     emoji: "🌊",
     image: "/products/poke-chaos-rising-pack.webp",
     artStatus: "complete",
-    tag: "value",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 0.45 },
       { name: "Double Rare (DR)", odds: "1:5", oddsNum: 0.2, avgValue: 3.5 },
@@ -329,7 +333,7 @@ const rawProducts: Product[] = [
       { name: "Special Illustration Rare (SIR)", odds: "1:83", oddsNum: 0.012, avgValue: 85 },
       { name: "Mega Hyper Rare (MHR)", odds: "1:956", oddsNum: 0.00105, avgValue: 280 },
     ],
-    notes: "ME-era tiers grounded in TCGplayer Chaos Rising pull-rate writeup (DR 1:5, UR 1:12, IR 1:9, SIR 1:83, MHR ~1:956). Slot avg $ are community estimates — not official. Sep 2026 VALUE proxy on pack floor.",
+    notes: "ME-era tiers grounded in TCGplayer Chaos Rising pull-rate writeup (DR 1:5, UR 1:12, IR 1:9, SIR 1:83, MHR ~1:956). Slot avg $ are community estimates — not official.",
   },
   {
     id: "poke-perfect-order-pack",
@@ -341,7 +345,6 @@ const rawProducts: Product[] = [
     emoji: "🧩",
     image: "/products/poke-perfect-order-pack.webp",
     artStatus: "complete",
-    tag: "value",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 0.45 },
       { name: "Double Rare (DR)", odds: "1:5", oddsNum: 0.2, avgValue: 3.4 },
@@ -362,7 +365,6 @@ const rawProducts: Product[] = [
     emoji: "🌑",
     image: "/products/poke-pitch-black-pack.webp",
     artStatus: "complete",
-    tag: "value",
     slots: [
       { name: "Bulk (Commons + Uncommons)", odds: "~100%", oddsNum: 1.0, avgValue: 0.48 },
       { name: "Double Rare (DR)", odds: "~1:5", oddsNum: 0.22, avgValue: 3.8 },
@@ -371,7 +373,7 @@ const rawProducts: Product[] = [
       { name: "Special Illustration Rare (SIR)", odds: "~1:100", oddsNum: 0.01, avgValue: 95 },
       { name: "Mega Hyper Rare (MHR)", odds: "~1:900", oddsNum: 0.00111, avgValue: 350 },
     ],
-    notes: "Community aggregate ranges (not official): DR ~1:4–5, UR ~1:12–20, IR ~1:9, any SIR ~1:80–120, gold Mega Darkrai MHR ~1:750–1100. Midpoints used; slot avg $ are estimates. VALUE proxy on pack floor + Darkrai chase (Jul 2026 EN).",
+    notes: "Community aggregate ranges (not official): DR ~1:4–5, UR ~1:12–20, IR ~1:9, any SIR ~1:80–120, gold Mega Darkrai MHR ~1:750–1100. Midpoints used; slot avg $ are estimates.",
   },
 
   // ========== 30TH CELEBRATION (EN Sep 2026) ==========
@@ -462,9 +464,9 @@ const rawProducts: Product[] = [
       { name: "Classic Collection", odds: "~0.3", oddsNum: 1, avgValue: 7.8 },
       { name: "Special Illustration Rare (SIR)", odds: "~0.15", oddsNum: 1, avgValue: 7.02 },
       { name: "Futuristic Rare (FR)", odds: "~0.03", oddsNum: 1, avgValue: 1.68 },
-      { name: "Promo / accessories (soft)", odds: "included", oddsNum: 1, avgValue: 18 },
+      { name: "Promos: Moltres MEP 096 + Articuno MEP 097 + Zapdos MEP 098", odds: "included", oddsNum: 1, avgValue: 1.36 },
     ],
-    notes: "3 packs; Articuno / Zapdos / Moltres promos; two-sided poster. MSRP $14.99; default uses TCGplayer market (prices.json). Card values recalibrated 2026-10-09 to PokeVizInvestor's TCGplayer-market pack model (per pack: Pikachu Rare $0.92; DR 1:4.4; IR 1:5.6; Classic Collection 1:10; SIR 1:20; FR 1:100; bulk/reverse $0.81) — pack EV ~$8.35 ex-RGB. RGB rare omitted (community rate is a guess). Promo/accessory lines are soft estimates. Rates are community-reported, not official — not financial advice.",
+    notes: "3 packs; Moltres MEP 096 / Articuno MEP 097 / Zapdos MEP 098 foil promos ($0.40 + $0.47 + $0.49 TCGplayer market, Oct 2026 via Out of Games / PriceCharting / The Lab TCG); two-sided poster (not valued). MSRP $14.99; default uses TCGplayer market (prices.json). Card values recalibrated 2026-10-09 to PokeVizInvestor's TCGplayer-market pack model (per pack: Pikachu Rare $0.92; DR 1:4.4; IR 1:5.6; Classic Collection 1:10; SIR 1:20; FR 1:100; bulk/reverse $0.81) — pack EV ~$8.35 ex-RGB. RGB rare omitted (community rate is a guess). Rates are community-reported, not official — not financial advice.",
   },
   {
     id: "poke-30th-tech-sticker-exeggutor",
@@ -623,9 +625,9 @@ const rawProducts: Product[] = [
       { name: "Classic Collection", odds: "~0.2", oddsNum: 1, avgValue: 5.2 },
       { name: "Special Illustration Rare (SIR)", odds: "~0.1", oddsNum: 1, avgValue: 4.68 },
       { name: "Futuristic Rare (FR)", odds: "~0.02", oddsNum: 1, avgValue: 1.12 },
-      { name: "Promo / accessories (soft)", odds: "included", oddsNum: 1, avgValue: 6 },
+      { name: "Tin extras: art card + sticker sheet + TCG Live code (not valued)", odds: "included", oddsNum: 1, avgValue: 0 },
     ],
-    notes: "2 packs + sticker sheet + art card. Priced as the Day Pikachu tin (the art shown); the 10 tin arts trade ~$24–$30 on TCGplayer. MSRP $9.99; default uses TCGplayer market (prices.json). Card values recalibrated 2026-10-09 to PokeVizInvestor's TCGplayer-market pack model (per pack: Pikachu Rare $0.92; DR 1:4.4; IR 1:5.6; Classic Collection 1:10; SIR 1:20; FR 1:100; bulk/reverse $0.81) — pack EV ~$8.35 ex-RGB. RGB rare omitted (community rate is a guess). Promo/accessory lines are soft estimates. Rates are community-reported, not official — not financial advice.",
+    notes: "2 packs + sticker sheet + art card + TCG Live code (no promo card). Extras carry no market value in EV. Priced as the Day Pikachu tin (the art shown); the 10 tin arts trade ~$24–$30 on TCGplayer. MSRP $9.99; default uses TCGplayer market (prices.json). Card values recalibrated 2026-10-09 to PokeVizInvestor's TCGplayer-market pack model (per pack: Pikachu Rare $0.92; DR 1:4.4; IR 1:5.6; Classic Collection 1:10; SIR 1:20; FR 1:100; bulk/reverse $0.81) — pack EV ~$8.35 ex-RGB. RGB rare omitted (community rate is a guess). Rates are community-reported, not official — not financial advice.",
   },
   {
     id: "poke-30th-upc-day",
@@ -679,6 +681,7 @@ const rawProducts: Product[] = [
   // ========== BASKETBALL ==========
   {
     id: "bball-chrome-update-value",
+    unverified: "Slot values are estimates, not checked against sold data.",
     category: "basketball",
     name: "2025-26 Topps Chrome Update",
     format: "Value / Blaster Box",
@@ -687,16 +690,16 @@ const rawProducts: Product[] = [
     emoji: "🎴",
     image: "/products/bball-chrome-update-value.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 14 },
       { name: "Parallels / Inserts", odds: "some", oddsNum: 1, avgValue: 18 },
       { name: "Numbered / Auto chance", odds: "low", oddsNum: 0.06, avgValue: 90 },
     ],
-    notes: "Often better relative EV than Hobby when bought under ~$60.",
+    notes: "Value box ~$88 on eBay sold (SportsCardsPro, Oct 2026). Slot averages are estimates.",
   },
   {
     id: "bball-chrome-update-mega",
+    unverified: "Slot values are estimates, not checked against sold data.",
     category: "basketball",
     name: "2025-26 Topps Chrome Update",
     format: "Mega Box",
@@ -705,7 +708,6 @@ const rawProducts: Product[] = [
     emoji: "📦",
     image: "/products/bball-chrome-update-mega.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + Refractors / X-Fractors", odds: "strong", oddsNum: 1, avgValue: 28 },
       { name: "Numbered parallels", odds: "low", oddsNum: 1, avgValue: 25 },
@@ -716,6 +718,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "bball-chrome-update-hobby",
+    unverified: "Slot values are estimates, not checked against sold data.",
     category: "basketball",
     name: "2025-26 Topps Chrome Update",
     format: "Hobby Box (20 packs / 1 auto)",
@@ -736,6 +739,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "bball-hoops-blaster",
+    unverified: "Slot values are estimates, not checked against sold data.",
     category: "basketball",
     name: "2025-26 NBA Hoops",
     format: "Blaster Box",
@@ -744,7 +748,6 @@ const rawProducts: Product[] = [
     emoji: "🏀",
     image: "/products/bball-hoops-blaster.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 10 },
       { name: "Parallels / rookies", odds: "some", oddsNum: 1, avgValue: 12 },
@@ -754,6 +757,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "bball-select-blaster",
+    unverified: "Slot values are estimates, not checked against sold data; price not verified (no 2025-26 Select retail blaster found to price).",
     category: "basketball",
     name: "2025-26 Select",
     format: "Blaster Box",
@@ -762,7 +766,6 @@ const rawProducts: Product[] = [
     emoji: "🎯",
     image: "/products/bball-select-blaster.webp",
     artStatus: "none",
-    tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 14 },
       { name: "Parallels / courtside", odds: "some", oddsNum: 1, avgValue: 16 },
@@ -774,6 +777,7 @@ const rawProducts: Product[] = [
 
   {
     id: "bball-chrome-blaster",
+    unverified: "Slot values are estimates, not checked against sold data; price not verified (latest eBay sales found are from Mar 2026).",
     category: "basketball",
     name: "2025-26 Topps Chrome",
     format: "Blaster Box",
@@ -782,16 +786,16 @@ const rawProducts: Product[] = [
     emoji: "🏀",
     image: "/products/bball-chrome-blaster.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 18 },
       { name: "Parallels / Inserts", odds: "some", oddsNum: 1, avgValue: 20 },
       { name: "Numbered / Auto chance", odds: "low", oddsNum: 0.05, avgValue: 110 },
     ],
-    notes: "Retail Chrome (non-Update). Market often $55–$85 — update price before treating as VALUE. Slot averages are estimates.",
+    notes: "Retail Chrome (non-Update). Last eBay sales found ~$70 (Mar 2026) — price unverified. Slot averages are estimates.",
   },
   {
     id: "bball-chrome-hobby",
+    unverified: "Slot values are estimates, not checked against sold data.",
     category: "basketball",
     name: "2025-26 Topps Chrome",
     format: "Hobby Box (1 auto)",
@@ -808,12 +812,13 @@ const rawProducts: Product[] = [
       { name: "Autograph (guaranteed)", odds: "1 per box", oddsNum: 1, avgValue: 160 },
       { name: "High-end / Refractor auto potential", odds: "very rare", oddsNum: 0.04, avgValue: 900 },
     ],
-    notes: "Flagship Chrome Hobby (not Update). Secondary often $445–$600+. Chase variance — usually −EV at market.",
+    notes: "Flagship Chrome Hobby (not Update). ~$967 on eBay sold (SportsCardsPro, Oct 2026). Chase variance — usually −EV at market. Slot averages are estimates.",
   },
 
   // ========== BASEBALL ==========
   {
     id: "base-chrome-mega",
+    unverified: "Slot values are estimates, not checked against sold data.",
     category: "baseball",
     name: "2026 Topps Chrome",
     format: "Mega Box",
@@ -822,7 +827,6 @@ const rawProducts: Product[] = [
     emoji: "📦",
     image: "/products/base-chrome-mega.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 20 },
       { name: "Parallels / Inserts", odds: "some", oddsNum: 1, avgValue: 22 },
@@ -832,6 +836,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "base-chrome-hobby",
+    unverified: "Slot values are estimates, not checked against sold data.",
     category: "baseball",
     name: "2026 Topps Chrome",
     format: "Hobby Box (20 packs)",
@@ -848,10 +853,11 @@ const rawProducts: Product[] = [
       { name: "Inserts / SPs", odds: "variable", oddsNum: 1, avgValue: 40 },
       { name: "High-end potential", odds: "very low", oddsNum: 0.05, avgValue: 400 },
     ],
-    notes: "Classic Chrome. Autos drive value. Often near break-even in softer markets.",
+    notes: "Classic Chrome. Autos drive value. Hobby box ~$477.50 on eBay sold (SportsCardsPro, Oct 2026). Slot averages are estimates.",
   },
   {
     id: "base-update-hobby",
+    unverified: "Slot values are estimates, not checked against sold data.",
     category: "baseball",
     name: "2025 Topps Update",
     format: "Hobby Box",
@@ -860,17 +866,17 @@ const rawProducts: Product[] = [
     emoji: "🏟️",
     image: "/products/base-update-hobby.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 45 },
       { name: "Rookie cards / SP", odds: "several", oddsNum: 1, avgValue: 55 },
       { name: "Autograph", odds: "1 per box", oddsNum: 1, avgValue: 110 },
       { name: "Big hit potential", odds: "low", oddsNum: 0.05, avgValue: 350 },
     ],
-    notes: "Update sets can carry key rookies. Better EV when priced under ~$250.",
+    notes: "Update sets can carry key rookies. ~$160 on eBay sold (SportsCardsPro, Oct 2026). Slot averages are estimates, so EV is unverified.",
   },
   {
     id: "base-series1-blaster",
+    unverified: "Slot values are estimates, not checked against sold data; price not verified (no recent eBay sold data found).",
     category: "baseball",
     name: "2026 Topps Series 1",
     format: "Blaster Box",
@@ -879,7 +885,6 @@ const rawProducts: Product[] = [
     emoji: "⚾",
     image: "/products/base-series1-blaster.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 9 },
       { name: "Parallels / rookies", odds: "some", oddsNum: 1, avgValue: 11 },
@@ -889,6 +894,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "base-heritage-blaster",
+    unverified: "Slot values are estimates, not checked against sold data; price not verified (no recent eBay sold data found).",
     category: "baseball",
     name: "2025 Topps Heritage",
     format: "Blaster Box",
@@ -897,7 +903,6 @@ const rawProducts: Product[] = [
     emoji: "📜",
     image: "/products/base-heritage-blaster.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 11 },
       { name: "Parallels / SP", odds: "some", oddsNum: 1, avgValue: 12 },
@@ -909,6 +914,7 @@ const rawProducts: Product[] = [
 
   {
     id: "base-chrome-blaster",
+    unverified: "Slot values are estimates, not checked against sold data; price not verified (no recent eBay sold data found).",
     category: "baseball",
     name: "2026 Topps Chrome",
     format: "Blaster Box",
@@ -917,7 +923,6 @@ const rawProducts: Product[] = [
     emoji: "⚾",
     image: "/products/base-chrome-blaster.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + Refractors", odds: "solid", oddsNum: 1, avgValue: 14 },
       { name: "Parallels / Inserts", odds: "some", oddsNum: 1, avgValue: 16 },
@@ -927,6 +932,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "base-update-blaster",
+    unverified: "Slot values are estimates, not checked against sold data.",
     category: "baseball",
     name: "2025 Topps Update",
     format: "Blaster Box",
@@ -935,7 +941,6 @@ const rawProducts: Product[] = [
     emoji: "🏟️",
     image: "/products/base-update-blaster.webp",
     artStatus: "pack-only",
-    tag: "value",
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 10 },
       { name: "Parallels / rookies", odds: "some", oddsNum: 1, avgValue: 11 },
@@ -1018,9 +1023,40 @@ export function formatPriceSheetDate(raw: string = pricesUpdated): string {
 }
 
 
+const sheetPrices = priceSheet.prices as Record<string, number | undefined>;
+
+/** Price comes from the sheet and nothing about the product is flagged unverified. */
+export function isVerified(p: Product): boolean {
+  return unverifiedReason(p) === null;
+}
+
+/** Why a product's EV can't be trusted yet, or null when it can. */
+export function unverifiedReason(p: Product): string | null {
+  if (p.unverified) return p.unverified;
+  const v = sheetPrices[p.id];
+  if (!(typeof v === "number" && Number.isFinite(v) && v > 0)) {
+    return "Price is not on the dated market sheet.";
+  }
+  if (p.slots.some((s) => /\(soft\)/i.test(s.name) && s.avgValue > 0)) {
+    return "Includes a promo/accessory value that is an estimate, not a market price.";
+  }
+  return null;
+}
+
+/** Under-EV = verified and catalog price below modeled EV. One rule everywhere. */
+export function isUnderEv(p: Product, price: number = p.defaultPrice): boolean {
+  return isVerified(p) && calculateEV(p, price).profit > 0;
+}
+
 export const products: Product[] = rawProducts.map((p) => {
-  const override = (priceSheet.prices as Record<string, number | undefined>)[p.id];
-  return override != null ? { ...p, defaultPrice: override } : p;
+  const override = sheetPrices[p.id];
+  const priced = override != null ? { ...p, defaultPrice: override } : p;
+  // VALUE is rule-based: only verified products at or above EV (ROI >= 0).
+  // HOT / CHASE stay as curated; VALUE never comes from hand-set data.
+  if (!priced.tag && isVerified(priced) && calculateEV(priced, priced.defaultPrice).roi >= 0) {
+    return { ...priced, tag: "value" as const };
+  }
+  return priced;
 });
 
 /**

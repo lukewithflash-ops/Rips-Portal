@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { products, calculateEV, categories, findProduct, buySearchQuery, isSportsCategory } from "@/lib/products";
+import { products, calculateEV, categories, findProduct, buySearchQuery, isSportsCategory, unverifiedReason } from "@/lib/products";
 import PackRedirect from "./PackRedirect";
 import BuyLinks from "@/components/BuyLinks";
 
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { totalEV, roi } = calculateEV(product, product.defaultPrice);
   const roiLabel = `${roi >= 0 ? "+" : ""}${roi.toFixed(1)}% ROI`;
   const title = `${product.name} · ${product.format}`;
-  const description = `Price $${product.defaultPrice.toFixed(2)} · EV $${totalEV.toFixed(2)} · ${roiLabel}. Know before you rip — Rip Portal.`;
+  const description = `Price $${product.defaultPrice.toFixed(2)} · EV $${totalEV.toFixed(2)} · ${roiLabel}${unverifiedReason(product) ? " (unverified estimate)" : ""}. Know before you rip — Rip Portal.`;
   const url = `https://www.ripsportal.com/pack/${product.id}`;
 
   return {
@@ -53,7 +53,10 @@ export default async function PackSharePage({ params }: Props) {
   const product = findProduct(id);
   if (!product) notFound();
 
-  const { totalEV, roi, profit } = calculateEV(product, product.defaultPrice);
+  const { totalEV, roi, profit: rawProfit } = calculateEV(product, product.defaultPrice);
+  const unverified = unverifiedReason(product);
+  // Unverified EV never gets the green "under EV" treatment.
+  const profit = unverified ? Math.min(0, rawProfit) : rawProfit;
   const dest = `/?pack=${encodeURIComponent(product.id)}`;
   const cat = categories.find((c) => c.id === product.category);
 
@@ -72,6 +75,12 @@ export default async function PackSharePage({ params }: Props) {
             {product.format}
             {cat ? ` · ${cat.label}` : ""}
           </p>
+          {unverified && (
+            <p className="text-[11px] text-zinc-400 border border-zinc-700 rounded-lg px-2 py-1">
+              <span className="font-bold uppercase tracking-wider text-[9px] text-zinc-300">Unverified estimate</span>{" "}
+              · {unverified}
+            </p>
+          )}
           <div className="grid grid-cols-3 gap-2">
             <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2 text-center">
               <div className="text-[9px] uppercase text-zinc-600">Price</div>

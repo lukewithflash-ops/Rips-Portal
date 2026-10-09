@@ -8,6 +8,7 @@ import {
   isSportsCategory,
   pricesUpdated,
   type Product,
+  isVerified,
 } from "@/lib/products";
 import { computeVerdict, VERDICT_DISCLAIMER, type VerdictKind } from "@/lib/verdict";
 import { findSet, listSets } from "@/lib/sets";
@@ -50,8 +51,10 @@ function verdictClass(kind: VerdictKind): string {
 
 function rowFor(p: Product) {
   const price = p.defaultPrice;
-  const { totalEV, roi, profit } = calculateEV(p, price);
+  const { totalEV, roi, profit: rawProfit } = calculateEV(p, price);
   const verdict = computeVerdict(p, price);
+  // Unverified EV never gets the green "under EV" treatment.
+  const profit = verdict.unverified ? Math.min(0, rawProfit) : rawProfit;
   return { p, price, totalEV, roi, profit, verdict };
 }
 
@@ -99,7 +102,7 @@ export default async function SetEvPage({ params }: Props) {
   const dateLabel = formatPriceSheetDate();
   const showBuy = hasLiveUnderEvAffiliate();
   const sports = isSportsCategory(set.category);
-  const underEv = rows.filter((r) => r.profit > 0);
+  const underEv = rows.filter((r) => r.profit > 0 && isVerified(r.p));
   const others = listSets()
     .filter((g) => g.slug !== set.slug && g.category === set.category)
     .slice(0, 8);
@@ -156,6 +159,14 @@ export default async function SetEvPage({ params }: Props) {
                     {p.name} · Prices {dateLabel}
                     {priceLastMoved(p.id) ? ` · same price since ${formatPriceSheetDate(priceLastMoved(p.id)!)}` : ""}
                   </div>
+                  {verdict.unverified && (
+                    <div
+                      className="mt-1 inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border border-zinc-600 text-zinc-400"
+                      title={verdict.unverified}
+                    >
+                      Unverified estimate
+                    </div>
+                  )}
                 </div>
                 <span
                   className={`shrink-0 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${verdictClass(verdict.primary)}`}

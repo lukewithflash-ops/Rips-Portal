@@ -1,5 +1,4 @@
-import { products, calculateEV, productDisplayName, formatPriceSheetDate, pricesUpdated, type Product } from "@/lib/products";
-import { hasSheetPrice } from "@/lib/sets";
+import { products, calculateEV, productDisplayName, formatPriceSheetDate, pricesUpdated, isVerified, type Product } from "@/lib/products";
 
 export interface RecapRow {
   product: Product;
@@ -20,7 +19,8 @@ export function buildRecap(limit = 5): {
   dateRaw: string;
 } {
   const rows: RecapRow[] = products
-    .filter(hasSheetPrice)
+    // Verified prices + slot values only: unverified EV never ships as a deal.
+    .filter(isVerified)
     .map((p) => {
       const { totalEV, roi, profit } = calculateEV(p, p.defaultPrice);
       return {
