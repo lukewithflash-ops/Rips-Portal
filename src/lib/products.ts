@@ -681,7 +681,7 @@ const rawProducts: Product[] = [
   // ========== BASKETBALL ==========
   {
     id: "bball-chrome-update-value",
-    unverified: "Slot values are estimates, not checked against sold data.",
+    unverified: "Hit-tier values (autos, numbered parallels, inserts, base floor) are estimates. No sold averages per tier were found to back them.",
     category: "basketball",
     name: "2025-26 Topps Chrome Update",
     format: "Value / Blaster Box",
@@ -699,7 +699,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "bball-chrome-update-mega",
-    unverified: "Slot values are estimates, not checked against sold data.",
+    unverified: "Hit-tier values (autos, numbered parallels, inserts, base floor) are estimates. No sold averages per tier were found to back them.",
     category: "basketball",
     name: "2025-26 Topps Chrome Update",
     format: "Mega Box",
@@ -718,7 +718,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "bball-chrome-update-hobby",
-    unverified: "Slot values are estimates, not checked against sold data.",
+    unverified: "Hit-tier values (autos, numbered parallels, inserts, base floor) are estimates. No sold averages per tier were found to back them.",
     category: "basketball",
     name: "2025-26 Topps Chrome Update",
     format: "Hobby Box (20 packs / 1 auto)",
@@ -739,7 +739,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "bball-hoops-blaster",
-    unverified: "Slot values are estimates, not checked against sold data.",
+    unverified: "Hit-tier values (autos, numbered parallels, inserts, base floor) are estimates. No sold averages per tier were found to back them.",
     category: "basketball",
     name: "2025-26 NBA Hoops",
     format: "Blaster Box",
@@ -755,29 +755,11 @@ const rawProducts: Product[] = [
     ],
     notes: "Cheap entry product. Often closer to fair EV than Chrome hobby.",
   },
-  {
-    id: "bball-select-blaster",
-    unverified: "Slot values are estimates, not checked against sold data; price not verified (no 2025-26 Select retail blaster found to price).",
-    category: "basketball",
-    name: "2025-26 Select",
-    format: "Blaster Box",
-    defaultPrice: 40,
-    accent: "from-slate-600 to-zinc-400",
-    emoji: "🎯",
-    image: "/products/bball-select-blaster.webp",
-    artStatus: "none",
-    slots: [
-      { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 14 },
-      { name: "Parallels / courtside", odds: "some", oddsNum: 1, avgValue: 16 },
-      { name: "Numbered / auto chance", odds: "low", oddsNum: 0.05, avgValue: 70 },
-    ],
-    notes: "Mid-tier product — better EV profile than flagship hobby. 2025-26 Select basketball has no retail blaster yet — image is 2024-25 Select blaster stand-in.",
-  },
 
 
   {
     id: "bball-chrome-blaster",
-    unverified: "Slot values are estimates, not checked against sold data; price not verified (latest eBay sales found are from Mar 2026).",
+    unverified: "Hit-tier values are estimates with no sold averages per tier; price also not verified (latest eBay sales found are from Mar 2026).",
     category: "basketball",
     name: "2025-26 Topps Chrome",
     format: "Blaster Box",
@@ -795,7 +777,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "bball-chrome-hobby",
-    unverified: "Slot values are estimates, not checked against sold data.",
+    unverified: "Hit-tier values (autos, numbered parallels, inserts, base floor) are estimates. No sold averages per tier were found to back them.",
     category: "basketball",
     name: "2025-26 Topps Chrome",
     format: "Hobby Box (1 auto)",
@@ -818,7 +800,7 @@ const rawProducts: Product[] = [
   // ========== BASEBALL ==========
   {
     id: "base-chrome-mega",
-    unverified: "Slot values are estimates, not checked against sold data.",
+    unverified: "Hit-tier values (autos, numbered parallels, inserts, base floor) are estimates. No sold averages per tier were found to back them.",
     category: "baseball",
     name: "2026 Topps Chrome",
     format: "Mega Box",
@@ -836,7 +818,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "base-chrome-hobby",
-    unverified: "Slot values are estimates, not checked against sold data.",
+    unverified: "Hit-tier values (autos, numbered parallels, inserts, base floor) are estimates. No sold averages per tier were found to back them.",
     category: "baseball",
     name: "2026 Topps Chrome",
     format: "Hobby Box (20 packs)",
@@ -857,7 +839,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "base-update-hobby",
-    unverified: "Slot values are estimates, not checked against sold data.",
+    unverified: "The hobby box guarantees 1 autograph OR relic (Checklist Insider / Chasing Majors odds), not an autograph. The $110 hit value assumes an auto and no tier is backed by sold averages, so the positive ROI is not supported.",
     category: "baseball",
     name: "2025 Topps Update",
     format: "Hobby Box",
@@ -869,14 +851,14 @@ const rawProducts: Product[] = [
     slots: [
       { name: "Base + inserts", odds: "many", oddsNum: 1, avgValue: 45 },
       { name: "Rookie cards / SP", odds: "several", oddsNum: 1, avgValue: 55 },
-      { name: "Autograph", odds: "1 per box", oddsNum: 1, avgValue: 110 },
+      { name: "Autograph or relic (usually a relic)", odds: "1 per box", oddsNum: 1, avgValue: 110 },
       { name: "Big hit potential", odds: "low", oddsNum: 0.05, avgValue: 350 },
     ],
     notes: "Update sets can carry key rookies. ~$160 on eBay sold (SportsCardsPro, Oct 2026). Slot averages are estimates, so EV is unverified.",
   },
   {
     id: "base-series1-blaster",
-    unverified: "Slot values are estimates, not checked against sold data; price not verified (no recent eBay sold data found).",
+    unverified: "Hit-tier values are estimates with no sold averages per tier; price also not verified (no recent eBay sold data found).",
     category: "baseball",
     name: "2026 Topps Series 1",
     format: "Blaster Box",
@@ -894,7 +876,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "base-heritage-blaster",
-    unverified: "Slot values are estimates, not checked against sold data; price not verified (no recent eBay sold data found).",
+    unverified: "Hit-tier values are estimates with no sold averages per tier; price also not verified (no recent eBay sold data found).",
     category: "baseball",
     name: "2025 Topps Heritage",
     format: "Blaster Box",
@@ -914,7 +896,7 @@ const rawProducts: Product[] = [
 
   {
     id: "base-chrome-blaster",
-    unverified: "Slot values are estimates, not checked against sold data; price not verified (no recent eBay sold data found).",
+    unverified: "Hit-tier values are estimates with no sold averages per tier; price also not verified (no recent eBay sold data found).",
     category: "baseball",
     name: "2026 Topps Chrome",
     format: "Blaster Box",
@@ -932,7 +914,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "base-update-blaster",
-    unverified: "Slot values are estimates, not checked against sold data.",
+    unverified: "Hit-tier values (autos, numbered parallels, inserts, base floor) are estimates. No sold averages per tier were found to back them.",
     category: "baseball",
     name: "2025 Topps Update",
     format: "Blaster Box",
@@ -989,6 +971,7 @@ const rawProducts: Product[] = [
   },
   {
     id: "op-09-pack",
+    unverified: "Slot values are estimates (Bandai publishes no odds) and are not checked against sold data.",
     category: "onepiece",
     name: "OP-09 Emperors in the New World",
     format: "Booster Pack",
@@ -1005,7 +988,7 @@ const rawProducts: Product[] = [
       { name: "Secret / Alt", odds: "1:35", oddsNum: 0.029, avgValue: 45 },
       { name: "Manga / SP chase", odds: "1:180", oddsNum: 0.0055, avgValue: 200 },
     ],
-    notes: "Popular earlier set. Still demand-driven pricing.",
+    notes: "Popular earlier set. Pack ~$18.72 TCGplayer market (Pullnomics / Foilr, Oct 5 2026; PriceCharting TCGplayer $18.49). Slot values are estimates.",
   },
 ];
 
