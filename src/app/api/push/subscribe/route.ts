@@ -4,6 +4,8 @@ import {
   saveSubscription,
   type PushSubscriptionJSON,
 } from "@/lib/pushStore";
+import { vapidServerConfigured } from "@/lib/webPushServer";
+import { currentEmail } from "@/lib/vip/session";
 
 export const runtime = "nodejs";
 
@@ -19,6 +21,17 @@ export async function POST(req: Request) {
         error: "push_store_unavailable",
         message:
           "Web Push storage is not configured. Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN on the server.",
+      },
+      { status: 503 }
+    );
+  }
+
+  if (!vapidServerConfigured()) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "push_disabled",
+        message: "Background alerts aren't switched on yet.",
       },
       { status: 503 }
     );
@@ -44,11 +57,21 @@ export async function POST(req: Request) {
     );
   }
 
+  if (!sub.endpoint.startsWith("https://") || sub.endpoint.length > 1024) {
+    return NextResponse.json(
+      { ok: false, error: "invalid_subscription" },
+      { status: 400 }
+    );
+  }
+
   try {
+    // Signed-in account (if any) so VIP-gated alerts can follow the email rule.
+    const email = await currentEmail().catch(() => null);
     await saveSubscription({
       endpoint: sub.endpoint,
       expirationTime: sub.expirationTime ?? null,
       keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth },
+      email,
     });
     return NextResponse.json({ ok: true });
   } catch (err) {

@@ -1,10 +1,15 @@
 /**
- * VAPID public key for Web Push (safe to embed / commit).
- * Override at build time with NEXT_PUBLIC_VAPID_PUBLIC_KEY if you rotate keys.
+ * VAPID public key for Web Push (safe to expose).
+ * Comes only from NEXT_PUBLIC_VAPID_PUBLIC_KEY (inlined at build time).
+ * Empty string = push is switched off and the UI says so.
  */
-export const VAPID_PUBLIC_KEY =
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ||
-  "BNGSnSEIXd_sqb7iMHR4VJdljYnHUA6MDIZPgHFYEh10EWP7tYR_aofdkuw7uDmDrv8z90ANWplvrrxZJFxGchw";
+export const VAPID_PUBLIC_KEY = (
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ""
+).trim();
+
+export function vapidPublicConfigured(): boolean {
+  return VAPID_PUBLIC_KEY.length > 40;
+}
 
 /** Convert URL-safe base64 VAPID key to Uint8Array for pushManager.subscribe */
 export function urlBase64ToUint8Array(base64String: string): Uint8Array {

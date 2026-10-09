@@ -1,6 +1,7 @@
 import Link from "next/link";
 import BrandLogo from "@/components/BrandLogo";
 import VipActions from "./VipActions";
+import PushAlertsButton from "@/components/PushAlertsButton";
 
 const FREE = [
   "EV calculator and Verdict for every set",
@@ -11,8 +12,8 @@ const FREE = [
 
 const PAID = [
   {
-    title: "Flip emails",
-    body: "An email when a listed product flips under EV (or back). Nothing on quiet weeks.",
+    title: "Flip alerts",
+    body: "An email or phone alert when a listed product flips under EV (or back). Nothing on quiet weeks.",
   },
   {
     title: "Full Under-EV list",
@@ -69,6 +70,10 @@ export default function VipPage() {
         </section>
 
         <VipActions />
+
+        <div className="mt-4">
+          <PushAlertsButton context="vip" />
+        </div>
 
         <section className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="panel rounded-2xl p-4 border border-amber-500/25">

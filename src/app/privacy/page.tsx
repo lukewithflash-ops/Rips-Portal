@@ -59,6 +59,9 @@ export default function PrivacyPage() {
             <p>
               If you enable under-EV deal notifications, your browser&apos;s Web
               Push subscription endpoint is stored so we can send deal alerts.
+              If you&apos;re signed in, your account email is saved with it so
+              VIP-only alerts reach the right account. Tap Turn off (or block
+              notifications) and the subscription is removed.
             </p>
           </section>
 

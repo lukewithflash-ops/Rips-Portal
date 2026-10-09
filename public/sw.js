@@ -1,5 +1,5 @@
 /* Rip Portal — offline shell + Web Push (honest prices: never fake live data) */
-const CACHE_VERSION = "rip-portal-v16-vip";
+const CACHE_VERSION = "rip-portal-v17-push";
 const SHELL_URLS = [
   "/",
   "/open",
@@ -111,11 +111,23 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
+/** Only open Rip Portal pages from a notification. */
+function safeTarget(raw) {
+  try {
+    const u = new URL(typeof raw === "string" && raw ? raw : "/deals", self.location.origin);
+    if (u.origin !== self.location.origin) return new URL("/deals", self.location.origin).href;
+    return u.href;
+  } catch {
+    return new URL("/deals", self.location.origin).href;
+  }
+}
+
 self.addEventListener("push", (event) => {
   let data = {
     title: "Rip Portal",
-    body: "New under-EV deals",
+    body: "Under-EV Watch changed",
     url: "/deals",
+    tag: "rip-portal-under-ev",
   };
   try {
     if (event.data) {
@@ -133,47 +145,39 @@ self.addEventListener("push", (event) => {
     }
   }
 
-  const targetUrl = data.url || "/deals";
   event.waitUntil(
     self.registration.showNotification(data.title || "Rip Portal", {
-      body: data.body || "Under-EV deals updated",
+      body: data.body || "Under-EV Watch changed",
       icon: "/icons/icon-192.png",
       badge: "/icons/icon-192.png",
-      tag: "rip-portal-under-ev",
+      tag: data.tag || "rip-portal-under-ev",
       renotify: true,
-      data: { url: targetUrl },
+      data: { url: safeTarget(data.url) },
     })
   );
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const raw =
-    (event.notification.data && event.notification.data.url) || "/deals";
-  const path =
-    typeof raw === "string" && raw.startsWith("http")
-      ? raw
-      : new URL(raw || "/deals", self.location.origin).href;
+  const target = safeTarget(
+    event.notification.data && event.notification.data.url
+  );
 
   event.waitUntil(
     self.clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
         for (const client of clientList) {
-          if ("focus" in client) {
-            if ("navigate" in client) {
-              try {
-                return client
-                  .navigate(path)
-                  .then((c) => (c && c.focus ? c.focus() : client.focus()));
-              } catch {
-                return client.focus();
-              }
-            }
-            return client.focus();
+          if (new URL(client.url).origin !== self.location.origin) continue;
+          if ("navigate" in client) {
+            return client
+              .navigate(target)
+              .then((c) => (c ? c.focus() : client.focus()))
+              .catch(() => client.focus());
           }
+          if ("focus" in client) return client.focus();
         }
-        if (self.clients.openWindow) return self.clients.openWindow(path);
+        if (self.clients.openWindow) return self.clients.openWindow(target);
         return undefined;
       })
   );

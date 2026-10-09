@@ -198,9 +198,11 @@ export async function subscribeWebPush(): Promise<
     return { ok: false, error: "unsupported" };
   }
   try {
-    const { VAPID_PUBLIC_KEY, urlBase64ToUint8Array } = await import(
-      "@/lib/vapidPublic"
-    );
+    const { VAPID_PUBLIC_KEY, urlBase64ToUint8Array, vapidPublicConfigured } =
+      await import("@/lib/vapidPublic");
+    if (!vapidPublicConfigured()) {
+      return { ok: false, error: "push_disabled", status: 503 };
+    }
     // Ensure SW is registered (production layout also registers; this covers race / settings-first).
     try {
       await navigator.serviceWorker.register("/sw.js", { scope: "/" });
@@ -245,6 +247,38 @@ export async function subscribeWebPush(): Promise<
       error: err instanceof Error ? err.message : "subscribe_failed",
     };
   }
+}
+
+/** Existing browser push subscription, if any (no permission prompt). */
+export async function currentPushSubscription(): Promise<PushSubscription | null> {
+  if (!pushManagerSupported()) return null;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration("/");
+    if (!reg) return null;
+    return await reg.pushManager.getSubscription();
+  } catch {
+    return null;
+  }
+}
+
+/** iPhone/iPad (incl. iPadOS desktop UA). */
+export function isIOS(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  return (
+    /iPad|iPhone|iPod/.test(ua) ||
+    (ua.includes("Macintosh") && navigator.maxTouchPoints > 1)
+  );
+}
+
+/** Running as an installed Home Screen app. */
+export function isStandalone(): boolean {
+  if (typeof window === "undefined") return false;
+  const nav = navigator as Navigator & { standalone?: boolean };
+  return (
+    nav.standalone === true ||
+    window.matchMedia?.("(display-mode: standalone)").matches === true
+  );
 }
 
 export async function unsubscribeWebPush(): Promise<void> {

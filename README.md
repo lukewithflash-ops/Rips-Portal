@@ -61,13 +61,18 @@ Redeploy after changes.
 
 Built for collectors who want the math before the dopamine.
 
-## Web Push (under-EV deal alerts)
+## Web Push (under-EV flip alerts)
 
-Background notifications for installed PWAs (no OneSignal).
+Background notifications via standard Web Push + VAPID (`web-push` package; no paid service).
 
-1. Create a free Upstash Redis database → copy REST URL + token.
-2. Set Vercel env vars (see `.env.example`): `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `CRON_SECRET`.
-3. `vercel.json` cron hits `/api/push/notify-deals` Mondays 16:00 UTC (≈9am PT). Vercel Hobby may require Pro for crons — otherwise trigger the route manually with `Authorization: Bearer $CRON_SECRET`.
+- Opt-in: "Get alerts" on `/deals` and `/vip`. Permission is asked only on tap. iPhone needs Add to Home Screen first.
+- Subscriptions live in the existing Upstash Redis (`/api/push/subscribe`, `/api/push/unsubscribe`). Expired ones (404/410) are dropped on send.
+- The Monday cron (`/api/push/notify-deals`) sends a push and the flip email only when an Under-EV row flips. Quiet weeks send nothing. When VIP checkout is live, pushes follow the flip-email rule (VIP accounts only). `/open` never checks VIP.
+- `/api/push/status` reports (booleans only) whether push is on.
+- Test: `curl -X POST https://www.ripsportal.com/api/push/test -H "Authorization: Bearer $CRON_SECRET"` sends a test notification to every subscriber.
+
+Env (Vercel → Production), then redeploy (the public key is inlined at build):
+`NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (`mailto:…`), plus `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `CRON_SECRET`. Generate keys with `npx web-push generate-vapid-keys`.
 
 Never commit `VAPID_PRIVATE_KEY`.
 
