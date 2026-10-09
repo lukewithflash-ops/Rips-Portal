@@ -56,6 +56,7 @@ import {
 
 import BrandLogo from "@/components/BrandLogo";
 import ProductThumb from "@/components/ProductThumb";
+import AlertsNudge from "@/components/AlertsNudge";
 import BuyLinks from "@/components/BuyLinks";
 import { markPackInteracted } from "@/lib/pwa-install";
 
@@ -457,6 +458,9 @@ function OpenInner() {
     vsEV: 0,
   });
   const [sessionXp, setSessionXp] = useState(0);
+  /** Soft Get-alerts prompt: after 3 opens or when leaving a session. */
+  const [nudgeActive, setNudgeActive] = useState(false);
+  const sessionPacksRef = useRef(0);
   const [logNote, setLogNote] = useState<string | null>(null);
   const [logSavedPath, setLogSavedPath] = useState<string | null>(null);
   const slotCountsAccumRef = useRef<number[]>([]);
@@ -535,6 +539,9 @@ function OpenInner() {
       setZoomCard(null);
       setScreen("stage");
       setShowSetSheet(false);
+      // Leaving a session (switching sets after opening) → soft alerts prompt.
+      if (sessionPacksRef.current > 0) setNudgeActive(true);
+      sessionPacksRef.current = 0;
       setSessionChip({ packs: 0, spent: 0, hits: 0, vsEV: 0 });
       setSessionXp(0);
       slotCountsAccumRef.current = [];
@@ -790,6 +797,12 @@ function OpenInner() {
     (summaryReady || revealIdx >= session.packs.length - 1);
 
   useEffect(() => {
+    sessionPacksRef.current = sessionChip.packs;
+  }, [sessionChip.packs]);
+  /** 3+ packs opened and revealed this session → soft alerts prompt. */
+  const nudgeFromOpens = allRevealed && sessionChip.packs >= 3;
+
+  useEffect(() => {
     setShareNote(null);
     const shareOk =
       typeof navigator !== "undefined" && typeof navigator.share === "function";
@@ -926,6 +939,7 @@ function OpenInner() {
           onResults ? "pb-36" : "pb-28"
         }`}
       >
+        <AlertsNudge active={nudgeActive || nudgeFromOpens} context="open" />
         {showPicker && (
           <section className="panel rounded-2xl p-3.5 portal-border space-y-2.5">
             <div className="flex items-center justify-between gap-2">

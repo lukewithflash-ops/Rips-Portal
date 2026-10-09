@@ -30,6 +30,7 @@ import {
   downloadProductShareImage,
 } from "@/lib/openShareImage";
 import VerdictShareButton from "@/components/VerdictShareButton";
+import AlertsNudge from "@/components/AlertsNudge";
 import { setPathForProduct, productSetName } from "@/lib/sets";
 import { clearYourPrice, savedPriceInput, saveYourPrice } from "@/lib/yourPrice";
 
@@ -209,6 +210,7 @@ function HomeInner() {
 
   const result = effectiveProduct ? calculateEV(effectiveProduct, price) : null;
   const verdict = effectiveProduct ? computeVerdict(effectiveProduct, price) : null;
+  const [verdictNudge, setVerdictNudge] = useState(false);
   const totalEVScaled = result ? result.totalEV * quantity : 0;
   const totalCost = price * quantity;
   const totalProfit = totalEVScaled - totalCost;
@@ -224,6 +226,8 @@ function HomeInner() {
 
   const handleSelectProduct = (id: string) => {
     setSelectedId(id);
+    // Soft Get-alerts prompt only after the user asked for a verdict (never on load).
+    window.setTimeout(() => setVerdictNudge(true), 2500);
     setCustomPrice(savedPriceInput(id));
     syncPackToUrl(id);
     // Successful EV calc path (results panel for this pack) — gates install toast
@@ -1221,6 +1225,7 @@ function HomeInner() {
                         >
                           📝 Log this rip — compare pulls to EV
                         </Link>
+                        <AlertsNudge active={verdictNudge} context="calculator" className="mt-3" />
                         <div className="mt-3 pt-3 border-t border-zinc-800/60">
                           <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
                             Buy near this pick
