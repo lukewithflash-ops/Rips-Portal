@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["web-push"],
+  // /api/recap draws catalog product shots + the swirl from /public at runtime.
+  outputFileTracingIncludes: {
+    "/api/recap": ["./public/products/**/*", "./public/icons/portal-app-icon.png"],
+  },
   images: {
     remotePatterns: [
       {
