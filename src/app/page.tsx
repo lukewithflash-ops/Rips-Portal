@@ -30,6 +30,7 @@ import {
   downloadProductShareImage,
 } from "@/lib/openShareImage";
 import VerdictShareButton from "@/components/VerdictShareButton";
+import { setPathForProduct, productSetName } from "@/lib/sets";
 import { clearYourPrice, savedPriceInput, saveYourPrice } from "@/lib/yourPrice";
 
 function HomeInner() {
@@ -1124,6 +1125,14 @@ function HomeInner() {
                               productId={effectiveProduct.id}
                               price={price}
                             />
+                            {setPathForProduct(effectiveProduct) && (
+                              <Link
+                                href={setPathForProduct(effectiveProduct)!}
+                                className="text-[11px] px-2 py-1 rounded-lg border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                              >
+                                {productSetName(effectiveProduct)} EV page →
+                              </Link>
+                            )}
                           </div>
                           <span
                             className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
