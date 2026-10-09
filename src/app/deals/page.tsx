@@ -19,6 +19,7 @@ import BuyLinks from "@/components/BuyLinks";
 import ProductThumb from "@/components/ProductThumb";
 import VerdictShareButton from "@/components/VerdictShareButton";
 import { FREE_UNDER_EV_ROWS, useVip } from "@/lib/useVip";
+import { setPathForProduct, productSetName } from "@/lib/sets";
 
 const DISCLAIMER =
   "Under-EV Watch ranks catalog products where default/market price sits below modeled expected value (positive ROI / $ edge). Slot odds and averages are estimates — entertainment and math only, not financial, investment, or collecting advice. Markets move; verify live prices before you buy or rip. No gambling features.";
@@ -448,6 +449,14 @@ export default function DealsPage() {
                         >
                           Open calculator
                         </Link>
+                        {setPathForProduct(p) && (
+                          <Link
+                            href={setPathForProduct(p)!}
+                            className="text-[11px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-emerald-500/25 text-emerald-200/90 hover:bg-emerald-500/10 transition-colors"
+                          >
+                            {productSetName(p)} EV page
+                          </Link>
+                        )}
                         <Link
                           href={`/log?pack=${p.id}`}
                           className="text-[11px] px-2.5 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20 transition-colors"

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { products } from "@/lib/products";
+import { products, pricesUpdated } from "@/lib/products";
+import { listSets } from "@/lib/sets";
 import { SITE_URL } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -77,5 +78,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: p.tag === "hot" || p.tag === "chase" ? 0.9 : 0.75,
   }));
 
-  return [...staticRoutes, ...packRoutes];
+  // Per-set EV pages (only products with a real sheet price)
+  const sheetDate = new Date(`${pricesUpdated}T12:00:00Z`);
+  const evRoutes: MetadataRoute.Sitemap = [
+    {
+      url: `${base}/ev`,
+      lastModified: sheetDate,
+      changeFrequency: "weekly" as const,
+      priority: 0.85,
+    },
+    ...listSets().map((g) => ({
+      url: `${base}/ev/${g.slug}`,
+      lastModified: sheetDate,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    })),
+  ];
+
+  return [...staticRoutes, ...evRoutes, ...packRoutes];
 }
