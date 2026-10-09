@@ -20,6 +20,7 @@ import ProductThumb from "@/components/ProductThumb";
 import VerdictShareButton from "@/components/VerdictShareButton";
 import { FREE_UNDER_EV_ROWS, useVip } from "@/lib/useVip";
 import { setPathForProduct, productSetName } from "@/lib/sets";
+import { priceLastMoved } from "@/lib/priceDates";
 
 const DISCLAIMER =
   "Under-EV Watch ranks catalog products where default/market price sits below modeled expected value (positive ROI / $ edge). Slot odds and averages are estimates — entertainment and math only, not financial, investment, or collecting advice. Markets move; verify live prices before you buy or rip. No gambling features.";
@@ -372,7 +373,18 @@ export default function DealsPage() {
                             </div>
                           </div>
                           <div className="text-[11px] text-zinc-500 truncate">
-                            {p.format} · {catLabel(p.category)} · Prices {pricesUpdatedLabel}
+                            {p.format} · {catLabel(p.category)}
+                          </div>
+                          <div className="text-[10px] text-zinc-500">
+                            Prices {pricesUpdatedLabel}
+                            {(() => {
+                              const moved = priceLastMoved(p.id);
+                              return moved ? (
+                                <span className="text-zinc-600">
+                                  {" "}· same price since {formatPriceSheetDate(moved)}
+                                </span>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
                         <div className="text-right shrink-0 sm:hidden">

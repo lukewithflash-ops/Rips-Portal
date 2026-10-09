@@ -11,6 +11,7 @@ import {
 } from "@/lib/products";
 import { computeVerdict, VERDICT_DISCLAIMER, type VerdictKind } from "@/lib/verdict";
 import { findSet, listSets } from "@/lib/sets";
+import { priceLastMoved } from "@/lib/priceDates";
 import { hasLiveUnderEvAffiliate } from "@/lib/affiliate";
 import BuyLinks, { AffiliateDisclosure } from "@/components/BuyLinks";
 import BrandLogo from "@/components/BrandLogo";
@@ -153,6 +154,7 @@ export default async function SetEvPage({ params }: Props) {
                   </h2>
                   <div className="text-[11px] text-zinc-500">
                     {p.name} · Prices {dateLabel}
+                    {priceLastMoved(p.id) ? ` · same price since ${formatPriceSheetDate(priceLastMoved(p.id)!)}` : ""}
                   </div>
                 </div>
                 <span
