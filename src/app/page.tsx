@@ -453,6 +453,7 @@ function HomeInner() {
                           +{bestUnderEv.roi.toFixed(0)}% ROI · ~$
                           {bestUnderEv.product.defaultPrice.toFixed(2)} → $
                           {bestUnderEv.totalEV.toFixed(2)}
+                          {" "}· Prices {pricesUpdatedLabel}
                         </div>
                       </div>
                     </button>
