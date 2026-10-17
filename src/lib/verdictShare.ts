@@ -1,3 +1,4 @@
+import { nativeShareImage } from "@/lib/native";
 /** Client helper: fetch the verdict OG image and share or download it. */
 
 function downloadBlob(blob: Blob, filename: string) {
@@ -46,6 +47,11 @@ export async function shareOrDownloadVerdictImage(
   const blob = await res.blob();
   const filename = `rip-portal-${productId}-verdict.png`;
   const file = new File([blob], filename, { type: "image/png" });
+
+  // iPhone app: native share sheet.
+  if (await nativeShareImage(blob, filename, "Rip Portal verdict", verdictImageUrl(productId, price))) {
+    return "shared";
+  }
 
   if (canShareFiles(file)) {
     try {

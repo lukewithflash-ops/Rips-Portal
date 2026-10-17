@@ -910,3 +910,9 @@ body {
     animation: none;
   }
 }
+
+/* iPhone app (Capacitor shell sets html[data-app="ios"]): hide web-only bits
+   such as the VIP price, Upgrade links, checkout, and the PWA install prompt. */
+html[data-app="ios"] .hide-in-app {
+  display: none !important;
+}

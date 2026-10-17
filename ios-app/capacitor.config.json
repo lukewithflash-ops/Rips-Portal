@@ -1,0 +1,39 @@
+{
+  "appId": "com.ripsportal.app",
+  "appName": "Rip Portal",
+  "webDir": "www",
+  "server": {
+    "url": "https://www.ripsportal.com",
+    "errorPath": "offline.html",
+    "allowNavigation": [
+      "www.ripsportal.com",
+      "ripsportal.com"
+    ]
+  },
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#030306",
+    "appendUserAgent": "RipPortalApp/1.0",
+    "limitsNavigationsToAppBoundDomains": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "launchAutoHide": true,
+      "backgroundColor": "#030306",
+      "showSpinner": false
+    },
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#030306",
+      "overlaysWebView": false
+    }
+  }
+}

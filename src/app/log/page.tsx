@@ -640,7 +640,7 @@ function LogInner() {
               ) : (
                 <Link
                   href="/vip"
-                  className="text-[12px] px-2.5 py-1 rounded-lg border border-zinc-700 text-zinc-400 hover:border-amber-500/40 hover:text-amber-200"
+                  className="hide-in-app text-[12px] px-2.5 py-1 rounded-lg border border-zinc-700 text-zinc-400 hover:border-amber-500/40 hover:text-amber-200"
                 >
                   👑 Export CSV · VIP
                 </Link>

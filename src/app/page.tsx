@@ -370,7 +370,11 @@ function HomeInner() {
             );
             if ("href" in item && item.href) {
               return (
-                <Link key={item.label} href={item.href} className={className}>
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={item.href === "/vip" ? `${className} hide-in-app` : className}
+                >
                   {inner}
                 </Link>
               );
@@ -563,7 +567,7 @@ function HomeInner() {
             </button>
             <Link
               href="/vip"
-              className="flex-1 min-w-[3.5rem] py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-amber-500/40 hover:text-amber-300"
+              className="hide-in-app flex-1 min-w-[3.5rem] py-2 rounded-xl text-sm font-medium border border-zinc-800 text-zinc-400 text-center hover:border-amber-500/40 hover:text-amber-300"
             >
               👑 VIP
             </Link>

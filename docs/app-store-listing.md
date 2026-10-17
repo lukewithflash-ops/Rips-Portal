@@ -1,70 +1,128 @@
-# Rip Portal — App Store / PWA listing notes
+# Rip Portal — App Store listing (iPhone)
 
-**Name:** Rip Portal  
-**Subtitle:** Know before you rip  
-**Support URL:** https://ripsportal.com/privacy (mailto: lukewithflash@gmail.com)  
-**Marketing URL:** https://ripsportal.com  
-**Privacy URL:** https://ripsportal.com/privacy  
+App: Capacitor shell in `ios-app/` (loads https://www.ripsportal.com + native push,
+haptics, share sheet, Safari for Buy links, bundled offline page). Bundle ID
+`com.ripsportal.app`. iPhone only. Free. No in-app purchases.
 
-## First-line description
-Know before you rip. Free educational pack sim + EV calculator for Pokémon, sports cards, and One Piece — estimates, not guarantees. Not gambling. No real-money opens.
+## App information
+| Field | Value |
+| --- | --- |
+| Name | Rip Portal |
+| Subtitle (≤30) | Know before you rip |
+| Primary category | Utilities |
+| Secondary category | Entertainment |
+| Price | Free |
+| In-app purchases | None |
+| Support URL | https://www.ripsportal.com/support |
+| Marketing URL | https://www.ripsportal.com |
+| Privacy Policy URL | https://www.ripsportal.com/privacy |
+| Copyright | 2026 Luke Rodden |
+| Export compliance | Standard HTTPS only — `ITSAppUsesNonExemptEncryption = NO` is set in Info.plist |
 
-## Full description (draft)
-Rip Portal helps collectors see pack expected value before they crack wax. Browse catalog defaults for Pokémon TCG, Topps Baseball, Basketball, and One Piece; compare your price to unit EV and ROI; get a Portal Verdict; log sessions; and run a free educational pack simulation.
+## Promotional text (≤170)
+Know before you rip. See a pack's expected value before you buy, rip free simulated packs, and get a ping when something flips under EV.
 
-- Free EV calculator with catalog prices and your price
-- Under-EV Watch for packs trading under estimated EV
-- Rip Log to compare pulls vs expected value (stays on device for MVP)
-- Free Pack Opener — simulation only, no gems, no paid crates
-- Installable PWA (standalone) with honest offline shell
+## Description
+Know before you rip.
 
-Not a casino. No real-money wagering. No in-app purchases for pack opens.
+Rip Portal shows the expected value (EV) of trading card and sports card packs
+before you open them. Pick a set, enter what you'd pay, and get EV, ROI, and a
+plain-English Verdict.
 
-## Keywords
-pack EV, TCG, Pokémon, Topps, One Piece, booster pack expected value, card EV calculator, under EV, rip log, collector tools
+• EV calculator + Verdict for every set on the weekly price sheet
+• Open: a free pack simulator using catalog drop tables. No coins, no gems, no paid opens, nothing to cash out
+• Under-EV Watch: products priced under their estimated EV
+• Flip alerts: a notification when a product flips under EV (or back). Quiet weeks send nothing
+• Rip Log: log what you paid and pulled and compare it with EV, saved on your phone
+• Share your Verdict or pulls as an image
 
-**Do not use:** casino, loot, slots, gambling, betting, wager
+Prices are estimates from a weekly sheet, shown with the date they were updated.
+Products marked "Unverified estimate" are left out of Under-EV. Some Buy links are
+affiliate links; they open the retailer in Safari at no extra cost to you.
 
-## Age rating
-Match the in-app /open disclaimer: educational simulation of collectible pack odds and EV math. Not a casino, no real-money wagering, no paid pack opens. Recommend the same content rating lane as other collector/utility EV tools (no simulated gambling for cash prizes). Suggested store copy: “Infrequent/Mild Simulated Gambling” only if the store forces a gambling-adjacent label for pack *simulation* UI — prefer Utility / Entertainment without gambling tags when the form allows, and stress “educational odds math, no real-money opens.”
+Rip Portal is a math tool, not gambling. There is no real-money wagering and no
+way to buy packs or opens in the app.
 
-## Monetization / IAP
-- **IAP for packs:** none (and none planned for opens).
-- No coins, gems, or paid crates.
-- **VIP later (if any):** data / alerts only — never paid mystery opens or gambling mechanics.
+## Keywords (≤100, no trademarks)
+`pack EV,expected value,TCG,trading cards,sports cards,booster,pack opener,card value,collector,ROI`
 
-## Screenshot briefs (6)
+**Never use** (name, subtitle, keywords, screenshots): Pokémon, Topps, One Piece,
+Panini, or other brand names; casino, loot, slots, gambling, betting, wager. Keep
+brand logos and card art out of screenshot captions.
 
-### 1 — Pack rip
-Phone frame on `/open` results: tear/reveal moment with a chase or IR/SIR soft-hit frame, session chip showing packs · spent · hits · vs EV, sticky **Open another**.
+## Age rating questionnaire (recommended answers)
+- Gambling (real money): **No**
+- Simulated gambling: **Infrequent/Mild** (honest, conservative: the pack opener
+  simulates random pulls; no money, no prizes, no paid opens). Expect a 13+ rating.
+- Contests / sweepstakes: No
+- Loot boxes / paid random items: **No** (nothing random is sold)
+- Unrestricted web access: **No** (app loads only ripsportal.com; outside links open in Safari)
+- User-generated content, messaging, chat: No
+- Advertising: No third-party ads (Buy links are affiliate links to physical products)
+- Violence, mature themes, profanity, medical, horror: None
+- Made for Kids: No
 
-### 2 — EV vs price
-Home calculator for the same set (e.g. Surging Sparks Booster Pack): catalog price vs unit EV / ROI, Portal Verdict chip visible, purple-forward chrome. Full set name visible (no clip).
+## App Privacy ("nutrition label")
+Tracking: **No** (no ad SDKs, no cross-app tracking, no ATT prompt).
 
-### 3 — Under-EV
-`/deals` Under-EV Watch list with a few packs under EV, emerald accent rows, clear “math estimates only” cue in chrome.
+| Data type | Collected when | Linked to user | Purpose |
+| --- | --- | --- | --- |
+| Contact Info → Email Address | Only if the user joins the waitlist / flip emails | Yes | App Functionality |
+| Identifiers → Device ID (APNs push token) | Only if the user taps Get alerts | No | App Functionality |
+| Usage Data → Product Interaction | Page views + Buy-link clicks (Vercel Web Analytics, cookieless) | No | Analytics |
 
-### 4 — Log summary
-`/log` session summary: quantity, cost, sim/logged value vs expected EV, link back to Open / Calculator.
+Not collected: location, contacts, photos (saving a share image to Photos is
+user-initiated and stays on device), purchases, financial info, health,
+diagnostics, browsing history outside the app. Rip Log stays on device.
 
-### 5 — Home screen / install
-Installed PWA icon: swirl-only portal mark on black (no creatures, no wordmark). Optional: install toast “Install Rip Portal” after a successful EV calc or pack open.
+## Account deletion (5.1.1(v))
+The iPhone app has no sign-up or sign-in, so no accounts are created in the app.
+Website accounts can be deleted at ripsportal.com/vip → Delete account, or by
+emailing lukewithflash@gmail.com (documented on /support and /privacy).
 
-### 6 — Offline honesty
-App chrome with the amber offline banner: “Offline — prices may be stale / last updated …” while `/`, `/open`, `/deals`, or `/log` still load from the shell. Do not imply live prices.
+## VIP in the iPhone app (3.1.1)
+VIP is not offered in v1 of the app. In the app (`RipPortalApp/` user agent):
+VIP price, Upgrade links, checkout, and the crown are hidden (`.hide-in-app`) and
+`/vip` redirects to `/features` (free features). Revisit with StoreKit/RevenueCat
+in a later version.
+
+## App Review notes (paste into "Notes")
+Rip Portal is a free tool for card collectors: it estimates the expected value of
+trading card packs before purchase. No account or sign-in is needed, and there are
+no in-app purchases.
+
+Native features: push notifications (APNs) for Under-EV price flips, haptic
+feedback during the pack simulator, the native share sheet for Verdict/pull/recap
+images, Buy links opened in Safari, and a bundled offline screen.
+
+"Open" is a free educational simulation using each product's catalog drop table.
+There is no real money, no paid opens, no currency, and no prizes; nothing can be
+purchased or cashed out. Buy links are affiliate links to physical products sold
+by third-party retailers and open in Safari.
+
+To try alerts: open Under-EV Watch (💎) → Get alerts → Allow. Alerts are sent only
+when a product's status changes on the weekly price sheet; we can trigger a test
+alert on request.
+
+Contact: lukewithflash@gmail.com
+
+## Screenshots — 6.9" iPhone (1320 × 2868 portrait), 3–6 shots
+Capture inside the app (TestFlight build) or from the 6.9" renders in
+`docs/screenshots/` if present. No brand logos in captions; product photos only
+as they appear in the app.
+1. **EV + Verdict** — calculator on a booster pack: price, EV, ROI, Verdict chip. Caption: "Know the EV before you rip."
+2. **Open** — pack simulator mid-reveal with the session chip (packs · spent · hits · vs EV). Caption: "Rip free simulated packs."
+3. **Under-EV Watch** — list with the price-sheet date visible. Caption: "See what's under EV."
+4. **Alerts** — the iOS notification banner for an Under-EV flip (or the Get alerts card). Caption: "Get pinged when a deal flips."
+5. **Rip Log** — session summary vs EV. Caption: "Log your rips."
+6. **Share** — share sheet over a Verdict image. Caption: "Share your Verdict."
 
 ## Assets
-- **App icon / Apple touch / splash:** swirl-only oval portal (green→purple) on `#030306` / black — see `public/icons/` (`icon-192`, `icon-512`, `icon-512-maskable`, `apple-touch-icon`, `splash-swirl-1024`). Header wordmark (`public/brand/`) stays separate for website chrome only.
-- Device PNGs for store screenshots are not bundled in this PR — capture from a real phone or simulator when submitting. These briefs are the shot list.
+- App icon: `public/icons/app-icon-1024.png` (1024×1024, opaque RGB, swirl on #030306),
+  also in `ios-app/ios/App/App/Assets.xcassets/AppIcon.appiconset/`.
+- Launch screen: swirl on #030306 (`Splash.imageset`).
 
-## PWA checklist (Phase 1)
-- [x] `manifest`: name / short_name **Rip Portal**, theme/background `#030306`, display `standalone`, start_url `/`, scope `/`
-- [x] Icons 192 / 512 / maskable + apple-touch = swirl-only
-- [x] Install prompt once, after EV calc or pack open (hidden on `/open` during primary CTA)
-- [x] Offline shell + honest stale-price banner
-- [x] Deep links `/`, `/open`, `/deals`, `/log` from home-screen icon
-
-## Explicitly out of scope (this phase)
-- Capacitor / native wrapper (Phase 3 later)
-- Coins, gems, paid crates
-- Rename to Portal Rips / Rips Portal
+## Out of scope
+- Android (no device to test)
+- Coins, gems, paid opens, loot boxes — never
+- VIP purchase inside the app (v1)

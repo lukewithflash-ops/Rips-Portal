@@ -61,7 +61,7 @@ export default function TermsPage() {
             </p>
           </section>
 
-          <section className="panel rounded-xl p-4 space-y-2">
+          <section className="hide-in-app panel rounded-xl p-4 space-y-2">
             <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
               VIP data plan
             </h2>

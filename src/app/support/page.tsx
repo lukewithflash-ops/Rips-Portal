@@ -52,10 +52,14 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
     q: "How do I delete my account?",
     a: (
       <>
-        Sign in on <Link href="/vip" className="text-purple-300 hover:underline">VIP</Link> and
-        tap <em>Delete account</em>. It removes your email, VIP status, alert
-        subscriptions tied to that email, and flip-email signups, and cancels any
-        subscription right away. Can&apos;t sign in? Email us and we&apos;ll do it.
+        <span className="hide-in-app">
+          Sign in on <Link href="/vip" className="text-purple-300 hover:underline">VIP</Link> and
+          tap <em>Delete account</em>. It removes your email, VIP status, alert
+          subscriptions tied to that email, and flip-email signups, and cancels any
+          subscription right away.{" "}
+        </span>
+        Or email lukewithflash@gmail.com from the address on the account and
+        we&apos;ll delete it.
       </>
     ),
   },

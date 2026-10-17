@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { nativeShareImage } from "@/lib/native";
 
 /** Download (or share on phones) the recap PNG. */
 export default function RecapDownload({ src, filename }: { src: string; filename: string }) {
@@ -14,6 +15,11 @@ export default function RecapDownload({ src, filename }: { src: string; filename
       const res = await fetch(src, { cache: "no-store" });
       if (!res.ok) throw new Error(String(res.status));
       const blob = await res.blob();
+      // iPhone app: native share sheet (save to Photos, Messages, Instagram…).
+      if (await nativeShareImage(blob, filename, "Rip Portal recap", src)) {
+        setNote("Shared.");
+        return;
+      }
       const file = new File([blob], filename, { type: "image/png" });
       const nav = navigator as Navigator & { canShare?: (d?: ShareData) => boolean };
       if (typeof nav.share === "function" && nav.canShare?.({ files: [file] })) {

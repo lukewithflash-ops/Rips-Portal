@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { cronAuthorized } from "@/lib/cronAuth";
 import { listSubscriptions, redisConfigured } from "@/lib/pushStore";
-import { sendPushToSubscriptions } from "@/lib/underEvPush";
+import { sendPushToApnsDevices, sendPushToSubscriptions } from "@/lib/underEvPush";
+import { apnsConfigured } from "@/lib/apns";
+import { listApnsDevices } from "@/lib/apnsStore";
 import { missingVapidEnv, vapidServerConfigured } from "@/lib/webPushServer";
 
 export const runtime = "nodejs";
@@ -20,21 +22,27 @@ async function run(): Promise<NextResponse> {
       { status: 503 }
     );
   }
-  if (!vapidServerConfigured()) {
+  if (!vapidServerConfigured() && !apnsConfigured()) {
     return NextResponse.json(
       { ok: false, error: "vapid_unavailable", missing: missingVapidEnv() },
       { status: 503 }
     );
   }
-  const subs = await listSubscriptions();
-  const result = await sendPushToSubscriptions(subs, {
+  const payload = {
     title: "Rip Portal test alert",
     body: "Alerts are working. You'll hear from us when an Under-EV row flips.",
     url: "/deals",
     tag: "rip-portal-test",
-  });
+  };
+  const result = vapidServerConfigured()
+    ? await sendPushToSubscriptions(await listSubscriptions(), payload)
+    : { subscribers: 0, sent: 0, pruned: 0, failed: 0 };
+  // iPhone app devices (only once the APNS_* env vars are set).
+  const apns = apnsConfigured()
+    ? await sendPushToApnsDevices(await listApnsDevices(), payload)
+    : null;
   return NextResponse.json(
-    { ok: result.failed === 0, ...result },
+    { ok: result.failed === 0 && (!apns || apns.failed === 0), ...result, apns },
     { headers: { "Cache-Control": "no-store" } }
   );
 }

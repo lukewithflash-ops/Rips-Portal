@@ -55,6 +55,7 @@ import {
 } from "@/lib/openShareImage";
 
 import BrandLogo from "@/components/BrandLogo";
+import { haptic, isNativeApp } from "@/lib/native";
 import ProductThumb from "@/components/ProductThumb";
 import AlertsNudge from "@/components/AlertsNudge";
 import BuyLinks from "@/components/BuyLinks";
@@ -122,6 +123,13 @@ function playWhoosh(reduced: boolean) {
 }
 
 function hapticPulse(pattern: number | number[], reduced: boolean) {
+  // iPhone app: real Taptic Engine feedback (navigator.vibrate doesn't exist on iOS).
+  if (!reduced && isNativeApp()) {
+    void haptic(
+      Array.isArray(pattern) ? (pattern.length >= 5 ? "big-hit" : "reveal") : "hit"
+    );
+    return;
+  }
   if (reduced || typeof navigator === "undefined" || !navigator.vibrate) return;
   try {
     navigator.vibrate(pattern);
@@ -661,6 +669,7 @@ function OpenInner() {
           );
         }
 
+        if (!hasChase) void haptic("reveal"); // app only
         if (next.packs.length <= 1) {
           setRevealIdx(0);
           setSummaryReady(true);
@@ -680,6 +689,9 @@ function OpenInner() {
           setRevealIdx(i);
           const pk = next.packs[i];
           const tier = pk ? packRarity(pk, price) : "common";
+          // App only: a tick per pack revealed, a heavier one for rares.
+          if (tier === "rare") void haptic("hit");
+          else if (tier !== "chase") void haptic("tap");
           if (pk && tier === "chase") {
             setShowConfetti(true);
             hapticPulse(30, reducedMotion);

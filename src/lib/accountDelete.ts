@@ -4,7 +4,7 @@
  * Deletes everything stored server-side for one email:
  *   - VIP record + Stripe customer lookup (Upstash)
  *   - Stripe customer (cancels any subscription) — skipped when Stripe isn't configured
- *   - Web Push subscriptions saved with that email
+ *   - Web Push subscriptions and iPhone app push tokens saved with that email
  *   - Waitlist / flip-email subscriber entry
  * Device-only data (Rip Log, your price, shop inventory) never leaves the device.
  */
@@ -13,11 +13,13 @@ import { deleteVipRecord, getVipRecord } from "@/lib/vip/store";
 import { vipRedisConfigured } from "@/lib/vip/redis";
 import { removeSubscriptionsByEmail } from "@/lib/pushStore";
 import { removeSubscriberByEmail } from "@/lib/underEvEmail";
+import { removeApnsTokensByEmail } from "@/lib/apnsStore";
 
 export type DeleteResult = {
   stripe: "deleted" | "skipped_not_configured" | "no_customer" | "failed";
   vipRecord: boolean;
   pushRemoved: number;
+  appDevicesRemoved: number;
   emailListRemoved: boolean;
   extra: Record<string, unknown>;
 };
@@ -35,6 +37,7 @@ export async function deleteAccountData(email: string): Promise<DeleteResult> {
     stripe: "no_customer",
     vipRecord: false,
     pushRemoved: 0,
+    appDevicesRemoved: 0,
     emailListRemoved: false,
     extra: {},
   };
@@ -64,6 +67,7 @@ export async function deleteAccountData(email: string): Promise<DeleteResult> {
     result.vipRecord = Boolean(await deleteVipRecord(email).catch(() => null));
     result.pushRemoved = await removeSubscriptionsByEmail(email).catch(() => 0);
     result.emailListRemoved = await removeSubscriberByEmail(email).catch(() => false);
+    result.appDevicesRemoved = await removeApnsTokensByEmail(email).catch(() => 0);
   }
 
   for (const hook of extraHooks) {
