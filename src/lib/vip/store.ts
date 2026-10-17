@@ -94,3 +94,12 @@ export async function allowSignInEmail(email: string): Promise<boolean> {
   if (n === 1) await vipRedis(["EXPIRE", key, 600]);
   return n <= 5;
 }
+
+/** Delete the VIP record and its Stripe customer lookup key. */
+export async function deleteVipRecord(email: string): Promise<VipRecord | null> {
+  if (!vipRedisConfigured()) return null;
+  const prev = await getVipRecord(email);
+  await vipRedis(["DEL", userKey(email)]);
+  if (prev?.customerId) await vipRedis(["DEL", customerKey(prev.customerId)]);
+  return prev;
+}
