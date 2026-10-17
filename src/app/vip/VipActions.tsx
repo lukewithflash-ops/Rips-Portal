@@ -8,6 +8,7 @@ import {
   useVip,
   type VipStatus,
 } from "@/lib/useVip";
+import DeleteAccount from "./DeleteAccount";
 
 type Plan = "monthly" | "yearly";
 
@@ -26,6 +27,7 @@ export default function VipActions() {
       welcome: q.get("welcome") === "1",
       canceled: q.get("canceled") === "1",
       expired: q.get("signin") === "expired",
+      deleted: q.get("deleted") === "1",
     };
   }, [search]);
 
@@ -134,6 +136,9 @@ export default function VipActions() {
       {flags.canceled && (
         <p className="text-[12px] text-zinc-400">Checkout canceled. Nothing was charged.</p>
       )}
+      {flags.deleted && (
+        <p className="text-[12px] text-emerald-300">Your account and its data were deleted.</p>
+      )}
       {flags.expired && (
         <p className="text-[12px] text-amber-300/90">That sign-in link expired or was already used. Ask for a new one.</p>
       )}
@@ -164,6 +169,7 @@ export default function VipActions() {
             <button type="button" onClick={signOut} className="text-zinc-400 hover:underline">
               Sign out
             </button>
+            {status.email && <DeleteAccount email={status.email} />}
           </div>
         </div>
       ) : (
@@ -199,13 +205,18 @@ export default function VipActions() {
               </button>
             </p>
           )}
+          {status.email && <DeleteAccount email={status.email} />}
           {!status.email && status.signInEmailEnabled && (
             <div className="pt-2 border-t border-zinc-800/70">
               {linkSent ? (
                 <p className="text-[12px] text-emerald-300">Check your email for a sign-in link.</p>
               ) : (
                 <form onSubmit={sendLink} className="flex flex-col sm:flex-row gap-2">
+                  <label htmlFor="vip-signin-email" className="sr-only">
+                    Email for sign-in link
+                  </label>
                   <input
+                    id="vip-signin-email"
                     type="email"
                     required
                     value={email}

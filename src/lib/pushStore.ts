@@ -158,3 +158,24 @@ export async function setPushFlipSnapshot(ids: string[]): Promise<void> {
     JSON.stringify([...ids].sort()),
   ]);
 }
+
+/** Remove every Web Push subscription saved with this account email. */
+export async function removeSubscriptionsByEmail(email: string): Promise<number> {
+  const target = email.trim().toLowerCase();
+  if (!target) return 0;
+  const members = await redisCommand<string[]>(["SMEMBERS", SUBS_KEY]);
+  if (!Array.isArray(members)) return 0;
+  let removed = 0;
+  for (const m of members) {
+    try {
+      const parsed = JSON.parse(m) as PushSubscriptionJSON;
+      if ((parsed?.email || "").trim().toLowerCase() === target) {
+        await redisCommand(["SREM", SUBS_KEY, m]);
+        removed += 1;
+      }
+    } catch {
+      /* skip corrupt */
+    }
+  }
+  return removed;
+}

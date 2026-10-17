@@ -354,3 +354,20 @@ export async function runUnderEvFlipEmails(): Promise<FlipRunResult> {
   };
 }
 
+
+/** Remove a waitlist / flip-email subscriber by address (account deletion). */
+export async function removeSubscriberByEmail(email: string): Promise<boolean> {
+  const target = email.trim().toLowerCase();
+  if (!redisConfigured() || !target) return false;
+  const members = await redis<string[]>(["SMEMBERS", SUBS_KEY]);
+  if (!Array.isArray(members)) return false;
+  let removed = false;
+  for (const m of members) {
+    const sub = parseSub(m);
+    if (sub?.email === target) {
+      await redis(["SREM", SUBS_KEY, m]);
+      removed = true;
+    }
+  }
+  return removed;
+}

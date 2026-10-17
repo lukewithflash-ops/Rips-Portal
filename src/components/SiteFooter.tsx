@@ -34,6 +34,9 @@ export default function SiteFooter() {
           >
             Privacy
           </Link>
+          <Link href="/support" className="hover:text-green-300 transition-colors">
+            Support
+          </Link>
           <Link href="/terms" className="hover:text-green-300 transition-colors">
             Terms
           </Link>
