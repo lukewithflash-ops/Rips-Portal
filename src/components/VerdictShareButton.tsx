@@ -38,11 +38,11 @@ export default function VerdictShareButton({
         type="button"
         onClick={() => void onClick()}
         disabled={busy}
-        className="text-[11px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-zinc-700 text-zinc-200 hover:border-emerald-500/40 hover:text-emerald-200 transition-colors disabled:opacity-40"
+        className="text-[12px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-zinc-700 text-zinc-200 hover:border-emerald-500/40 hover:text-emerald-200 transition-colors disabled:opacity-40"
       >
         {busy ? "Building…" : "Share verdict"}
       </button>
-      {note && <span className="text-[10px] text-zinc-500">{note}</span>}
+      {note && <span className="text-[12px] text-zinc-500">{note}</span>}
     </span>
   );
 }

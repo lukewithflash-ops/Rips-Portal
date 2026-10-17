@@ -132,7 +132,7 @@ export default async function SetEvPage({ params }: Props) {
       </header>
       <main className="flex-1 mx-auto w-full max-w-2xl px-4 py-8 space-y-6">
         <div className="space-y-2">
-          <div className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold">
+          <div className="text-[12px] uppercase tracking-widest text-emerald-400/90 font-semibold">
             {set.categoryLabel} · Set EV
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
@@ -150,18 +150,18 @@ export default async function SetEvPage({ params }: Props) {
           {rows.map(({ p, price, totalEV, roi, profit, verdict }) => (
             <li key={p.id} className="panel rounded-2xl p-4 border border-emerald-500/15 space-y-3">
               <div className="flex items-start gap-3">
-                <ProductThumb product={{ image: p.image, name: p.name }} className="h-14 w-11" />
+                <ProductThumb product={{ image: p.image, name: p.name }} className="h-14 w-11" small />
                 <div className="min-w-0 flex-1">
                   <h2 className="text-base font-semibold text-zinc-100">
                     {p.format}
                   </h2>
-                  <div className="text-[11px] text-zinc-500">
+                  <div className="text-[12px] text-zinc-500">
                     {p.name} · Prices {dateLabel}
                     {priceLastMoved(p.id) ? ` · same price since ${formatPriceSheetDate(priceLastMoved(p.id)!)}` : ""}
                   </div>
                   {verdict.unverified && (
                     <div
-                      className="mt-1 inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border border-zinc-600 text-zinc-400"
+                      className="mt-1 inline-block text-[12px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border border-zinc-600 text-zinc-400"
                       title={verdict.unverified}
                     >
                       Unverified estimate
@@ -169,18 +169,18 @@ export default async function SetEvPage({ params }: Props) {
                   )}
                 </div>
                 <span
-                  className={`shrink-0 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${verdictClass(verdict.primary)}`}
+                  className={`shrink-0 text-[12px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${verdictClass(verdict.primary)}`}
                 >
                   {verdictLabel(verdict.primary)}
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2 text-center">
-                  <div className="text-[9px] uppercase text-zinc-600">Price</div>
+                  <div className="text-[12px] uppercase text-zinc-600">Price</div>
                   <div className="font-mono text-sm text-zinc-100">{fmtMoney(price)}</div>
                 </div>
                 <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2 text-center">
-                  <div className="text-[9px] uppercase text-zinc-600">EV</div>
+                  <div className="text-[12px] uppercase text-zinc-600">EV</div>
                   <div className="font-mono text-sm text-zinc-100">{fmtMoney(totalEV)}</div>
                 </div>
                 <div
@@ -190,7 +190,7 @@ export default async function SetEvPage({ params }: Props) {
                       : "bg-black/40 border-zinc-800"
                   }`}
                 >
-                  <div className="text-[9px] uppercase text-zinc-600">ROI</div>
+                  <div className="text-[12px] uppercase text-zinc-600">ROI</div>
                   <div className={`font-mono text-sm ${profit > 0 ? "text-emerald-300" : "text-zinc-100"}`}>
                     {fmtRoi(roi)}
                   </div>

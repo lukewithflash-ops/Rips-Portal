@@ -167,7 +167,7 @@ export default function DealAlertsBanner({ variant = "banner" }: Props) {
   if (variant === "settings") {
     return (
       <section className="panel rounded-2xl p-4 border border-zinc-800 space-y-2">
-        <div className="text-[10px] uppercase tracking-widest text-zinc-500 font-semibold">
+        <div className="text-[12px] uppercase tracking-widest text-zinc-500 font-semibold">
           Deal alerts
         </div>
         <label className="flex items-start gap-3 cursor-pointer">
@@ -181,22 +181,22 @@ export default function DealAlertsBanner({ variant = "banner" }: Props) {
             <span className="block text-sm text-zinc-200">
               Notify me about under-EV deals
             </span>
-            <span className="block text-[11px] text-zinc-500 mt-0.5 leading-relaxed">
+            <span className="block text-[12px] text-zinc-500 mt-0.5 leading-relaxed">
               {DEAL_ALERTS_PUSH_NOTE}
             </span>
-            <span className="block text-[11px] text-zinc-600 mt-1 leading-relaxed">
+            <span className="block text-[12px] text-zinc-600 mt-1 leading-relaxed">
               iOS: only works after Add to Home Screen; tap Allow when prompted.
             </span>
           </span>
         </label>
         {permHint && (
-          <p className="text-[11px] text-amber-200/90">{permHint}</p>
+          <p className="text-[12px] text-amber-200/90">{permHint}</p>
         )}
         {newDeals.length > 0 && (
           <button
             type="button"
             onClick={markSeen}
-            className="text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
+            className="text-[12px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
           >
             Mark current under-EV set as seen
           </button>
@@ -217,14 +217,14 @@ export default function DealAlertsBanner({ variant = "banner" }: Props) {
         <div className="flex items-center gap-2 shrink-0">
           <Link
             href="/deals"
-            className="text-[11px] text-emerald-300 hover:text-emerald-200 underline-offset-2 hover:underline"
+            className="text-[12px] text-emerald-300 hover:text-emerald-200 underline-offset-2 hover:underline"
           >
             View
           </Link>
           <button
             type="button"
             onClick={onDismiss}
-            className="text-[11px] text-zinc-500 hover:text-zinc-300"
+            className="text-[12px] text-zinc-500 hover:text-zinc-300"
             aria-label="Dismiss"
           >
             ✕
@@ -246,10 +246,10 @@ export default function DealAlertsBanner({ variant = "banner" }: Props) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] uppercase tracking-widest font-semibold text-emerald-300/90">
+            <span className="text-[12px] uppercase tracking-widest font-semibold text-emerald-300/90">
               New under-EV deals
             </span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200">
+            <span className="text-[12px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-200">
               {newDeals.length} new
             </span>
           </div>
@@ -264,14 +264,14 @@ export default function DealAlertsBanner({ variant = "banner" }: Props) {
             <button
               type="button"
               onClick={markSeen}
-              className="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/40 text-emerald-100"
+              className="text-[12px] px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-400/40 text-emerald-100"
             >
               Got it
             </button>
             <button
               type="button"
               onClick={onDismiss}
-              className="text-[11px] px-2.5 py-1 rounded-lg border border-zinc-700 text-zinc-400 hover:text-zinc-200"
+              className="text-[12px] px-2.5 py-1 rounded-lg border border-zinc-700 text-zinc-400 hover:text-zinc-200"
             >
               Dismiss
             </button>

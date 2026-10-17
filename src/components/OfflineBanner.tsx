@@ -29,7 +29,7 @@ export default function OfflineBanner() {
     <div
       role="status"
       aria-live="polite"
-      className="sticky top-0 z-[60] w-full border-b border-amber-500/40 bg-amber-950/95 px-3 py-2 text-center text-[11px] leading-snug text-amber-100 backdrop-blur-md"
+      className="sticky top-0 z-[60] w-full border-b border-amber-500/40 bg-amber-950/95 px-3 py-2 text-center text-[12px] leading-snug text-amber-100 backdrop-blur-md"
     >
       <span className="font-semibold text-amber-200">Offline</span>
       {" — "}

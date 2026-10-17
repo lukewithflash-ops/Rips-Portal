@@ -46,7 +46,7 @@ export default function VipPage() {
         <section className="mt-4 panel rounded-2xl p-5 border border-amber-500/30 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-500/15 via-transparent to-purple-500/10 pointer-events-none" />
           <div className="relative">
-            <div className="text-[10px] uppercase tracking-widest text-amber-300/90 font-semibold mb-1">
+            <div className="text-[12px] uppercase tracking-widest text-amber-300/90 font-semibold mb-1">
               👑 VIP data plan
             </div>
             <h1 className="text-2xl md:text-3xl headline-flare tracking-tight">
@@ -63,7 +63,7 @@ export default function VipPage() {
               <span className="text-xl font-semibold text-white">$40</span>
               <span className="text-sm text-zinc-400">/year</span>
             </div>
-            <p className="mt-1 text-[11px] text-zinc-500">
+            <p className="mt-1 text-[12px] text-zinc-500">
               Cancel anytime. If a payment fails, the account goes back to free.
             </p>
           </div>
@@ -77,7 +77,7 @@ export default function VipPage() {
 
         <section className="mt-6 grid gap-3 sm:grid-cols-2">
           <div className="panel rounded-2xl p-4 border border-amber-500/25">
-            <h2 className="text-[10px] uppercase tracking-widest text-amber-300/90 font-semibold mb-2">
+            <h2 className="text-[12px] uppercase tracking-widest text-amber-300/90 font-semibold mb-2">
               VIP adds
             </h2>
             <ul className="space-y-2.5">
@@ -90,7 +90,7 @@ export default function VipPage() {
             </ul>
           </div>
           <div className="panel rounded-2xl p-4 border border-emerald-500/20">
-            <h2 className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-2">
+            <h2 className="text-[12px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-2">
               Free, always
             </h2>
             <ul className="space-y-2">
@@ -103,7 +103,7 @@ export default function VipPage() {
           </div>
         </section>
 
-        <p className="mt-6 text-[11px] text-zinc-500 leading-relaxed">
+        <p className="mt-6 text-[12px] text-zinc-500 leading-relaxed">
           Payments are handled by Stripe. Rip Portal stores your email and
           whether VIP is active, nothing else. EV figures are estimates for
           entertainment and math, not financial advice. See{" "}

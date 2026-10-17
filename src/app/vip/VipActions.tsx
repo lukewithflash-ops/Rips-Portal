@@ -159,7 +159,7 @@ export default function VipActions() {
               Rip Log export
             </Link>
           </div>
-          <p className="text-[11px] text-zinc-500">
+          <p className="text-[12px] text-zinc-500">
             Flip emails go to this address. Every email has an unsubscribe link.
           </p>
           <div className="flex flex-wrap gap-3 text-[12px]">

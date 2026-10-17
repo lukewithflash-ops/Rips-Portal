@@ -38,7 +38,7 @@ export default function EvIndexPage() {
                 >
                   <span className="min-w-0">
                     <span className="block text-sm text-zinc-100 truncate">{g.name}</span>
-                    <span className="block text-[11px] text-zinc-500">
+                    <span className="block text-[12px] text-zinc-500">
                       {g.categoryLabel} · {g.products.length} product{g.products.length === 1 ? "" : "s"}
                     </span>
                   </span>

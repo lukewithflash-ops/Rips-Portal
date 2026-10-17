@@ -9,7 +9,7 @@ export default function SiteFooter() {
       <div className="mx-auto max-w-5xl px-4 py-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="min-w-0">
           <BrandLogo height={32} compact />
-          <p className="text-[11px] text-zinc-400 mt-1.5 leading-relaxed">
+          <p className="text-[12px] text-zinc-400 mt-1.5 leading-relaxed">
             Tools for card rippers — Know before you rip
           </p>
           <AffiliateDisclosure className="mt-2 max-w-md" />

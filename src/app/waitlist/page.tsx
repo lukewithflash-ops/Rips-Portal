@@ -159,7 +159,7 @@ export default function WaitlistPage() {
         <div className="mt-4 panel rounded-2xl p-5 border border-purple-500/30 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-transparent to-green-500/10 pointer-events-none" />
           <div className="relative">
-            <div className="text-[10px] uppercase tracking-widest text-purple-300/90 font-semibold mb-1">
+            <div className="text-[12px] uppercase tracking-widest text-purple-300/90 font-semibold mb-1">
               Portal
             </div>
             <h1 className="text-2xl md:text-3xl headline-flare tracking-tight">
@@ -233,7 +233,7 @@ export default function WaitlistPage() {
             className="mt-6 panel rounded-2xl p-5 space-y-4 portal-border"
           >
             <div>
-              <label className="block text-[10px] uppercase tracking-wider text-zinc-500 mb-1">
+              <label className="block text-[12px] uppercase tracking-wider text-zinc-500 mb-1">
                 Email *
               </label>
               <input
@@ -246,7 +246,7 @@ export default function WaitlistPage() {
               />
             </div>
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-2">
+              <div className="text-[12px] uppercase tracking-wider text-zinc-500 mb-2">
                 Interests
               </div>
               <div className="flex flex-wrap gap-2">
@@ -276,7 +276,7 @@ export default function WaitlistPage() {
             >
               {loading ? "Joining…" : "Join waitlist"}
             </button>
-            <p className="text-[11px] text-zinc-600 leading-relaxed">
+            <p className="text-[12px] text-zinc-600 leading-relaxed">
               Signups POST to{" "}
               <span className="font-mono text-zinc-500">/api/waitlist</span> and
               forward to the site operator (FormSubmit / optional Resend). A

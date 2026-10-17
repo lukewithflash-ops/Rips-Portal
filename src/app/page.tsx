@@ -35,6 +35,18 @@ import AlertsNudge from "@/components/AlertsNudge";
 import { setPathForProduct, productSetName } from "@/lib/sets";
 import { clearYourPrice, savedPriceInput, saveYourPrice } from "@/lib/yourPrice";
 
+type UrlState = { pack: string | null; price: string | null; qs: string };
+
+function SearchParamsBridge({ onChange }: { onChange: (s: UrlState) => void }) {
+  const searchParams = useSearchParams();
+  const qs = searchParams.toString();
+  useEffect(() => {
+    const p = new URLSearchParams(qs);
+    onChange({ pack: p.get("pack"), price: p.get("price"), qs });
+  }, [qs, onChange]);
+  return null;
+}
+
 function HomeInner() {
   const [activeCategory, setActiveCategory] = useState<Category>("pokemon");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -49,11 +61,13 @@ function HomeInner() {
   const [verdictHighlight, setVerdictHighlight] = useState(false);
   const [shareImageBusy, setShareImageBusy] = useState(false);
   const [shareImageNote, setShareImageNote] = useState<string | null>(null);
-  const searchParams = useSearchParams();
+  // URL params arrive through SearchParamsBridge so the page itself can be
+  // prerendered (useSearchParams here would force client-only rendering).
+  const [urlState, setUrlState] = useState<UrlState>({ pack: null, price: null, qs: "" });
   const router = useRouter();
   const pathname = usePathname();
-  const packFromUrl = searchParams.get("pack");
-  const priceFromUrl = searchParams.get("price");
+  const packFromUrl = urlState.pack;
+  const priceFromUrl = urlState.price;
 
   // Deep link: ?pack=<productId>[&price=<paid>] — matches Open / Rip Log prefill patterns
   useEffect(() => {
@@ -83,7 +97,7 @@ function HomeInner() {
   }, [packFromUrl, priceFromUrl]);
 
   const syncPackToUrl = (id: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(urlState.qs);
     params.set("pack", id);
     params.delete("price");
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
@@ -301,18 +315,21 @@ function HomeInner() {
 
   return (
     <div className="flex min-h-screen portal-bg">
+      <Suspense fallback={null}>
+        <SearchParamsBridge onChange={setUrlState} />
+      </Suspense>
       <aside className="sidebar w-56 flex-shrink-0 hidden lg:flex flex-col">
         <div className="p-4 border-b border-green-500/10">
           <div className="flex flex-col gap-1">
             <BrandLogo height={40} href={null} />
-            <div className="text-[10px] text-purple-300/70 tracking-[0.18em] uppercase pl-0.5">
+            <div className="text-[12px] text-purple-300/70 tracking-[0.18em] uppercase pl-0.5">
               Pack EV Calculator
             </div>
           </div>
         </div>
 
         <nav className="flex-1 py-4 px-2.5 space-y-0.5 overflow-y-auto">
-          <div className="text-[10px] uppercase tracking-widest text-zinc-600 px-3 mb-2">
+          <div className="text-[12px] uppercase tracking-widest text-zinc-600 px-3 mb-2">
             Tools
           </div>
           {[
@@ -345,7 +362,7 @@ function HomeInner() {
                 <span className="text-base w-5 text-center">{item.icon}</span>
                 <span>{item.label}</span>
                 {"pro" in item && item.pro && (
-                  <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wide">
+                  <span className="ml-auto text-[12px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wide">
                     Pro
                   </span>
                 )}
@@ -386,7 +403,7 @@ function HomeInner() {
               <div className="text-xs font-semibold text-purple-300 mb-1">
                 ENTER THE RIP
               </div>
-              <div className="text-[10px] text-zinc-500 leading-snug mb-2">
+              <div className="text-[12px] text-zinc-500 leading-snug mb-2">
                 Open packs. Chase hits. Calculate smarter.
               </div>
             </div>
@@ -403,7 +420,7 @@ function HomeInner() {
 
         <main className="flex-1 p-4 md:p-6 overflow-y-auto">
           <div className="mb-5">
-            <div className="text-[11px] uppercase tracking-[0.22em] text-purple-300/80 mb-1.5">
+            <div className="text-[12px] uppercase tracking-[0.22em] text-purple-300/80 mb-1.5">
               Calculate · Rip · Repeat
             </div>
             <h1 className="text-2xl md:text-4xl headline-flare tracking-tight">
@@ -421,18 +438,18 @@ function HomeInner() {
               <div className="relative space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                   <div>
-                    <div className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-0.5">
+                    <div className="text-[12px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-0.5">
                       Under-EV Watch
                     </div>
                     <div className="text-sm font-bold text-white">
                       Today&apos;s best under-EV + a chase-tax example
                     </div>
-                    <p className="text-[11px] text-zinc-500 mt-1 max-w-xl leading-relaxed">
+                    <p className="text-[12px] text-zinc-500 mt-1 max-w-xl leading-relaxed">
                       Under-EV = catalog price below modeled EV (math leans buy/rip).
                       Chase tax = popular sealed you still open for fun despite deep −ROI.
                     </p>
                   </div>
-                  <div className="shrink-0 text-[11px] text-zinc-500 sm:text-right">
+                  <div className="shrink-0 text-[12px] text-zinc-500 sm:text-right">
                     Updated {pricesUpdatedLabel} · {underEvCount} under-EV
                   </div>
                 </div>
@@ -450,14 +467,14 @@ function HomeInner() {
                       }}
                       className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/35 text-left hover:border-emerald-400/60 transition-colors max-w-full"
                     >
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
+                      <span className="text-[12px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
                         UNDER-EV
                       </span>
                       <div className="min-w-0">
                         <div className="text-xs font-medium text-zinc-100 truncate">
                           {bestUnderEv.product.name}
                         </div>
-                        <div className="text-[10px] text-zinc-500">
+                        <div className="text-[12px] text-zinc-500">
                           +{bestUnderEv.roi.toFixed(0)}% ROI · ~$
                           {bestUnderEv.product.defaultPrice.toFixed(2)} → $
                           {bestUnderEv.totalEV.toFixed(2)}
@@ -468,7 +485,7 @@ function HomeInner() {
                   ) : (
                     <Link
                       href="/deals"
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/25 text-[11px] text-emerald-300"
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-emerald-500/25 text-[12px] text-emerald-300"
                     >
                       No under-EV right now — open Under-EV Watch →
                     </Link>
@@ -486,14 +503,14 @@ function HomeInner() {
                       }}
                       className="flex items-center gap-2 px-3 py-2 rounded-xl bg-black/50 border border-red-500/30 text-left hover:border-red-400/50 transition-colors max-w-full"
                     >
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/40 shrink-0">
+                      <span className="text-[12px] font-bold px-1.5 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/40 shrink-0">
                         CHASE TAX
                       </span>
                       <div className="min-w-0">
                         <div className="text-xs font-medium text-zinc-100 truncate">
                           {chaseTaxExample.product.name}
                         </div>
-                        <div className="text-[10px] text-zinc-500">
+                        <div className="text-[12px] text-zinc-500">
                           {chaseTaxExample.roi.toFixed(0)}% ROI · fun, not +EV · ~$
                           {chaseTaxExample.product.defaultPrice.toFixed(2)} → $
                           {chaseTaxExample.totalEV.toFixed(2)}
@@ -505,7 +522,7 @@ function HomeInner() {
                 <div>
                   <Link
                     href="/deals"
-                    className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline whitespace-nowrap"
+                    className="inline-flex items-center gap-1 text-[12px] font-medium text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline whitespace-nowrap"
                   >
                     Open Under-EV Watch →
                   </Link>
@@ -583,7 +600,7 @@ function HomeInner() {
           {view === "cards" ? (
             <div className="space-y-5 max-w-4xl">
               <div className="panel rounded-2xl p-5 border border-cyan-500/30">
-                <div className="text-[10px] uppercase tracking-widest text-cyan-400/80 mb-1">
+                <div className="text-[12px] uppercase tracking-widest text-cyan-400/80 mb-1">
                   Card Lookup
                 </div>
                 <h2 className="text-2xl font-bold text-white mb-2">
@@ -627,18 +644,18 @@ function HomeInner() {
                   </div>
                   <div className="grid grid-cols-3 gap-3 mb-4">
                     <div className="rounded-xl bg-zinc-900/80 border border-zinc-800 p-3 text-center">
-                      <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">
+                      <div className="text-[12px] uppercase tracking-wider text-zinc-500 mb-1">
                         Raw mid
                       </div>
                       <div className="text-xl font-mono font-bold text-green-400">
                         ${selectedCard.rawMid.toLocaleString()}
                       </div>
-                      <div className="text-[10px] text-zinc-500 mt-1">
+                      <div className="text-[12px] text-zinc-500 mt-1">
                         ${selectedCard.rawLow}–${selectedCard.rawHigh}
                       </div>
                     </div>
                     <div className="rounded-xl bg-zinc-900/80 border border-zinc-800 p-3 text-center">
-                      <div className="text-[10px] uppercase tracking-wider text-zinc-500 mb-1">
+                      <div className="text-[12px] uppercase tracking-wider text-zinc-500 mb-1">
                         PSA 9
                       </div>
                       <div className="text-xl font-mono font-bold text-cyan-300">
@@ -648,7 +665,7 @@ function HomeInner() {
                       </div>
                     </div>
                     <div className="rounded-xl bg-zinc-900/80 border border-amber-500/30 p-3 text-center">
-                      <div className="text-[10px] uppercase tracking-wider text-amber-400/80 mb-1">
+                      <div className="text-[12px] uppercase tracking-wider text-amber-400/80 mb-1">
                         PSA 10
                       </div>
                       <div className="text-xl font-mono font-bold text-amber-300">
@@ -667,7 +684,7 @@ function HomeInner() {
               )}
 
               <div className="space-y-2">
-                <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">
+                <div className="text-[12px] uppercase tracking-widest text-zinc-500 mb-2">
                   {cardQuery
                     ? `${filteredCards.length} results`
                     : `${chaseCards.length} chase cards`}
@@ -690,7 +707,7 @@ function HomeInner() {
                       <div className="text-sm font-medium text-zinc-100 truncate">
                         {c.name}
                       </div>
-                      <div className="text-[11px] text-zinc-500 truncate">
+                      <div className="text-[12px] text-zinc-500 truncate">
                         {c.set} {c.number ? `· #${c.number}` : ""}
                       </div>
                     </div>
@@ -698,7 +715,7 @@ function HomeInner() {
                       <div className="text-sm font-mono text-green-400">
                         ${c.rawMid.toLocaleString()}
                       </div>
-                      <div className="text-[10px] text-zinc-500">
+                      <div className="text-[12px] text-zinc-500">
                         PSA10 {c.psa10 ? `$${c.psa10.toLocaleString()}` : "—"}
                       </div>
                     </div>
@@ -716,10 +733,10 @@ function HomeInner() {
               <div>
                 <div className="sticky top-0 z-10 -mx-1 px-1 py-2 mb-1 bg-black/80 backdrop-blur-sm border-b border-zinc-900/80 lg:static lg:bg-transparent lg:backdrop-blur-none lg:border-0 lg:py-0 lg:mb-2">
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                    <h2 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest">
                       Select Pack / Box
                     </h2>
-                    <span className="text-[10px] text-zinc-600 lg:hidden">
+                    <span className="text-[12px] text-zinc-600 lg:hidden">
                       swipe →
                     </span>
                   </div>
@@ -761,6 +778,7 @@ function HomeInner() {
                           <ProductThumb
                             product={p}
                             className="h-full w-full border-0 bg-transparent p-1"
+                            small
                           />
                           {(p.tag === "value" ||
                             p.tag === "hot" ||
@@ -780,10 +798,10 @@ function HomeInner() {
                           <div className="font-semibold text-zinc-100 text-xs leading-tight line-clamp-2">
                             {p.name}
                           </div>
-                          <div className="text-[10px] text-zinc-500 mt-0.5 truncate">
+                          <div className="text-[12px] text-zinc-500 mt-0.5 truncate">
                             {p.format}
                           </div>
-                          <div className="text-[11px] text-green-400/80 mt-1 font-mono tabular-nums whitespace-nowrap">
+                          <div className="text-[12px] text-green-400/80 mt-1 font-mono tabular-nums whitespace-nowrap">
                             Catalog ${p.defaultPrice.toFixed(2)}
                           </div>
                         </div>
@@ -818,7 +836,7 @@ function HomeInner() {
                         <p className="text-sm text-zinc-400 mt-0.5">
                           {effectiveProduct.format}
                         </p>
-                        <p className="text-[11px] text-zinc-500 mt-1">
+                        <p className="text-[12px] text-zinc-500 mt-1">
                           Updated {pricesUpdatedLabel} · Catalog $
                           {effectiveProduct.defaultPrice.toFixed(2)}
                         </p>
@@ -830,7 +848,7 @@ function HomeInner() {
                               navigator.clipboard?.writeText(url).catch(() => {});
                               syncPackToUrl(effectiveProduct.id);
                             }}
-                            className="text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
+                            className="inline-flex items-center min-h-[28px] px-1 text-[12px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
                           >
                             Copy share link
                           </button>
@@ -838,36 +856,37 @@ function HomeInner() {
                             type="button"
                             disabled={!result || shareImageBusy}
                             onClick={() => void handleShareProductImage()}
-                            className="text-[11px] text-pink-300/90 hover:text-pink-200 underline-offset-2 hover:underline disabled:opacity-40 disabled:no-underline"
+                            className="inline-flex items-center min-h-[28px] px-1 text-[12px] text-pink-300/90 hover:text-pink-200 underline-offset-2 hover:underline disabled:opacity-40 disabled:no-underline"
                           >
                             {shareImageBusy ? "Building…" : "Share image (9:16)"}
                           </button>
                           <Link
                             href={`/open?pack=${effectiveProduct.id}`}
-                            className="text-[11px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline"
+                            className="inline-flex items-center min-h-[28px] px-1 text-[12px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline"
                           >
                             Simulate open
                           </Link>
                           <Link
                             href={logPrefillHref}
-                            className="text-[11px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline"
+                            className="inline-flex items-center min-h-[28px] px-1 text-[12px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline"
                           >
                             Log this rip
                           </Link>
                         </div>
                         {shareImageNote && (
-                          <p className="mt-1 text-[10px] text-pink-200/80">{shareImageNote}</p>
+                          <p className="mt-1 text-[12px] text-pink-200/80">{shareImageNote}</p>
                         )}
                         <div className="flex flex-wrap items-end gap-3 mt-3">
                           <div>
-                            <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+                            <label htmlFor="your-price" className="block text-[12px] text-zinc-500 mb-1 uppercase tracking-wider">
                               Your price ($)
                             </label>
-                            <div className="text-[9px] text-zinc-600 mb-1">
+                            <div className="text-[12px] text-zinc-600 mb-1">
                               ROI source · Catalog $
                               {effectiveProduct.defaultPrice.toFixed(2)}
                             </div>
                             <input
+                              id="your-price"
                               type="number"
                               inputMode="decimal"
                               step="0.01"
@@ -904,7 +923,7 @@ function HomeInner() {
                                     clearYourPrice(effectiveProduct.id);
                                     setCustomPrice("");
                                   }}
-                                  className="mt-1 block text-[10px] text-zinc-500 hover:text-emerald-300 underline-offset-2 hover:underline"
+                                  className="mt-1 block text-[12px] text-zinc-500 hover:text-emerald-300 underline-offset-2 hover:underline"
                                 >
                                   Reset to catalog $
                                   {effectiveProduct.defaultPrice.toFixed(2)}
@@ -915,13 +934,13 @@ function HomeInner() {
                                 (parseFloat(customPrice) || 0) -
                                   effectiveProduct.defaultPrice
                               ) > 0.009 && (
-                                <p className="mt-0.5 text-[10px] text-zinc-600">
+                                <p className="mt-0.5 text-[12px] text-zinc-600">
                                   Saved on this device
                                 </p>
                               )}
                           </div>
                           <div>
-                            <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+                            <label className="block text-[12px] text-zinc-500 mb-1 uppercase tracking-wider">
                               Qty
                             </label>
                             <div className="flex items-center gap-1">
@@ -958,7 +977,7 @@ function HomeInner() {
                       >
                         <div className="flex flex-wrap items-center justify-between gap-4">
                           <div>
-                            <div className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">
+                            <div className="text-[12px] uppercase tracking-widest text-zinc-400 mb-1">
                               Expected Value
                             </div>
                             <div className="text-3xl md:text-4xl font-bold font-mono text-white tracking-tight">
@@ -975,7 +994,7 @@ function HomeInner() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-[10px] uppercase tracking-widest text-zinc-400 mb-1">
+                            <div className="text-[12px] uppercase tracking-widest text-zinc-400 mb-1">
                               vs Price
                             </div>
                             <div
@@ -1033,7 +1052,7 @@ function HomeInner() {
                               {roi >= 0 ? "+" : ""}
                               {Math.round(roi)}%
                             </span>
-                            <span className="text-[9px] text-zinc-500 mt-4">
+                            <span className="text-[12px] text-zinc-500 mt-4">
                               ROI
                             </span>
                           </div>
@@ -1051,7 +1070,7 @@ function HomeInner() {
                           )}
                         </div>
                         <div className="mt-4 rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-3">
-                          <div className="text-[10px] text-amber-200/90 uppercase tracking-wider mb-1.5 font-semibold">
+                          <div className="text-[12px] text-amber-200/90 uppercase tracking-wider mb-1.5 font-semibold">
                             Buy
                           </div>
                           <BuyLinks
@@ -1069,7 +1088,7 @@ function HomeInner() {
                             type="button"
                             disabled={shareImageBusy}
                             onClick={() => void handleShareProductImage()}
-                            className="inline-flex items-center justify-center rounded-lg border border-zinc-700/80 bg-black/30 px-3 py-2 text-[11px] font-medium text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-40"
+                            className="inline-flex items-center justify-center rounded-lg border border-zinc-700/80 bg-black/30 px-3 py-2 text-[12px] font-medium text-zinc-400 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-40"
                           >
                             {shareImageBusy
                               ? "Building share card…"
@@ -1077,7 +1096,7 @@ function HomeInner() {
                           </button>
                           <Link
                             href={logPrefillHref}
-                            className="inline-flex items-center justify-center rounded-lg border border-zinc-700/80 bg-black/30 px-3 py-2 text-[11px] font-medium text-zinc-400 hover:text-zinc-200 hover:border-zinc-500"
+                            className="inline-flex items-center justify-center rounded-lg border border-zinc-700/80 bg-black/30 px-3 py-2 text-[12px] font-medium text-zinc-400 hover:text-zinc-200 hover:border-zinc-500"
                           >
                             Log this rip
                           </Link>
@@ -1118,7 +1137,7 @@ function HomeInner() {
                             return (
                               <span
                                 key={opt.key}
-                                className={`text-[10px] font-bold tracking-wider px-2 py-1 rounded-md border ${color}`}
+                                className={`text-[12px] font-bold tracking-wider px-2 py-1 rounded-md border ${color}`}
                               >
                                 {opt.label}
                               </span>
@@ -1127,7 +1146,7 @@ function HomeInner() {
                         </div>
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                           <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                            <h3 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest">
                               Portal Verdict
                             </h3>
                             <VerdictShareButton
@@ -1137,14 +1156,14 @@ function HomeInner() {
                             {setPathForProduct(effectiveProduct) && (
                               <Link
                                 href={setPathForProduct(effectiveProduct)!}
-                                className="text-[11px] px-2 py-1 rounded-lg border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                                className="text-[12px] px-2 py-1 rounded-lg border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10 transition-colors"
                               >
                                 {productSetName(effectiveProduct)} EV page →
                               </Link>
                             )}
                           </div>
                           <span
-                            className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                            className={`text-[12px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
                               verdict.primary === "rip"
                                 ? "bg-green-500/15 text-green-300 border-green-400/40"
                                 : verdict.primary === "singles"
@@ -1163,7 +1182,7 @@ function HomeInner() {
 
                         {verdict.unverified && (
                           <div
-                            className="mb-2 inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border border-zinc-600 text-zinc-400"
+                            className="mb-2 inline-block text-[12px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border border-zinc-600 text-zinc-400"
                             title={verdict.unverified}
                           >
                             Unverified estimate
@@ -1175,7 +1194,7 @@ function HomeInner() {
                         {(() => {
                           const k = computeKeeperEV(verdict.totalEV, price, 13);
                           return (
-                            <p className="text-[11px] text-zinc-500 mb-3 font-mono">
+                            <p className="text-[12px] text-zinc-500 mb-3 font-mono">
                               Keeper lens (eBay ~13% est.): net EV $
                               {k.netEV.toFixed(2)} · net ROI{" "}
                               {k.netRoi >= 0 ? "+" : ""}
@@ -1212,15 +1231,15 @@ function HomeInner() {
                                     {opt.label}
                                   </span>
                                   {isPrimary && (
-                                    <span className="text-[9px] text-zinc-400 uppercase tracking-wider">
+                                    <span className="text-[12px] text-zinc-400 uppercase tracking-wider">
                                       pick
                                     </span>
                                   )}
                                 </div>
-                                <div className="font-mono text-[11px] text-zinc-200 leading-snug">
+                                <div className="font-mono text-[12px] text-zinc-200 leading-snug">
                                   {opt.metric}
                                 </div>
-                                <div className="text-[10px] text-zinc-500 mt-1.5 leading-relaxed">
+                                <div className="text-[12px] text-zinc-500 mt-1.5 leading-relaxed">
                                   {opt.detail}
                                 </div>
                               </div>
@@ -1228,7 +1247,7 @@ function HomeInner() {
                           })}
                         </div>
 
-                        <p className="mt-3 text-[10px] text-zinc-500 leading-relaxed border-t border-zinc-800/60 pt-2.5">
+                        <p className="mt-3 text-[12px] text-zinc-500 leading-relaxed border-t border-zinc-800/60 pt-2.5">
                           {VERDICT_DISCLAIMER}
                         </p>
                         <Link
@@ -1239,7 +1258,7 @@ function HomeInner() {
                         </Link>
                         <AlertsNudge active={verdictNudge} context="calculator" className="mt-3" />
                         <div className="mt-3 pt-3 border-t border-zinc-800/60">
-                          <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
+                          <div className="text-[12px] text-zinc-500 uppercase tracking-wider mb-1.5">
                             Buy near this pick
                           </div>
                           <BuyLinks
@@ -1251,7 +1270,7 @@ function HomeInner() {
                             hideTcgplayer={isSportsCategory(effectiveProduct.category)}
                             productId={effectiveProduct.id}
                           />
-                          <p className="mt-2 text-[11px] text-zinc-500">
+                          <p className="mt-2 text-[12px] text-zinc-500">
                             Live alerts coming —{" "}
                             <Link
                               href="/waitlist"
@@ -1276,7 +1295,7 @@ function HomeInner() {
                     )}
 
                     <div>
-                      <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
+                      <h3 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest mb-2">
                         Value Breakdown
                       </h3>
                       <div className="space-y-0.5">
@@ -1295,7 +1314,7 @@ function HomeInner() {
                                 <div className="text-zinc-200 truncate text-[13px]">
                                   {slot.name}
                                 </div>
-                                <div className="text-[11px] text-zinc-500">
+                                <div className="text-[12px] text-zinc-500">
                                   Odds {slot.odds}
                                 </div>
                               </div>
@@ -1303,7 +1322,7 @@ function HomeInner() {
                                 <div className="font-mono text-zinc-300 text-sm">
                                   ${contribution.toFixed(2)}
                                 </div>
-                                <div className="text-[10px] text-zinc-600">
+                                <div className="text-[12px] text-zinc-600">
                                   {pct.toFixed(0)}%
                                 </div>
                               </div>
@@ -1313,7 +1332,7 @@ function HomeInner() {
                       </div>
                     </div>
                     {effectiveProduct.notes && (
-                      <p className="mt-4 text-[11px] text-zinc-500 leading-relaxed border-t border-zinc-800/50 pt-3">
+                      <p className="mt-4 text-[12px] text-zinc-500 leading-relaxed border-t border-zinc-800/50 pt-3">
                         {effectiveProduct.notes}
                       </p>
                     )}
@@ -1322,7 +1341,7 @@ function HomeInner() {
 
                 <div className="lg:col-span-4 space-y-4">
                   <div className="panel rounded-2xl p-4">
-                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
+                    <h3 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
                       Market Pulse
                     </h3>
                     <div className="space-y-3">
@@ -1356,7 +1375,7 @@ function HomeInner() {
                           </span>
                         </div>
                       ))}
-                      <p className="text-[10px] text-zinc-600 pt-1">
+                      <p className="text-[12px] text-zinc-600 pt-1">
                         From live catalog math · prices sheet {pricesUpdated}
                       </p>
                     </div>
@@ -1364,10 +1383,10 @@ function HomeInner() {
 
                   <div className="panel rounded-2xl p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+                      <h3 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest">
                         Catalog Rips
                       </h3>
-                      <span className="text-[9px] text-zinc-600">From EV model</span>
+                      <span className="text-[12px] text-zinc-600">From EV model</span>
                     </div>
                     <div className="space-y-2.5">
                       {recentRips.map((r, i) => (
@@ -1379,7 +1398,7 @@ function HomeInner() {
                             <div className="text-zinc-200 truncate text-[12px]">
                               {r.set}
                             </div>
-                            <div className="text-[10px] text-zinc-500">
+                            <div className="text-[12px] text-zinc-500">
                               {r.packs} pack{r.packs > 1 ? "s" : ""}
                             </div>
                           </div>
@@ -1388,7 +1407,7 @@ function HomeInner() {
                               ${r.ev.toFixed(2)}
                             </div>
                             <div
-                              className={`text-[10px] font-mono ${
+                              className={`text-[12px] font-mono ${
                                 r.roi >= 0
                                   ? "text-green-400"
                                   : "text-red-400/80"
@@ -1405,7 +1424,7 @@ function HomeInner() {
 
                   {topSlot && (
                     <div className="panel rounded-2xl p-4">
-                      <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
+                      <h3 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
                         Top EV Contributor
                       </h3>
                       <div className="text-sm font-medium text-zinc-100 mb-1">
@@ -1430,7 +1449,7 @@ function HomeInner() {
                       huge on SIRs and hits — most opens still lose money at secondary
                       prices. Always verify live listings before you buy or rip.
                     </p>
-                    <p className="mt-2 text-[11px] text-zinc-500">
+                    <p className="mt-2 text-[12px] text-zinc-500">
                       {`Catalog defaults updated: ${pricesUpdated} · Community pack tips welcome`}
                     </p>
                   </div>
@@ -1450,15 +1469,5 @@ function HomeInner() {
 
 
 export default function Home() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen portal-bg flex items-center justify-center text-zinc-500 text-sm">
-          Loading calculator…
-        </div>
-      }
-    >
-      <HomeInner />
-    </Suspense>
-  );
+  return <HomeInner />;
 }

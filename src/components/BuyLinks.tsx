@@ -68,7 +68,7 @@ function trackBuyClick(href: string, label: string | undefined, productId?: stri
 
 export function AffiliateDisclosure({ className = "" }: { className?: string }) {
   return (
-    <p className={`text-[10px] text-zinc-500 leading-relaxed ${className}`}>
+    <p className={`text-[12px] text-zinc-500 leading-relaxed ${className}`}>
       {FTC_SHORT}
     </p>
   );
@@ -81,7 +81,7 @@ function sizeClasses(size: "sm" | "md" | "lg"): string {
   if (size === "md") {
     return "text-[12px] px-3 py-2 rounded-xl font-semibold";
   }
-  return "text-[11px] px-2.5 py-1.5 rounded-lg font-medium";
+  return "text-[12px] px-2.5 py-1.5 rounded-lg font-medium";
 }
 
 export default function BuyLinks({
@@ -161,7 +161,7 @@ export default function BuyLinks({
         onClick={() => trackBuyClick(tcg, "TCGPlayer", productId)}
         className={`${base} ${sz} ${
           preferEbay
-            ? "bg-zinc-800/60 border-zinc-700/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 text-[10px] px-2 py-1.5"
+            ? "bg-zinc-800/60 border-zinc-700/80 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 text-[12px] px-2 py-1.5"
             : "bg-amber-500/10 border-amber-500/35 text-amber-100/95 hover:bg-amber-500/20"
         }`}
       >
@@ -194,7 +194,7 @@ export default function BuyLinks({
         {buttons}
       </div>
       {!hideDisclosure && (
-        <p className="text-[10px] text-zinc-500 leading-relaxed">
+        <p className="text-[12px] text-zinc-500 leading-relaxed">
           {FTC_SHORT}{" "}
           {!compact && (
             <span className="text-zinc-600">Opens in a new tab.</span>
