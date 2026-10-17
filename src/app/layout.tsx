@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import InstallPrompt from "@/components/InstallPrompt";
 import OfflineBanner from "@/components/OfflineBanner";
+import NativeAppBridge from "@/components/NativeAppBridge";
 import "./globals.css";
 import { SITE_URL } from "@/lib/site";
 
@@ -126,13 +127,25 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* iPhone app: mark <html> before first paint so .hide-in-app never flashes. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var c=window.Capacitor;if(navigator.userAgent.indexOf("${"RipPortalApp/"}")>-1||(c&&c.isNativePlatform&&c.isNativePlatform())){document.documentElement.setAttribute("data-app","ios")}}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col portal-bg">
         <OfflineBanner />
         {children}
         <SiteFooter />
-        <InstallPrompt />
+        <div className="hide-in-app">
+          <InstallPrompt />
+        </div>
         <ServiceWorkerRegister />
+        <NativeAppBridge />
         <Analytics />
       </body>
     </html>

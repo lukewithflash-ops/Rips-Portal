@@ -1,0 +1,70 @@
+# Rip Portal iPhone app → TestFlight (Codemagic, macOS cloud build; no Mac needed).
+#
+# One-time setup in Codemagic (app → Environment variables), all marked Secret,
+# in a variable group named exactly: app_store_credentials
+#   APP_STORE_CONNECT_ISSUER_ID       Issuer ID (App Store Connect → Users and Access → Integrations)
+#   APP_STORE_CONNECT_KEY_IDENTIFIER  Key ID of the App Store Connect API key (App Manager role)
+#   APP_STORE_CONNECT_PRIVATE_KEY     full contents of AuthKey_XXXX.p8 for that API key
+#   CERTIFICATE_PRIVATE_KEY           RSA 2048 private key (PEM) used to create/reuse the
+#                                     Apple Distribution certificate
+#   APP_STORE_APPLE_ID                (optional, not secret) numeric Apple ID of the app record;
+#                                     used to bump the build number past TestFlight's latest
+#
+# The website is not built here: the app loads https://www.ripsportal.com and bundles
+# only ios-app/www (offline page). Website deploys stay on Vercel.
+workflows:
+  ios-testflight:
+    name: iOS → TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    environment:
+      groups:
+        - app_store_credentials
+      vars:
+        BUNDLE_ID: "com.ripsportal.app"
+        XCODE_PROJECT: "ios-app/ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
+      node: 22
+      xcode: latest
+    triggering:
+      events: []        # manual "Start new build" only
+    scripts:
+      - name: Install Capacitor shell
+        script: |
+          cd ios-app
+          npm ci
+          npx cap sync ios
+      - name: Code signing (create or reuse distribution cert + App Store profile)
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles --project "$XCODE_PROJECT"
+      - name: Build number
+        script: |
+          cd ios-app/ios/App
+          LATEST=""
+          if [ -n "$APP_STORE_APPLE_ID" ]; then
+            LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || true)
+          fi
+          if [ -z "$LATEST" ]; then NEXT=$BUILD_NUMBER; else NEXT=$((LATEST + 1)); fi
+          echo "Build number: $NEXT"
+          agvtool new-version -all "$NEXT"
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        # Internal TestFlight testers get builds without beta review.
+        submit_to_testflight: false
+        submit_to_app_store: false

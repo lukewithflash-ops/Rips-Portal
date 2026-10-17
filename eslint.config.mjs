@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Capacitor iPhone shell (own package.json; not part of the Next build).
+    "ios-app/**",
   ]),
 ]);
 

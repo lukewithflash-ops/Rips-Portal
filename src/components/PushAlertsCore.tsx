@@ -14,6 +14,13 @@ import {
   unsubscribeWebPush,
 } from "@/lib/dealAlerts";
 import { vapidPublicConfigured } from "@/lib/vapidPublic";
+import {
+  disableNativePush,
+  enableNativePush,
+  isNativeApp,
+  nativePushPermission,
+  savedApnsToken,
+} from "@/lib/native";
 
 type State =
   | "loading"
@@ -52,7 +59,34 @@ export default function PushAlertsCore({
   const [state, setState] = useState<State>("loading");
   const [msg, setMsg] = useState<string | null>(null);
 
+  const [native] = useState(() => isNativeApp());
+
   const evaluate = useCallback(async () => {
+    // iPhone app: native APNs alerts instead of Web Push.
+    if (isNativeApp()) {
+      try {
+        const res = await fetch("/api/push/status", { cache: "no-store" });
+        const data = (await res.json()) as { apns?: boolean };
+        if (!data.apns) {
+          setState("off-server");
+          return;
+        }
+        const perm = await nativePushPermission();
+        if (perm === "denied") {
+          setState("denied");
+          return;
+        }
+        if (perm === "granted" && savedApnsToken()) {
+          setState("on");
+          void enableNativePush(); // refresh token (and signed-in email) server-side
+          return;
+        }
+        setState("ready");
+      } catch {
+        setState("off-server");
+      }
+      return;
+    }
     const ios = isIOS();
     if (ios && !isStandalone()) {
       setState("ios-install");
@@ -98,6 +132,23 @@ export default function PushAlertsCore({
   const turnOn = async () => {
     setMsg(null);
     setState("busy");
+    if (isNativeApp()) {
+      const r = await enableNativePush();
+      if (r.ok) {
+        saveSettings({ ...loadSettings(), notifyUnderEv: true });
+        setState("on");
+        setMsg("Alerts on. We only ping you when an Under-EV row flips.");
+      } else if (r.reason === "denied") {
+        setState("denied");
+      } else if (r.reason === "dismissed") {
+        setState("ready");
+        setMsg("No problem. Tap again whenever you want alerts.");
+      } else {
+        setState("ready");
+        setMsg("Couldn't turn on alerts just now. Try again in a minute.");
+      }
+      return;
+    }
     let perm: NotificationPermission;
     try {
       perm = await Notification.requestPermission();
@@ -129,7 +180,8 @@ export default function PushAlertsCore({
   const turnOff = async () => {
     setMsg(null);
     setState("busy");
-    await unsubscribeWebPush();
+    if (isNativeApp()) await disableNativePush();
+    else await unsubscribeWebPush();
     saveSettings({ ...loadSettings(), notifyUnderEv: false });
     setState("ready");
     setMsg("Alerts off on this device.");
@@ -214,12 +266,12 @@ export default function PushAlertsCore({
       )}
       {state === "denied" && (
         <p className="text-[12px] text-amber-200/90 leading-relaxed">
-          Notifications are blocked for Rip Portal. Turn them on in your
-          settings (iPhone: Settings → Notifications → Rip Portal; desktop:
-          the lock icon next to the address), then come back.
+          {native
+            ? "Notifications are off for Rip Portal. Turn them on in Settings → Notifications → Rip Portal, then come back."
+            : "Notifications are blocked for Rip Portal. Turn them on in your settings (iPhone: Settings → Notifications → Rip Portal; desktop: the lock icon next to the address), then come back."}
         </p>
       )}
-      {gated && state !== "ios-install" && state !== "unsupported" && (
+      {gated && !native && state !== "ios-install" && state !== "unsupported" && (
         <p className="text-[12px] text-amber-300/90">
           Flip alerts are part of{" "}
           <Link href="/vip" className="underline underline-offset-2">

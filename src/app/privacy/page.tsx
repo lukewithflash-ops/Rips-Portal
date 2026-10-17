@@ -96,7 +96,7 @@ export default function PrivacyPage() {
 
           <Section title="Delete your data">
             <ul className="list-disc pl-5 space-y-1.5">
-              <li>
+              <li className="hide-in-app">
                 Signed in? Go to <Link href="/vip" className="text-purple-300 hover:underline">VIP</Link>{" "}
                 → <em>Delete account</em>. That removes your email, VIP status, alert
                 subscriptions tied to that email, and flip-email signups, and cancels

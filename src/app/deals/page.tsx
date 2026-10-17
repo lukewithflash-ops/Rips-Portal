@@ -242,7 +242,7 @@ export default function DealsPage() {
               👑 VIP: flip emails go to {vip.email}.
             </p>
           ) : locked ? (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <div className="hide-in-app flex flex-col sm:flex-row sm:items-center gap-2">
               <p className="text-[12px] text-zinc-400 flex-1">
                 Flip emails are part of VIP.
               </p>
@@ -496,7 +496,7 @@ export default function DealsPage() {
                         {vip.gatesOn && (
                           <Link
                             href={`/vip/history?id=${p.id}`}
-                            className="text-[12px] px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200/90 hover:bg-amber-500/20 transition-colors"
+                            className="hide-in-app text-[12px] px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200/90 hover:bg-amber-500/20 transition-colors"
                           >
                             👑 Price history
                           </Link>
@@ -508,7 +508,7 @@ export default function DealsPage() {
               </li>
             ))}
             {locked && hiddenCount > 0 && (
-              <li>
+              <li className="hide-in-app">
                 <Link
                   href="/vip"
                   className="block panel rounded-2xl p-4 border border-amber-500/30 text-center hover:border-amber-400/60 transition-colors"

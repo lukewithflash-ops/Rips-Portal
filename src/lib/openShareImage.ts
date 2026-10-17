@@ -1,3 +1,4 @@
+import { nativeShareImage } from "@/lib/native";
 import { fmtMoney, type SimPull, type SimSession } from "@/lib/simulate";
 
 export type ShareImageFormat = "story" | "square";
@@ -604,6 +605,8 @@ async function shareBlobAsPng(
   blob: Blob,
   filename: string
 ): Promise<"shared" | "downloaded" | "cancelled" | "unsupported"> {
+  // iPhone app: native share sheet.
+  if (await nativeShareImage(blob, filename, "Rip Portal")) return "shared";
   const file = new File([blob], filename, { type: "image/png" });
 
   if (canShareFiles(file)) {

@@ -10,8 +10,9 @@
  *  - VIP gates on: only subscriptions saved while signed in to a VIP account,
  *    same rule as flip emails. /open never checks VIP.
  *
- * Stays off until NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and
- * VAPID_SUBJECT (mailto:) are set, plus the existing Upstash Redis vars.
+ * Web Push needs NEXT_PUBLIC_VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and
+ * VAPID_SUBJECT (mailto:); iPhone app alerts need the APNS_* vars (lib/apns.ts).
+ * Either one turns the flip check on. Both need the Upstash Redis vars.
  */
 import { listUnderEvDeals } from "@/lib/dealAlerts";
 import { findProduct, productDisplayName, calculateEV } from "@/lib/products";
@@ -29,6 +30,8 @@ import {
   type PushPayload,
 } from "@/lib/webPushServer";
 import { vipLive } from "@/lib/vip/config";
+import { apnsConfigured, sendApns } from "@/lib/apns";
+import { listApnsDevices, removeApnsToken, type ApnsDevice } from "@/lib/apnsStore";
 import { filterVipEmails } from "@/lib/vip/store";
 
 export type PushBlastResult = {
@@ -69,6 +72,42 @@ export async function flipAlertRecipients(): Promise<PushSubscriptionJSON[]> {
   ];
   const vip = await filterVipEmails(emails);
   return subs.filter((s) => Boolean(s.email && vip.has(s.email)));
+}
+
+/** iPhone app devices allowed to get flip alerts (same VIP rule as Web Push). */
+export async function flipApnsRecipients(): Promise<ApnsDevice[]> {
+  const devices = await listApnsDevices();
+  if (!vipLive()) return devices;
+  const emails = [
+    ...new Set(devices.map((d) => d.email).filter((e): e is string => Boolean(e))),
+  ];
+  const vip = await filterVipEmails(emails);
+  return devices.filter((d) => Boolean(d.email && vip.has(d.email)));
+}
+
+/** Send one payload to iPhone app devices; drop tokens Apple says are gone. */
+export async function sendPushToApnsDevices(
+  devices: ApnsDevice[],
+  payload: PushPayload
+): Promise<PushBlastResult> {
+  if (!apnsConfigured() || !devices.length) {
+    return { subscribers: devices.length, sent: 0, pruned: 0, failed: 0 };
+  }
+  const results = await sendApns(
+    devices.map((d) => d.token),
+    payload
+  );
+  let sent = 0;
+  let pruned = 0;
+  let failed = 0;
+  for (const [token, r] of results) {
+    if (r.ok) sent += 1;
+    else if (r.gone) {
+      await removeApnsToken(token).catch(() => undefined);
+      pruned += 1;
+    } else failed += 1;
+  }
+  return { subscribers: devices.length, sent, pruned, failed };
 }
 
 function shortName(id: string): string {
@@ -134,10 +173,14 @@ export type FlipPushResult = {
   sent?: number;
   pruned?: number;
   failed?: number;
+  /** iPhone app (APNs) share of the counts above. */
+  apns?: PushBlastResult;
 };
 
 export async function runUnderEvFlipPush(): Promise<FlipPushResult> {
-  const live = vapidServerConfigured();
+  const webLive = vapidServerConfigured();
+  const apnsLive = apnsConfigured();
+  const live = webLive || apnsLive;
   if (!redisConfigured()) {
     return { ok: false, live, reason: "redis_not_configured" };
   }
@@ -166,13 +209,22 @@ export async function runUnderEvFlipPush(): Promise<FlipPushResult> {
     return { ok: true, live, skipped: true, reason: "unchanged", entered, exited };
   }
 
-  const recipients = await flipAlertRecipients();
-  const result = await sendPushToSubscriptions(
-    recipients,
-    flipPushPayload(entered, exited)
-  );
+  const payload = flipPushPayload(entered, exited);
+  const empty: PushBlastResult = { subscribers: 0, sent: 0, pruned: 0, failed: 0 };
+  const web = webLive
+    ? await sendPushToSubscriptions(await flipAlertRecipients(), payload)
+    : empty;
+  const apns = apnsLive
+    ? await sendPushToApnsDevices(await flipApnsRecipients(), payload)
+    : empty;
   await setPushFlipSnapshot(currentIds);
 
+  const result: PushBlastResult = {
+    subscribers: web.subscribers + apns.subscribers,
+    sent: web.sent + apns.sent,
+    pruned: web.pruned + apns.pruned,
+    failed: web.failed + apns.failed,
+  };
   return {
     ok: result.failed === 0,
     live,
@@ -180,5 +232,6 @@ export async function runUnderEvFlipPush(): Promise<FlipPushResult> {
     entered,
     exited,
     ...result,
+    apns,
   };
 }
