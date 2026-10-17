@@ -56,7 +56,7 @@ export default function RecapPage() {
             </li>
           ))}
         </ul>
-        <p className="text-[11px] text-zinc-500 leading-relaxed">
+        <p className="text-[12px] text-zinc-500 leading-relaxed">
           EV is a modeled estimate from slot odds and market card values — not
           financial advice. When posting, keep it clear Rip Portal is a free
           calculator and any shop links are affiliate links.

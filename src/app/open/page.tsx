@@ -175,20 +175,20 @@ function playSfx(
 function ArtBadge({ status }: { status: ArtStatus }) {
   if (status === "complete") {
     return (
-      <span className="ml-1.5 align-middle text-[9px] uppercase tracking-wider text-fuchsia-300/90 border border-fuchsia-500/40 rounded px-1 py-0.5">
+      <span className="ml-1.5 align-middle text-[12px] uppercase tracking-wider text-fuchsia-300/90 border border-fuchsia-500/40 rounded px-1 py-0.5">
         ART
       </span>
     );
   }
   if (status === "pack-only") {
     return (
-      <span className="ml-1.5 align-middle text-[9px] uppercase tracking-wider text-cyan-300/90 border border-cyan-500/40 rounded px-1 py-0.5">
+      <span className="ml-1.5 align-middle text-[12px] uppercase tracking-wider text-cyan-300/90 border border-cyan-500/40 rounded px-1 py-0.5">
         PACK
       </span>
     );
   }
   return (
-    <span className="ml-1.5 align-middle text-[9px] uppercase tracking-wider text-zinc-500 border border-zinc-700 rounded px-1 py-0.5">
+    <span className="ml-1.5 align-middle text-[12px] uppercase tracking-wider text-zinc-500 border border-zinc-700 rounded px-1 py-0.5">
       NAME
     </span>
   );
@@ -277,6 +277,7 @@ function ProductRowIcon({ product }: { product: Product }) {
     <ProductThumb
       product={product}
       className="h-14 w-10"
+      small
     />
   );
 }
@@ -853,7 +854,7 @@ function OpenInner() {
               <div className="font-bold text-cyan-300 neon-text text-sm leading-tight">
                 Free Pack Opener
               </div>
-              <div className="text-[10px] text-zinc-500 tracking-wider">
+              <div className="text-[12px] text-zinc-500 tracking-wider">
                 SIM · Know before you rip
               </div>
             </div>
@@ -876,7 +877,7 @@ function OpenInner() {
                   e.stopPropagation();
                   setShowSetSheet(true);
                 }}
-                className="text-[11px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:text-cyan-200 hover:border-cyan-500/40"
+                className="text-[12px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:text-cyan-200 hover:border-cyan-500/40"
                 aria-haspopup="dialog"
                 aria-label="Change set"
               >
@@ -891,7 +892,7 @@ function OpenInner() {
                     )}`
                   : "/"
               }
-              className="text-[11px] text-green-400/90 hover:text-green-300 underline-offset-2 hover:underline"
+              className="text-[12px] text-green-400/90 hover:text-green-300 underline-offset-2 hover:underline"
             >
               ← Calc
             </Link>
@@ -900,7 +901,7 @@ function OpenInner() {
         {/* Session chip — always visible once any opens this sitting */}
         {(sessionChip.packs > 0 || onStage) && (
           <div className="px-4 md:px-6 pb-2 max-w-3xl mx-auto w-full">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-purple-500/25 bg-purple-950/30 px-3 py-1.5 text-[11px] text-zinc-300">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-purple-500/25 bg-purple-950/30 px-3 py-1.5 text-[12px] text-zinc-300">
               <span className="font-semibold text-purple-200/90">Session</span>
               <span>
                 <span className="text-zinc-500">packs</span>{" "}
@@ -925,7 +926,7 @@ function OpenInner() {
                 </span>
               </span>
               {sessionXp > 0 && (
-                <span className="ml-auto text-[10px] text-zinc-500" title="Sticker XP — not currency">
+                <span className="ml-auto text-[12px] text-zinc-500" title="Sticker XP — not currency">
                   ✦ {sessionXp} rip XP
                 </span>
               )}
@@ -943,10 +944,10 @@ function OpenInner() {
         {showPicker && (
           <section className="panel rounded-2xl p-3.5 portal-border space-y-2.5">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+              <h2 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest">
                 Pick a set
               </h2>
-              <p className="text-[10px] text-zinc-600 truncate">
+              <p className="text-[12px] text-zinc-600 truncate">
                 ART = full pulls · PACK = product art only
               </p>
             </div>
@@ -990,7 +991,7 @@ function OpenInner() {
                         {productDisplayName(p)}
                         <ArtBadge status={status} />
                       </span>
-                      <span className="block text-[11px] text-zinc-500 leading-snug mt-0.5 break-words whitespace-normal">
+                      <span className="block text-[12px] text-zinc-500 leading-snug mt-0.5 break-words whitespace-normal">
                         {p.format} · {fmtMoney(p.defaultPrice)}
                       </span>
                     </span>
@@ -1011,7 +1012,7 @@ function OpenInner() {
                   {productDisplayName(product)}
                   <ArtBadge status={artStatus} />
                 </div>
-                <div className="text-[11px] text-zinc-500 leading-snug break-words">
+                <div className="text-[12px] text-zinc-500 leading-snug break-words">
                   {product.format} · {fmtMoney(price)}
                   {artStatus === "complete"
                     ? " · full pull art"
@@ -1025,7 +1026,7 @@ function OpenInner() {
                   e.stopPropagation();
                   setShowSetSheet(true);
                 }}
-                className="shrink-0 relative z-20 text-[11px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:text-cyan-200 hover:border-cyan-500/40 active:scale-95"
+                className="shrink-0 relative z-20 text-[12px] px-2.5 py-1.5 rounded-lg border border-zinc-700 text-zinc-300 hover:text-cyan-200 hover:border-cyan-500/40 active:scale-95"
                 aria-haspopup="dialog"
                 aria-label="Change set"
               >
@@ -1055,7 +1056,7 @@ function OpenInner() {
                 </div>
                 {qtyMode === "custom" && (
                   <div>
-                    <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+                    <label className="block text-[12px] text-zinc-500 mb-1 uppercase tracking-wider">
                       Quantity (1–100)
                     </label>
                     <input
@@ -1076,7 +1077,7 @@ function OpenInner() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+                  <label className="block text-[12px] text-zinc-500 mb-1 uppercase tracking-wider">
                     Price per unit ($)
                   </label>
                   <input
@@ -1104,7 +1105,7 @@ function OpenInner() {
                   <ConfettiBurst show={showConfetti && !reducedMotion} />
                   <div className="relative z-10 flex flex-col items-center text-center px-4 gap-2">
                     <PackStageVisual product={product} />
-                    <div className="text-[10px] uppercase tracking-widest text-cyan-500/80">
+                    <div className="text-[12px] uppercase tracking-widest text-cyan-500/80">
                       {phase === "tearing"
                         ? "Opening…"
                         : phase === "reveal"
@@ -1115,7 +1116,7 @@ function OpenInner() {
                       {phase === "idle" ? productDisplayName(product) : reelLabel}
                     </div>
                     {phase === "idle" && (
-                      <div className="text-[10px] text-zinc-500 tracking-wide">
+                      <div className="text-[12px] text-zinc-500 tracking-wide">
                         Tap pack to open · free educational sim
                       </div>
                     )}
@@ -1135,7 +1136,7 @@ function OpenInner() {
                     : `Open ${quantity} simulated pack${quantity === 1 ? "" : "s"}`}
                 </button>
 
-                <p className="text-[11px] text-zinc-600 leading-snug">
+                <p className="text-[12px] text-zinc-600 leading-snug">
                   Unit EV {fmtMoney(unitEV)} · odds + legal in ⓘ
                 </p>
               </section>
@@ -1155,7 +1156,7 @@ function OpenInner() {
               <div className="relative z-10 flex items-center gap-3 text-left px-3 py-2 w-full max-w-sm">
                 <PackStageVisual product={session.product} compact />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] uppercase tracking-widest text-cyan-500/80">
+                  <div className="text-[12px] uppercase tracking-widest text-cyan-500/80">
                     {summaryReady ? "Pulled" : "Revealing…"}
                   </div>
                   <div className="text-base font-bold text-white leading-snug break-words">
@@ -1168,7 +1169,7 @@ function OpenInner() {
             {allRevealed && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 summary-punch">
                 <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2.5">
-                  <div className="text-[9px] uppercase tracking-wider text-zinc-600">
+                  <div className="text-[12px] uppercase tracking-wider text-zinc-600">
                     Sim value
                   </div>
                   <div className="text-sm font-mono text-white count-up-glow">
@@ -1176,7 +1177,7 @@ function OpenInner() {
                   </div>
                 </div>
                 <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2.5">
-                  <div className="text-[9px] uppercase tracking-wider text-zinc-600">
+                  <div className="text-[12px] uppercase tracking-wider text-zinc-600">
                     Expected EV
                   </div>
                   <div className="text-sm font-mono text-zinc-200 count-up-glow">
@@ -1184,7 +1185,7 @@ function OpenInner() {
                   </div>
                 </div>
                 <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2.5">
-                  <div className="text-[9px] uppercase tracking-wider text-zinc-600">
+                  <div className="text-[12px] uppercase tracking-wider text-zinc-600">
                     Cost × qty
                   </div>
                   <div className="text-sm font-mono text-zinc-200">
@@ -1192,7 +1193,7 @@ function OpenInner() {
                   </div>
                 </div>
                 <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-3 py-2.5">
-                  <div className="text-[9px] uppercase tracking-wider text-emerald-500/80">
+                  <div className="text-[12px] uppercase tracking-wider text-emerald-500/80">
                     Vs EV
                   </div>
                   <div
@@ -1246,20 +1247,20 @@ function OpenInner() {
                     }
                   >
                     <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <span className="text-[11px] font-semibold text-cyan-300/90">
+                      <span className="text-[12px] font-semibold text-cyan-300/90">
                         Pack {pack.packIndex}
                         {tier === "chase" && (
-                          <span className="ml-1.5 text-[9px] uppercase tracking-wider text-amber-300/90">
+                          <span className="ml-1.5 text-[12px] uppercase tracking-wider text-amber-300/90">
                             Chase
                           </span>
                         )}
                         {tier === "rare" && (
-                          <span className="ml-1.5 text-[9px] uppercase tracking-wider text-cyan-400/80">
+                          <span className="ml-1.5 text-[12px] uppercase tracking-wider text-cyan-400/80">
                             Hit
                           </span>
                         )}
                       </span>
-                      <span className="text-[11px] font-mono text-zinc-300">
+                      <span className="text-[12px] font-mono text-zinc-300">
                         {fmtMoney(pack.packValue)}
                       </span>
                     </div>
@@ -1371,7 +1372,7 @@ function OpenInner() {
                                     <div className="text-[12px] sm:text-[13px] font-semibold text-white leading-snug break-words whitespace-normal">
                                       {title}
                                     </div>
-                                    <div className="text-[10px] text-zinc-500 break-words whitespace-normal mt-0.5">
+                                    <div className="text-[12px] text-zinc-500 break-words whitespace-normal mt-0.5">
                                       {isFiller
                                         ? "Pack filler · illustrative"
                                         : `${pull.slotName}${
@@ -1399,7 +1400,7 @@ function OpenInner() {
             {allRevealed && (
               <div className="flex flex-col gap-3 pt-2 summary-punch open-after-ctas">
                 <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 px-3.5 py-3 space-y-2">
-                  <div className="text-[10px] uppercase tracking-[0.16em] text-amber-200/90 font-semibold">
+                  <div className="text-[12px] uppercase tracking-[0.16em] text-amber-200/90 font-semibold">
                     Buy this product
                   </div>
                   <BuyLinks
@@ -1411,11 +1412,11 @@ function OpenInner() {
                     hideTcgplayer={isSportsCategory(session.product.category)}
                     productId={session.product.id}
                   />
-                  <p className="text-[10px] text-zinc-500 leading-snug">
+                  <p className="text-[12px] text-zinc-500 leading-snug">
                     Free educational sim · not gambling · no real-money opens.
                   </p>
                 </div>
-                <div className="text-[10px] uppercase tracking-[0.16em] text-cyan-300/80 font-semibold">
+                <div className="text-[12px] uppercase tracking-[0.16em] text-cyan-300/80 font-semibold">
                   Next · Check EV · Log · Share
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -1446,13 +1447,13 @@ function OpenInner() {
                     type="button"
                     onClick={() => void saveStoryImage()}
                     disabled={imageShareBusy}
-                    className="self-start text-[11px] px-2.5 py-1.5 rounded-lg text-zinc-400 border border-zinc-700/80 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-50"
+                    className="self-start text-[12px] px-2.5 py-1.5 rounded-lg text-zinc-400 border border-zinc-700/80 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-50"
                   >
                     Save card image
                   </button>
                 )}
                 {logNote && (
-                  <p className="text-[11px] text-cyan-200/90 share-toast">
+                  <p className="text-[12px] text-cyan-200/90 share-toast">
                     {logNote}
                     {logSavedPath && (
                       <>
@@ -1468,11 +1469,11 @@ function OpenInner() {
                   </p>
                 )}
                 {shareNote && (
-                  <p className="text-[11px] text-pink-200/80 share-toast">
+                  <p className="text-[12px] text-pink-200/80 share-toast">
                     {shareNote}
                   </p>
                 )}
-                <p className="text-[10px] text-zinc-600 leading-snug">
+                <p className="text-[12px] text-zinc-600 leading-snug">
                   Same product id + price in EV · Log stays on-device.
                 </p>
               </div>
@@ -1481,7 +1482,7 @@ function OpenInner() {
         )}
 
         {/* 1-line footer disclaimer */}
-        <p className="text-[11px] text-zinc-600 text-center leading-snug pt-1">
+        <p className="text-[12px] text-zinc-600 text-center leading-snug pt-1">
           Free educational sim · not gambling · no real-money opens.{" "}
           <button
             type="button"
@@ -1563,19 +1564,19 @@ function OpenInner() {
               <span className="text-cyan-400/80 font-medium">Card art · </span>
               {OPEN_CARD_ART_DISCLAIMER}
             </p>
-            <p className="text-[11px] text-zinc-600 leading-relaxed">
+            <p className="text-[12px] text-zinc-600 leading-relaxed">
               No IAP for packs. Future VIP (if any) is data/alerts only — never
               paid pack opens.
             </p>
             {dropTable.length > 0 && (
               <div className="rounded-xl border border-zinc-800 bg-black/30 p-3 space-y-2">
-                <div className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
+                <div className="text-[12px] uppercase tracking-wider text-zinc-500 font-semibold">
                   Odds · {product ? productDisplayName(product) : "set"}
                 </div>
                 <div className="overflow-x-auto -mx-1 max-h-48 overflow-y-auto">
                   <table className="w-full text-left text-[12px] min-w-[280px]">
                     <thead>
-                      <tr className="text-[10px] uppercase tracking-wider text-zinc-600 border-b border-zinc-800">
+                      <tr className="text-[12px] uppercase tracking-wider text-zinc-600 border-b border-zinc-800">
                         <th className="py-1.5 px-1 font-medium">Tier</th>
                         <th className="py-1.5 px-1 font-medium">Odds</th>
                         <th className="py-1.5 px-1 font-medium text-right">
@@ -1607,7 +1608,7 @@ function OpenInner() {
                     </tbody>
                   </table>
                 </div>
-                <p className="text-[10px] text-zinc-600 leading-relaxed">
+                <p className="text-[12px] text-zinc-600 leading-relaxed">
                   Catalog oddsNum (same as calculator). Not official TPC rates.
                 </p>
               </div>
@@ -1689,7 +1690,7 @@ function OpenInner() {
                         {productDisplayName(p)}
                         <ArtBadge status={status} />
                       </span>
-                      <span className="block text-[11px] text-zinc-500 mt-0.5">
+                      <span className="block text-[12px] text-zinc-500 mt-0.5">
                         {p.format} · {fmtMoney(p.defaultPrice)}
                       </span>
                     </span>
@@ -1716,25 +1717,25 @@ function OpenInner() {
         <div className="flex max-w-3xl mx-auto px-2 py-2 gap-1">
           <Link
             href="/"
-            className="flex-1 py-2 rounded-xl text-[11px] font-medium border border-zinc-800 text-zinc-400 text-center"
+            className="flex-1 py-2 rounded-xl text-[12px] font-medium border border-zinc-800 text-zinc-400 text-center"
           >
             EV
           </Link>
           <Link
             href="/open"
-            className="flex-1 py-2 rounded-xl text-[11px] font-medium border border-cyan-400/50 bg-cyan-500/15 text-cyan-200 text-center"
+            className="flex-1 py-2 rounded-xl text-[12px] font-medium border border-cyan-400/50 bg-cyan-500/15 text-cyan-200 text-center"
           >
             Open
           </Link>
           <Link
             href="/deals"
-            className="flex-1 py-2 rounded-xl text-[11px] font-medium border border-zinc-800 text-zinc-400 text-center"
+            className="flex-1 py-2 rounded-xl text-[12px] font-medium border border-zinc-800 text-zinc-400 text-center"
           >
             Under-EV
           </Link>
           <Link
             href="/log"
-            className="flex-1 py-2 rounded-xl text-[11px] font-medium border border-zinc-800 text-zinc-400 text-center"
+            className="flex-1 py-2 rounded-xl text-[12px] font-medium border border-zinc-800 text-zinc-400 text-center"
           >
             Log
           </Link>

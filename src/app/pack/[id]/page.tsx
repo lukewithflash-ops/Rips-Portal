@@ -65,7 +65,7 @@ export default async function PackSharePage({ params }: Props) {
       <PackRedirect href={dest} />
       <main className="flex-1 mx-auto w-full max-w-lg px-4 py-12">
         <div className="panel rounded-2xl p-6 border border-emerald-500/30 space-y-4">
-          <div className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold">
+          <div className="text-[12px] uppercase tracking-widest text-emerald-400/90 font-semibold">
             Pack share
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight">
@@ -76,20 +76,20 @@ export default async function PackSharePage({ params }: Props) {
             {cat ? ` · ${cat.label}` : ""}
           </p>
           {unverified && (
-            <p className="text-[11px] text-zinc-400 border border-zinc-700 rounded-lg px-2 py-1">
-              <span className="font-bold uppercase tracking-wider text-[9px] text-zinc-300">Unverified estimate</span>{" "}
+            <p className="text-[12px] text-zinc-400 border border-zinc-700 rounded-lg px-2 py-1">
+              <span className="font-bold uppercase tracking-wider text-[12px] text-zinc-300">Unverified estimate</span>{" "}
               · {unverified}
             </p>
           )}
           <div className="grid grid-cols-3 gap-2">
             <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2 text-center">
-              <div className="text-[9px] uppercase text-zinc-600">Price</div>
+              <div className="text-[12px] uppercase text-zinc-600">Price</div>
               <div className="font-mono text-sm text-zinc-100">
                 {fmtMoney(product.defaultPrice)}
               </div>
             </div>
             <div className="rounded-xl bg-black/40 border border-zinc-800 px-3 py-2 text-center">
-              <div className="text-[9px] uppercase text-zinc-600">EV</div>
+              <div className="text-[12px] uppercase text-zinc-600">EV</div>
               <div className="font-mono text-sm text-zinc-100">
                 {fmtMoney(totalEV)}
               </div>
@@ -101,7 +101,7 @@ export default async function PackSharePage({ params }: Props) {
                   : "bg-black/40 border-zinc-800"
               }`}
             >
-              <div className="text-[9px] uppercase text-zinc-600">ROI</div>
+              <div className="text-[12px] uppercase text-zinc-600">ROI</div>
               <div
                 className={`font-mono text-sm ${
                   profit > 0 ? "text-emerald-300" : "text-zinc-100"
@@ -113,7 +113,7 @@ export default async function PackSharePage({ params }: Props) {
             </div>
           </div>
           <div>
-            <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">
+            <div className="text-[12px] text-zinc-500 uppercase tracking-wider mb-1.5">
               Buy
             </div>
             <BuyLinks
@@ -130,7 +130,7 @@ export default async function PackSharePage({ params }: Props) {
           >
             Open in calculator →
           </Link>
-          <p className="text-[11px] text-zinc-600 leading-relaxed">
+          <p className="text-[12px] text-zinc-600 leading-relaxed">
             Redirecting to the EV calculator. Estimates only — not financial
             advice.
           </p>

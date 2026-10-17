@@ -242,7 +242,7 @@ export default function CardZoomModal({
             {title}
           </h2>
           {isBrandedCardBack(pull.imageUrl) && (
-            <p className="mt-1.5 text-[10px] uppercase tracking-wider text-cyan-300/90">
+            <p className="mt-1.5 text-[12px] uppercase tracking-wider text-cyan-300/90">
               <span className="inline-block rounded border border-cyan-500/50 bg-cyan-500/15 px-1.5 py-0.5 mr-1.5">
                 PACK art
               </span>
@@ -252,7 +252,7 @@ export default function CardZoomModal({
 
           <div id={descId} className="mt-3 space-y-2">
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2.5">
-              <div className="text-[9px] uppercase tracking-wider text-emerald-400/80">
+              <div className="text-[12px] uppercase tracking-wider text-emerald-400/80">
                 Estimated sim value
               </div>
               <div className="text-xl sm:text-2xl font-mono font-semibold text-emerald-300 mt-0.5">
@@ -266,7 +266,7 @@ export default function CardZoomModal({
                   <div className="text-[8px] uppercase tracking-wider text-zinc-600">
                     Slot avg
                   </div>
-                  <div className="text-[11px] font-mono text-zinc-300 mt-0.5">
+                  <div className="text-[12px] font-mono text-zinc-300 mt-0.5">
                     {fmtMoney(pull.avgValue)}
                   </div>
                 </div>
@@ -274,7 +274,7 @@ export default function CardZoomModal({
                   <div className="text-[8px] uppercase tracking-wider text-zinc-600">
                     Rarity
                   </div>
-                  <div className="text-[11px] text-zinc-300 mt-0.5 truncate">
+                  <div className="text-[12px] text-zinc-300 mt-0.5 truncate">
                     {pull.slotName}
                   </div>
                 </div>
@@ -282,7 +282,7 @@ export default function CardZoomModal({
                   <div className="text-[8px] uppercase tracking-wider text-zinc-600">
                     Odds
                   </div>
-                  <div className="text-[11px] font-mono text-zinc-300 mt-0.5">
+                  <div className="text-[12px] font-mono text-zinc-300 mt-0.5">
                     {pull.odds || "—"}
                   </div>
                 </div>
@@ -290,13 +290,13 @@ export default function CardZoomModal({
             )}
 
             {isFiller && (
-              <p className="text-[11px] text-zinc-500">
+              <p className="text-[12px] text-zinc-500">
                 Pack filler · illustrative bulk for empty-pack feel (EV-honest
                 $0).
               </p>
             )}
 
-            <p className="text-[11px] leading-relaxed text-zinc-500">
+            <p className="text-[12px] leading-relaxed text-zinc-500">
               Illustrative estimate from Rip Portal’s free pack sim (slot rates ×
               model values) — not a live market quote or official pull rate.
             </p>
@@ -316,20 +316,20 @@ export default function CardZoomModal({
                     type="button"
                     onClick={() => void saveStoryImage()}
                     disabled={shareBusy}
-                    className="text-[11px] px-2.5 py-1.5 rounded-lg text-zinc-400 border border-zinc-700/80 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-50"
+                    className="text-[12px] px-2.5 py-1.5 rounded-lg text-zinc-400 border border-zinc-700/80 hover:text-zinc-200 hover:border-zinc-500 disabled:opacity-50"
                   >
                     Save image
                   </button>
                 )}
               </div>
               {shareNote && (
-                <p className="text-[11px] text-pink-200/80 share-toast" role="status">
+                <p className="text-[12px] text-pink-200/80 share-toast" role="status">
                   {shareNote}
                 </p>
               )}
               {!isFiller && title && (
                 <div className="pt-1">
-                  <div className="text-[9px] uppercase tracking-wider text-zinc-600 mb-1">
+                  <div className="text-[12px] uppercase tracking-wider text-zinc-600 mb-1">
                     Search markets
                   </div>
                   <BuyLinks query={title} productId={productId} compact />

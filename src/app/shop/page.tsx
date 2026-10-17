@@ -73,7 +73,7 @@ export default function ShopPage() {
           <BrandLogo height={34} compact />
           <Link
             href="/"
-            className="text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
+            className="text-[12px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
           >
             ← Calculator
           </Link>
@@ -88,14 +88,14 @@ export default function ShopPage() {
             catalog math as the calculator. Nothing here is an account, and it
             stays on this device.
           </p>
-          <p className="text-[11px] text-zinc-500 mt-2 leading-relaxed">
+          <p className="text-[12px] text-zinc-500 mt-2 leading-relaxed">
             Example line (catalog id and sheet price, not your stock):{" "}
             <span className="font-mono text-zinc-400">{PLACEHOLDER}</span>
           </p>
         </section>
 
         <section className="panel rounded-2xl p-4 border border-zinc-800 space-y-2">
-          <label className="text-[10px] uppercase tracking-widest text-zinc-500" htmlFor="shop-paste">
+          <label className="text-[12px] uppercase tracking-widest text-zinc-500" htmlFor="shop-paste">
             Paste rows
           </label>
           <textarea
@@ -127,7 +127,7 @@ export default function ShopPage() {
                 Clear
               </button>
             )}
-            {pasteNote && <span className="text-[11px] text-zinc-500">{pasteNote}</span>}
+            {pasteNote && <span className="text-[12px] text-zinc-500">{pasteNote}</span>}
           </div>
         </section>
 
@@ -139,7 +139,7 @@ export default function ShopPage() {
             { label: "ROI", value: counted.length ? fmtRoi(totalRoi) : "—" },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-zinc-800 bg-black/40 px-3 py-2">
-              <div className="text-[9px] uppercase tracking-wider text-zinc-500">{s.label}</div>
+              <div className="text-[12px] uppercase tracking-wider text-zinc-500">{s.label}</div>
               <div className="font-mono text-sm text-zinc-100 mt-0.5">{s.value}</div>
             </div>
           ))}
@@ -158,19 +158,19 @@ export default function ShopPage() {
                         ? productDisplayName(line.product)
                         : line.query}
                     </div>
-                    <div className="text-[11px] text-zinc-500">
+                    <div className="text-[12px] text-zinc-500">
                       {line.product
                         ? `${line.product.format} · qty ${line.qty} · your price ${fmtMoney(line.price)}`
                         : line.query}
                     </div>
                     {line.note && (
-                      <p className="text-[11px] text-amber-300/90 mt-1">{line.note}</p>
+                      <p className="text-[12px] text-amber-300/90 mt-1">{line.note}</p>
                     )}
                   </div>
                   <button
                     type="button"
                     onClick={() => setRows((prev) => prev.filter((r) => r.key !== line.key))}
-                    className="text-[11px] text-zinc-500 hover:text-zinc-200 shrink-0"
+                    className="text-[12px] text-zinc-500 hover:text-zinc-200 shrink-0"
                   >
                     Remove
                   </button>
@@ -178,15 +178,15 @@ export default function ShopPage() {
                 {line.unitEv != null && line.lineEv != null && line.roi != null && (
                   <div className="mt-2 grid grid-cols-3 gap-2 text-center">
                     <div className="rounded-lg bg-black/40 border border-zinc-800 px-2 py-1.5">
-                      <div className="text-[9px] uppercase text-zinc-600">EV each</div>
+                      <div className="text-[12px] uppercase text-zinc-600">EV each</div>
                       <div className="font-mono text-[12px] text-zinc-200">{fmtMoney(line.unitEv)}</div>
                     </div>
                     <div className="rounded-lg bg-black/40 border border-zinc-800 px-2 py-1.5">
-                      <div className="text-[9px] uppercase text-zinc-600">Line EV</div>
+                      <div className="text-[12px] uppercase text-zinc-600">Line EV</div>
                       <div className="font-mono text-[12px] text-zinc-200">{fmtMoney(line.lineEv)}</div>
                     </div>
                     <div className="rounded-lg bg-black/40 border border-zinc-800 px-2 py-1.5">
-                      <div className="text-[9px] uppercase text-zinc-600">ROI</div>
+                      <div className="text-[12px] uppercase text-zinc-600">ROI</div>
                       <div className={`font-mono text-[12px] ${line.roi >= 0 ? "text-emerald-300" : "text-red-300"}`}>
                         {fmtRoi(line.roi)}
                       </div>
@@ -198,7 +198,7 @@ export default function ShopPage() {
           </ul>
         )}
 
-        <p className="text-[11px] text-zinc-600 leading-relaxed">
+        <p className="text-[12px] text-zinc-600 leading-relaxed">
           Catalog estimates only — not financial advice, and not a second app.
           Unmatched rows are kept so you can see them, and they are left out of
           the totals.

@@ -26,7 +26,7 @@ export default function BrandLogo({
   const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/brand/rip-portal-header.png"
+      src="/brand/rip-portal-header.webp"
       alt="Rip Portal"
       width={w}
       height={h}

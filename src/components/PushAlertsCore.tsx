@@ -152,7 +152,7 @@ export default function PushAlertsCore({
     <section className="panel rounded-2xl p-4 border border-emerald-500/25 space-y-2">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <div className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold">
+          <div className="text-[12px] uppercase tracking-widest text-emerald-400/90 font-semibold">
             🔔 {heading}
           </div>
           <p className="text-[12px] text-zinc-400 mt-0.5 leading-relaxed">
@@ -220,7 +220,7 @@ export default function PushAlertsCore({
         </p>
       )}
       {gated && state !== "ios-install" && state !== "unsupported" && (
-        <p className="text-[11px] text-amber-300/90">
+        <p className="text-[12px] text-amber-300/90">
           Flip alerts are part of{" "}
           <Link href="/vip" className="underline underline-offset-2">
             VIP
@@ -228,7 +228,7 @@ export default function PushAlertsCore({
           . Sign in with a VIP account before turning them on.
         </p>
       )}
-      {msg && <p className="text-[11px] text-zinc-400">{msg}</p>}
+      {msg && <p className="text-[12px] text-zinc-400">{msg}</p>}
     </section>
   );
 }

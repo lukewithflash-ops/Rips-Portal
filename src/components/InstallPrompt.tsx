@@ -107,7 +107,7 @@ export default function InstallPrompt() {
               </span>
             </p>
             {mode === "ios" && showIosHowTo && (
-              <ol className="mt-1 list-inside list-decimal space-y-0.5 text-[10px] leading-snug text-zinc-400 sm:text-[11px]">
+              <ol className="mt-1 list-inside list-decimal space-y-0.5 text-[12px] leading-snug text-zinc-400 sm:text-[12px]">
                 <li>
                   Tap{" "}
                   <span className="font-medium text-cyan-300">Share</span> in
@@ -130,7 +130,7 @@ export default function InstallPrompt() {
               <button
                 type="button"
                 onClick={() => void installAndroid()}
-                className="rounded-md border border-green-500/35 bg-green-500/15 px-2 py-1 text-[11px] font-semibold text-green-300 transition-colors hover:bg-green-500/25 sm:px-2.5"
+                className="rounded-md border border-green-500/35 bg-green-500/15 px-2 py-1 text-[12px] font-semibold text-green-300 transition-colors hover:bg-green-500/25 sm:px-2.5"
               >
                 Install
               </button>
@@ -139,7 +139,7 @@ export default function InstallPrompt() {
               <button
                 type="button"
                 onClick={() => setShowIosHowTo(true)}
-                className="rounded-md border border-green-500/35 bg-green-500/15 px-2 py-1 text-[11px] font-semibold text-green-300 transition-colors hover:bg-green-500/25 sm:px-2.5"
+                className="rounded-md border border-green-500/35 bg-green-500/15 px-2 py-1 text-[12px] font-semibold text-green-300 transition-colors hover:bg-green-500/25 sm:px-2.5"
               >
                 How
               </button>
@@ -147,7 +147,7 @@ export default function InstallPrompt() {
             <button
               type="button"
               onClick={dismiss}
-              className="rounded-md px-2 py-1 text-[11px] text-zinc-500 transition-colors hover:text-zinc-300 sm:px-2.5"
+              className="rounded-md px-2 py-1 text-[12px] text-zinc-500 transition-colors hover:text-zinc-300 sm:px-2.5"
               aria-label="Not now — dismiss install prompt"
             >
               Not now

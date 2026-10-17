@@ -209,14 +209,14 @@ function LogInner() {
               <div className="font-bold text-green-400 neon-text text-sm leading-tight">
                 Rip Log
               </div>
-              <div className="text-[10px] text-zinc-500 tracking-wider truncate">
+              <div className="text-[12px] text-zinc-500 tracking-wider truncate">
                 SESSION VS EXPECTED EV
               </div>
             </div>
           </div>
           <Link
             href={product ? `/?pack=${product.id}` : "/"}
-            className="text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline shrink-0"
+            className="text-[12px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline shrink-0"
           >
             ← Calculator
           </Link>
@@ -228,7 +228,7 @@ function LogInner() {
         {stats && (
           <div className="sticky top-[3.25rem] z-30 -mx-1 px-1">
             <div className="rounded-xl border border-purple-400/35 bg-[#12081c]/92 backdrop-blur-md px-3 py-2.5 purple-glow">
-              <div className="text-[10px] uppercase tracking-[0.18em] text-purple-300/80 mb-1">
+              <div className="text-[12px] uppercase tracking-[0.18em] text-purple-300/80 mb-1">
                 Session summary
               </div>
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13px] font-mono text-zinc-100">
@@ -263,7 +263,7 @@ function LogInner() {
                 </span>
               </div>
               {product && (
-                <div className="text-[10px] text-zinc-500 mt-1 truncate">
+                <div className="text-[12px] text-zinc-500 mt-1 truncate">
                   {stats.quantity}× {product.name}
                   {note ? ` · ${note}` : ""} · stays on this device
                 </div>
@@ -281,7 +281,7 @@ function LogInner() {
 
         {/* Product picker */}
         <section className="panel rounded-2xl p-4 portal-border space-y-3">
-          <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+          <h2 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest">
             1 · Product
           </h2>
           <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
@@ -338,10 +338,10 @@ function LogInner() {
                     <div className="text-[13px] font-medium text-zinc-100 truncate">
                       {p.name}
                     </div>
-                    <div className="text-[11px] text-zinc-500 truncate">
+                    <div className="text-[12px] text-zinc-500 truncate">
                       {p.format}
                     </div>
-                    <div className="text-[11px] font-mono text-green-400/80">
+                    <div className="text-[12px] font-mono text-green-400/80">
                       ~${p.defaultPrice.toFixed(2)}
                     </div>
                   </div>
@@ -353,12 +353,12 @@ function LogInner() {
 
         {/* Qty + price */}
         <section className="panel rounded-2xl p-4 space-y-3">
-          <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+          <h2 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest">
             2 · Session size
           </h2>
           <div className="flex flex-wrap items-end gap-4">
             <div>
-              <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+              <label className="block text-[12px] text-zinc-500 mb-1 uppercase tracking-wider">
                 Qty ripped
               </label>
               <div className="flex items-center gap-1">
@@ -400,7 +400,7 @@ function LogInner() {
               </div>
             </div>
             <div>
-              <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+              <label className="block text-[12px] text-zinc-500 mb-1 uppercase tracking-wider">
                 Price / unit ($)
               </label>
               <input
@@ -422,7 +422,7 @@ function LogInner() {
         {/* Hits */}
         <section className="panel rounded-2xl p-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+            <h2 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest">
               3 · Hits (tier totals)
             </h2>
             <button
@@ -431,12 +431,12 @@ function LogInner() {
                 setCounts(emptyCounts(product));
                 setHydratedFromShare(false);
               }}
-              className="text-[11px] text-zinc-500 hover:text-zinc-300"
+              className="text-[12px] text-zinc-500 hover:text-zinc-300"
             >
               Reset
             </button>
           </div>
-          <p className="text-[11px] text-zinc-500 leading-relaxed">
+          <p className="text-[12px] text-zinc-500 leading-relaxed">
             Tap +/− for how many of each catalog tier you pulled. Value uses the
             same slot averages as the EV calculator — dead simple on mobile.
           </p>
@@ -450,7 +450,7 @@ function LogInner() {
                   <div className="text-[13px] text-zinc-200 truncate">
                     {slot.name}
                   </div>
-                  <div className="text-[10px] text-zinc-500 font-mono">
+                  <div className="text-[12px] text-zinc-500 font-mono">
                     ~${slot.avgValue.toFixed(2)} avg · odds {slot.odds}
                     {stats && (
                       <span className="text-zinc-600">
@@ -490,7 +490,7 @@ function LogInner() {
             ))}
           </div>
           <div>
-            <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">
+            <label className="block text-[12px] text-zinc-500 mb-1 uppercase tracking-wider">
               Note (optional)
             </label>
             <input
@@ -516,36 +516,36 @@ function LogInner() {
                 : "bg-red-500/10 border-red-400/30"
             }`}
           >
-            <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
+            <h2 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest mb-3">
               4 · Results vs EV
             </h2>
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-zinc-500">
+                <div className="text-[12px] uppercase tracking-widest text-zinc-500">
                   Cost paid
                 </div>
                 <div className="text-xl font-mono font-bold text-white">
                   {fmtMoney(stats.costPaid)}
                 </div>
-                <div className="text-[10px] text-zinc-500">
+                <div className="text-[12px] text-zinc-500">
                   {stats.quantity} × {fmtMoney(stats.pricePerUnit)}
                 </div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-zinc-500">
+                <div className="text-[12px] uppercase tracking-widest text-zinc-500">
                   Expected EV
                 </div>
                 <div className="text-xl font-mono font-bold text-zinc-200">
                   {fmtMoney(stats.expectedEV)}
                 </div>
-                <div className="text-[10px] text-zinc-500">
+                <div className="text-[12px] text-zinc-500">
                   catalog model × qty
                 </div>
                 {(() => {
                   const per = stats.expectedEV / Math.max(1, stats.quantity);
                   const k = computeKeeperEV(per, stats.pricePerUnit, 13);
                   return (
-                    <div className="text-[10px] text-cyan-500/80 mt-1 font-mono">
+                    <div className="text-[12px] text-cyan-500/80 mt-1 font-mono">
                       Keeper net ~{fmtMoney(k.netEV * stats.quantity)} @13% fee
                       est.
                     </div>
@@ -553,14 +553,14 @@ function LogInner() {
                 })()}
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-zinc-500">
+                <div className="text-[12px] uppercase tracking-widest text-zinc-500">
                   Actual logged
                 </div>
                 <div className="text-xl font-mono font-bold text-white">
                   {fmtMoney(stats.actualValue)}
                 </div>
                 <div
-                  className={`text-[10px] font-mono ${
+                  className={`text-[12px] font-mono ${
                     stats.profitVsCost >= 0
                       ? "text-green-400"
                       : "text-red-400/80"
@@ -571,7 +571,7 @@ function LogInner() {
                 </div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-widest text-zinc-500">
+                <div className="text-[12px] uppercase tracking-widest text-zinc-500">
                   vs Expected
                 </div>
                 <div
@@ -583,7 +583,7 @@ function LogInner() {
                   {fmtMoney(stats.vsExpected)}
                 </div>
                 <div
-                  className={`text-[10px] font-mono ${
+                  className={`text-[12px] font-mono ${
                     stats.vsExpected >= 0
                       ? "text-green-400/80"
                       : "text-red-400/80"
@@ -626,21 +626,21 @@ function LogInner() {
         {localSessions.length > 0 && (
           <section className="panel rounded-2xl p-4 space-y-2">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">
+              <h2 className="text-[12px] font-semibold text-zinc-500 uppercase tracking-widest">
                 Recent on this device
               </h2>
               {vip.vip ? (
                 <button
                   type="button"
                   onClick={exportCsv}
-                  className="text-[11px] px-2.5 py-1 rounded-lg border border-amber-500/35 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20"
+                  className="text-[12px] px-2.5 py-1 rounded-lg border border-amber-500/35 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20"
                 >
                   👑 Export CSV
                 </button>
               ) : (
                 <Link
                   href="/vip"
-                  className="text-[11px] px-2.5 py-1 rounded-lg border border-zinc-700 text-zinc-400 hover:border-amber-500/40 hover:text-amber-200"
+                  className="text-[12px] px-2.5 py-1 rounded-lg border border-zinc-700 text-zinc-400 hover:border-amber-500/40 hover:text-amber-200"
                 >
                   👑 Export CSV · VIP
                 </Link>
@@ -655,7 +655,7 @@ function LogInner() {
                   className="w-full text-left rounded-lg border border-zinc-800 bg-black/40 px-3 py-2 text-[12px] text-zinc-300 hover:border-green-500/40 flex justify-between gap-2"
                 >
                   <span className="truncate">{row.label}</span>
-                  <span className="text-zinc-600 shrink-0 text-[10px]">
+                  <span className="text-zinc-600 shrink-0 text-[12px]">
                     {new Date(row.at).toLocaleDateString()}
                   </span>
                 </button>

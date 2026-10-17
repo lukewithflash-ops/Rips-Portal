@@ -57,7 +57,7 @@ export default function InstallAppButton({
         Install app
       </button>
       {showHowTo && (
-        <span className="absolute bottom-full left-0 z-40 mb-2 w-56 rounded-lg border border-green-500/25 bg-[#0a0a12] p-3 text-[11px] leading-relaxed text-zinc-300 shadow-lg">
+        <span className="absolute bottom-full left-0 z-40 mb-2 w-56 rounded-lg border border-green-500/25 bg-[#0a0a12] p-3 text-[12px] leading-relaxed text-zinc-300 shadow-lg">
           {ios ? (
             <>
               In Safari: tap <strong className="text-cyan-300">Share</strong>,

@@ -151,7 +151,7 @@ export default function DealsPage() {
               <div className="font-bold text-emerald-400 neon-text text-sm leading-tight">
                 Under-EV Watch
               </div>
-              <div className="text-[10px] text-zinc-500 tracking-wider truncate">
+              <div className="text-[12px] text-zinc-500 tracking-wider truncate">
                 BUY SIGNALS · PRICE UNDER EV
               </div>
             </div>
@@ -159,13 +159,13 @@ export default function DealsPage() {
           <div className="flex items-center gap-3 shrink-0">
             <Link
               href="/log"
-              className="text-[11px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline hidden sm:inline"
+              className="text-[12px] text-cyan-400/90 hover:text-cyan-300 underline-offset-2 hover:underline hidden sm:inline"
             >
               Rip Log
             </Link>
             <Link
               href="/"
-              className="text-[11px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
+              className="text-[12px] text-emerald-400/90 hover:text-emerald-300 underline-offset-2 hover:underline"
             >
               ← Calculator
             </Link>
@@ -177,7 +177,7 @@ export default function DealsPage() {
         <section className="panel rounded-2xl p-4 border border-emerald-500/30 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-green-500/5 pointer-events-none" />
           <div className="relative">
-            <div className="text-[10px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-1">
+            <div className="text-[12px] uppercase tracking-widest text-emerald-400/90 font-semibold mb-1">
               Under-EV Watch
             </div>
             <h1 className="text-xl font-bold text-white tracking-tight">
@@ -187,7 +187,7 @@ export default function DealsPage() {
               Products where catalog default/market price is below modeled EV —
               ranked by ROI% or $ edge. Multi-hobby. Same math as the calculator.
             </p>
-            <p className="text-[11px] text-zinc-500 mt-2">
+            <p className="text-[12px] text-zinc-500 mt-2">
               Updated {pricesUpdatedLabel} · {underEv.length} under-EV right now
               {categoryFilter !== "all"
                 ? ` · ${filtered.length} in filter`
@@ -196,13 +196,13 @@ export default function DealsPage() {
             <button
               type="button"
               onClick={copyShareLink}
-              className="mt-3 text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-200/90 hover:bg-emerald-500/20 transition-colors"
+              className="mt-3 text-[12px] px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-200/90 hover:bg-emerald-500/20 transition-colors"
             >
               {copiedShare ? "Copied!" : "Copy share link"}
             </button>
             <Link
               href="/recap"
-              className="mt-3 ml-2 inline-flex text-[11px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-zinc-700 text-zinc-300 hover:border-emerald-500/40 transition-colors"
+              className="mt-3 ml-2 inline-flex text-[12px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-zinc-700 text-zinc-300 hover:border-emerald-500/40 transition-colors"
             >
               Weekly recap image
             </Link>
@@ -218,7 +218,7 @@ export default function DealsPage() {
 
 
         <section className="panel rounded-2xl p-4 border border-purple-500/25">
-          <div className="text-[10px] uppercase tracking-widest text-purple-300/90 font-semibold mb-1">
+          <div className="text-[12px] uppercase tracking-widest text-purple-300/90 font-semibold mb-1">
             Under-EV alerts
           </div>
           <h2 className="text-sm font-semibold text-white mb-1">
@@ -275,9 +275,9 @@ export default function DealsPage() {
             </form>
           )}
           {notifyStatus === "error" && notifyMsg && (
-            <p className="mt-2 text-[11px] text-amber-300/90">{notifyMsg}</p>
+            <p className="mt-2 text-[12px] text-amber-300/90">{notifyMsg}</p>
           )}
-          <p className="mt-2 text-[10px] text-zinc-600">
+          <p className="mt-2 text-[12px] text-zinc-600">
             Or open the full{" "}
             <Link href="/waitlist" className="text-purple-300 hover:underline">
               waitlist
@@ -317,7 +317,7 @@ export default function DealsPage() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-zinc-500">
+        <div className="flex items-center gap-2 text-[12px] text-zinc-500">
           <span className="uppercase tracking-widest">Rank by</span>
           <button
             type="button"
@@ -374,15 +374,15 @@ export default function DealsPage() {
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 min-w-0">
-                            <ProductThumb product={p} className="h-10 w-8" />
+                            <ProductThumb product={p} className="h-10 w-8" small />
                             <div className="text-sm font-medium text-zinc-100 truncate">
                               {p.name}
                             </div>
                           </div>
-                          <div className="text-[11px] text-zinc-500 truncate">
+                          <div className="text-[12px] text-zinc-500 truncate">
                             {p.format} · {catLabel(p.category)}
                           </div>
-                          <div className="text-[10px] text-zinc-500">
+                          <div className="text-[12px] text-zinc-500">
                             Prices {pricesUpdatedLabel}
                             {(() => {
                               const moved = priceLastMoved(p.id);
@@ -398,7 +398,7 @@ export default function DealsPage() {
                           <div className="text-sm font-mono text-emerald-400">
                             {fmtRoi(roi)}
                           </div>
-                          <div className="text-[10px] text-emerald-300/80">
+                          <div className="text-[12px] text-emerald-300/80">
                             {fmtMoney(profit)} edge
                           </div>
                         </div>
@@ -406,7 +406,7 @@ export default function DealsPage() {
 
                       <div className="mt-2.5 grid grid-cols-4 gap-2 sm:grid-cols-[repeat(4,4rem)] sm:justify-end">
                         <div className="rounded-lg bg-black/40 border border-zinc-800/80 px-2 py-1.5 text-center">
-                          <div className="text-[9px] uppercase tracking-wider text-zinc-600">
+                          <div className="text-[12px] uppercase tracking-wider text-zinc-600">
                             Price
                           </div>
                           <div className="text-[12px] font-mono text-zinc-200">
@@ -414,7 +414,7 @@ export default function DealsPage() {
                           </div>
                         </div>
                         <div className="rounded-lg bg-black/40 border border-zinc-800/80 px-2 py-1.5 text-center">
-                          <div className="text-[9px] uppercase tracking-wider text-zinc-600">
+                          <div className="text-[12px] uppercase tracking-wider text-zinc-600">
                             EV
                           </div>
                           <div className="text-[12px] font-mono text-zinc-200">
@@ -422,7 +422,7 @@ export default function DealsPage() {
                           </div>
                         </div>
                         <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/25 px-2 py-1.5 text-center">
-                          <div className="text-[9px] uppercase tracking-wider text-emerald-500/80">
+                          <div className="text-[12px] uppercase tracking-wider text-emerald-500/80">
                             ROI%
                           </div>
                           <div className="text-[12px] font-mono text-emerald-300">
@@ -430,7 +430,7 @@ export default function DealsPage() {
                           </div>
                         </div>
                         <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/25 px-2 py-1.5 text-center">
-                          <div className="text-[9px] uppercase tracking-wider text-emerald-500/80">
+                          <div className="text-[12px] uppercase tracking-wider text-emerald-500/80">
                             $ edge
                           </div>
                           <div className="text-[12px] font-mono text-emerald-300">
@@ -441,7 +441,7 @@ export default function DealsPage() {
 
                       {hasLiveUnderEvAffiliate() && (
                         <div className="mt-3">
-                          <div className="text-[10px] uppercase tracking-wider text-emerald-400/80 font-semibold mb-1.5">
+                          <div className="text-[12px] uppercase tracking-wider text-emerald-400/80 font-semibold mb-1.5">
                             Buy
                           </div>
                           <BuyLinks
@@ -464,21 +464,21 @@ export default function DealsPage() {
                       <div className="mt-2.5 flex flex-wrap gap-2">
                         <Link
                           href={`/?pack=${p.id}`}
-                          className="text-[11px] px-2.5 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/25 transition-colors"
+                          className="text-[12px] px-2.5 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 hover:bg-emerald-500/25 transition-colors"
                         >
                           Open calculator
                         </Link>
                         {setPathForProduct(p) && (
                           <Link
                             href={setPathForProduct(p)!}
-                            className="text-[11px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-emerald-500/25 text-emerald-200/90 hover:bg-emerald-500/10 transition-colors"
+                            className="text-[12px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-emerald-500/25 text-emerald-200/90 hover:bg-emerald-500/10 transition-colors"
                           >
                             {productSetName(p)} EV page
                           </Link>
                         )}
                         <Link
                           href={`/log?pack=${p.id}`}
-                          className="text-[11px] px-2.5 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20 transition-colors"
+                          className="text-[12px] px-2.5 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-200/90 hover:bg-cyan-500/20 transition-colors"
                         >
                           Log a rip
                         </Link>
@@ -488,7 +488,7 @@ export default function DealsPage() {
                             const url = `${window.location.origin}/pack/${p.id}`;
                             void navigator.clipboard?.writeText(url);
                           }}
-                          className="text-[11px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-zinc-700 text-zinc-300 hover:border-emerald-500/40 transition-colors"
+                          className="text-[12px] px-2.5 py-1.5 rounded-lg bg-black/40 border border-zinc-700 text-zinc-300 hover:border-emerald-500/40 transition-colors"
                         >
                           Copy share link
                         </button>
@@ -496,7 +496,7 @@ export default function DealsPage() {
                         {vip.gatesOn && (
                           <Link
                             href={`/vip/history?id=${p.id}`}
-                            className="text-[11px] px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200/90 hover:bg-amber-500/20 transition-colors"
+                            className="text-[12px] px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200/90 hover:bg-amber-500/20 transition-colors"
                           >
                             👑 Price history
                           </Link>
@@ -516,7 +516,7 @@ export default function DealsPage() {
                   <div className="text-sm font-semibold text-amber-100">
                     👑 {hiddenCount} more under-EV {hiddenCount === 1 ? "row" : "rows"} with VIP
                   </div>
-                  <div className="text-[11px] text-zinc-400 mt-1">
+                  <div className="text-[12px] text-zinc-400 mt-1">
                     $5/month or $40/year · flip emails, Log export, price history
                   </div>
                 </Link>
@@ -525,7 +525,7 @@ export default function DealsPage() {
           </ul>
         )}
 
-        <p className="text-[11px] text-zinc-600 leading-relaxed pt-2">
+        <p className="text-[12px] text-zinc-600 leading-relaxed pt-2">
           Not financial advice. Under-EV ≠ guaranteed profit — variance,
           fees, and liquidity matter. Use the calculator for custom prices.
         </p>
