@@ -196,7 +196,7 @@ const rawProducts: Product[] = [
       { name: "Illustration Rare", odds: "1:15", oddsNum: 0.067, avgValue: 12 },
       { name: "SIR / Special", odds: "1:70", oddsNum: 0.014, avgValue: 85 },
     ],
-    notes: "Cheaper than many peers but EV writeups flag soft SIR floors — not a VALUE badge at $6.60.",
+    notes: "Cheaper than many peers but EV writeups flag soft SIR floors — not a VALUE badge at $5.76.",
   },
   {
     id: "poke-prismatic-pack",
